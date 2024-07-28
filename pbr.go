@@ -35,7 +35,7 @@ type GithubRelease struct {
 var in_dir = "./base_assets"
 var build_dir = "./build/openpbr"
 var configs = "./settings"
-var targets = []string{"blocks"}
+var targets = []string{"blocks", "particle", "entity"}
 
 func main() {
 	fmt.Println(time.Now().String())
@@ -53,15 +53,15 @@ func main() {
 	}
 
 	fmt.Println("--- Create json, mer and height files")
+	entries, err := os.ReadDir(in_dir)
+	f := entries[0]
+	in_dir = in_dir + "/" + f.Name() + "/resource_pack"
 
 	for _, s := range targets {
-		entries, err := os.ReadDir(in_dir)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		f := entries[0]
-		in_dir = in_dir + "/" + f.Name() + "/resource_pack"
 		err = createPBR(in_dir + "/textures/" + s)
 		if err != nil {
 			log.Fatal(err)
