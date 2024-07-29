@@ -35,10 +35,12 @@ type GithubRelease struct {
 var in_dir = "./base_assets"
 var build_dir = "./build/openpbr"
 var configs = "./settings"
-var targets = []string{"blocks", "particle", "entity"}
+var targets = []string{"blocks", "entity", "environment", "models", "particle", "trims"}
 
 func main() {
 	fmt.Println(time.Now().String())
+
+	fmt.Println("--- Cleaning workspace")
 
 	clean()
 
@@ -52,12 +54,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println("--- Create json, mer and height files")
 	entries, err := os.ReadDir(in_dir)
 	f := entries[0]
 	in_dir = in_dir + "/" + f.Name() + "/resource_pack"
 
 	for _, s := range targets {
+		fmt.Println("--- Create json, mer and height files for " + s)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -67,6 +69,12 @@ func main() {
 			log.Fatal(err)
 		}
 	}
+
+	// fmt.Println("--- Crush")
+
+	// crush(build_dir + "/textures")
+
+	fmt.Println("--- Create Manifest")
 
 	createManifest()
 
@@ -140,35 +148,24 @@ func donwloadRelease(r string) {
 	}
 	defer archive.Close()
 
-	// Extract the files from the zip
+	fmt.Println("--- --- Extracting base assets")
 	for _, f := range archive.File {
-
-		// Create the destination file path
 		filePath := filepath.Join(in_dir, f.Name)
-
-		// Print the file path
-
-		// Check if the file is a directory
 		if f.FileInfo().IsDir() {
-			// Create the directory
 			if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
 				panic(err)
 			}
 			continue
 		}
-
-		// Create the parent directory if it doesn't exist
 		if err := os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
 			panic(err)
 		}
 
-		// Create an empty destination file
 		dstFile, err := os.OpenFile(filePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
 			panic(err)
 		}
 
-		// Open the file in the zip and copy its contents to the destination file
 		srcFile, err := f.Open()
 		if err != nil {
 			panic(err)
@@ -177,14 +174,12 @@ func donwloadRelease(r string) {
 			panic(err)
 		}
 
-		// Close the files
 		dstFile.Close()
 		srcFile.Close()
 	}
 
 }
 
-// Dir copies a whole directory recursively
 func copyConfigs() error {
 	err := cp.Copy(configs, build_dir)
 	return err
@@ -193,6 +188,9 @@ func copyConfigs() error {
 func createPBR(imgPath string) error {
 	items, _ := os.ReadDir(imgPath)
 	for _, item := range items {
+		fn := strings.TrimSuffix(item.Name(), filepath.Ext(item.Name()))
+		pbr := PBR{Colour: fn, Mer: fn + "_mer", Height: fn + "_height"}
+
 		if item.IsDir() {
 			outputPath := strings.ReplaceAll(imgPath, in_dir, build_dir)
 			if err := os.MkdirAll(outputPath+"/"+item.Name(), 0770); err != nil {
@@ -220,27 +218,24 @@ func createPBR(imgPath string) error {
 					return err
 				}
 			} else {
-				err := copyColor(in, out)
+				err := copyF(in, out)
 				if err != nil {
 					return err
 				}
 			}
 
-			// err := adjustColor(out)
-			// if err != nil {
-			// 	return err
-			// }
-			err := createHeightMap(out, out)
+			err := adjustColor(out)
 			if err != nil {
 				return err
 			}
-			err = createMer(out, out)
+			err = createHeightMap(out, strings.ReplaceAll(out, ".png", "_height.png"))
 			if err != nil {
 				return err
 			}
-
-			fn := strings.TrimSuffix(item.Name(), filepath.Ext(item.Name()))
-			pbr := PBR{Colour: fn, Mer: fn + "_mer", Height: fn + "_height"}
+			err = createMer(out, strings.ReplaceAll(out, ".png", "_mer.png"))
+			if err != nil {
+				return err
+			}
 
 			err = createJSON(strings.ReplaceAll(out, ".png", ".texture_set.json"), pbr)
 			if err != nil {
@@ -253,16 +248,38 @@ func createPBR(imgPath string) error {
 }
 
 func convertTGAtoPNG(in string, out string) error {
-	out = strings.ReplaceAll(out, ".tga", ".png")
-	command := exec.Command("convert", in, out)
-	return command.Run()
-}
 
-func copyColor(in string, out string) error {
-	data, err := os.ReadFile(in)
+	if err, b := checkForOverride(out); err != nil || b {
+		return nil
+	}
+
+	out = strings.ReplaceAll(out, ".tga", ".jpg")
+	c1 := exec.Command("convert", "-auto-orient", in, out)
+	err := c1.Run()
+
 	if err != nil {
 		return err
 	}
+
+	pngOut := strings.ReplaceAll(out, ".jpg", ".png")
+	c2 := exec.Command("convert", out, pngOut)
+	err = c2.Run()
+
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func copyF(in string, out string) error {
+
+	data, err := os.ReadFile(in)
+
+	if err != nil {
+		return err
+	}
+
 	err = os.WriteFile(out, data, 0644)
 	if err != nil {
 		return err
@@ -271,18 +288,39 @@ func copyColor(in string, out string) error {
 	return nil
 }
 
-// func adjustColor(img string) error {
-// 	command := exec.Command("convert", img, "-modulate", "101,99,99", img)
-// 	return command.Run()
-// }
+func adjustColor(in string) error {
+	if err, b := checkForOverride(in); err != nil || b {
+		return nil
+	}
+
+	c2 := exec.Command("convert", in, "-modulate", "101,99,99", in)
+	e := c2.Run()
+
+	if e != nil {
+		return e
+	}
+
+	c1 := exec.Command("convert", in, "-colorspace", "sRGB", "-type", "truecolor", "png32:"+in)
+	e = c1.Run()
+
+	return e
+}
 
 func createHeightMap(in string, out string) error {
-	command := exec.Command("convert", in, "-set", "colorspace", "Gray", "-separate", "-average", "-channel", "RGB", "-negate", strings.ReplaceAll(out, ".png", "_height.png"))
+	if err, b := checkForOverride(out); err != nil || b {
+		return nil
+	}
+
+	command := exec.Command("convert", in, "-quality", "15", "-set", "colorspace", "Gray", "-separate", "-average", "-channel", "RGB", "-negate", out)
 	return command.Run()
 }
 
 func createMer(in string, out string) error {
-	command := exec.Command("convert", in, "-fill", "blue", "-colorize", "100", strings.ReplaceAll(out, ".png", "_mer.png"))
+	if err, b := checkForOverride(out); err != nil || b {
+		return nil
+	}
+
+	command := exec.Command("convert", in, "-quality", "15", "-fill", "blue", "-colorize", "100", out)
 	return command.Run()
 }
 
@@ -309,6 +347,19 @@ func createJSON(out string, pbr PBR) error {
 	return nil
 }
 
+func crush(dir string) {
+	items, _ := os.ReadDir(dir)
+	for _, item := range items {
+
+		if item.IsDir() {
+			crush(dir + "/" + item.Name())
+		} else {
+			command := exec.Command("pngcrush", "-rem", "allb", "-brute", "-reduce", dir+"/"+item.Name())
+			command.Run()
+		}
+	}
+}
+
 func createManifest() error {
 	var tmplFile = "manifest.tmpl"
 
@@ -328,7 +379,7 @@ func createManifest() error {
 	if err != nil {
 		return err
 	}
-	fmt.Print(string(dat))
+	fmt.Println("Release Version: " + string(dat))
 	vals := strings.Split(string(dat)[1:], ".")
 
 	m := &Manifest{
@@ -342,4 +393,19 @@ func createManifest() error {
 	}
 
 	return nil
+}
+
+func checkForOverride(file string) (error, bool) {
+	stringSlice := strings.Split(file, "/")
+	items, _ := os.ReadDir("./overrides")
+	for _, item := range items {
+		if stringSlice[len(stringSlice)-1] == item.Name() {
+			e := copyF("./overrides/"+item.Name(), file)
+			if e != nil {
+				return e, false
+			}
+			return nil, true
+		}
+	}
+	return nil, false
 }
