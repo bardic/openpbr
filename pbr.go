@@ -70,10 +70,6 @@ func main() {
 		}
 	}
 
-	// fmt.Println("--- Crush")
-
-	// crush(build_dir + "/textures")
-
 	fmt.Println("--- Create Manifest")
 
 	createManifest()
@@ -345,19 +341,6 @@ func createJSON(out string, pbr PBR) error {
 	}
 
 	return nil
-}
-
-func crush(dir string) {
-	items, _ := os.ReadDir(dir)
-	for _, item := range items {
-
-		if item.IsDir() {
-			crush(dir + "/" + item.Name())
-		} else {
-			command := exec.Command("pngcrush", "-rem", "allb", "-brute", "-reduce", dir+"/"+item.Name())
-			command.Run()
-		}
-	}
 }
 
 func createManifest() error {
