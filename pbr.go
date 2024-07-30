@@ -44,6 +44,10 @@ func main() {
 
 	clean()
 
+	fmt.Println("--- Prcoess Glowables")
+
+	processGlowables("./glowables/blocks")
+
 	fmt.Println("--- Download latest base assets")
 
 	getLatestRelease()
@@ -76,6 +80,27 @@ func main() {
 
 	fmt.Println(time.Now().String())
 	fmt.Println("--- OpenPBR is ready")
+}
+
+func processGlowables(p string) error {
+	items, _ := os.ReadDir(p)
+	for _, item := range items {
+		if item.IsDir() {
+			processGlowables(p + "/" + item.Name())
+		} else {
+			if filepath.Ext(item.Name()) != ".psd" {
+				continue
+			}
+			c := exec.Command("convert", p+"/"+item.Name(), "./temp"+item.Name())
+			err := c.Run()
+
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func clean() {
