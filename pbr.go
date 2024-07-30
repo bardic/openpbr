@@ -307,7 +307,7 @@ func createHeightMap(in string, out string) error {
 		return nil
 	}
 
-	command := exec.Command("convert", in, "-quality", "15", "-set", "colorspace", "Gray", "-separate", "-average", "-channel", "RGB", "-negate", out)
+	command := exec.Command("convert", in, "-set", "colorspace", "Gray", "-separate", "-average", "-channel", "RGB", out)
 	return command.Run()
 }
 
@@ -316,8 +316,9 @@ func createMer(in string, out string) error {
 		return nil
 	}
 
-	command := exec.Command("convert", in, "-quality", "15", "-fill", "blue", "-colorize", "100", out)
-	return command.Run()
+	// command := exec.Command("convert", in, "-quality", "15", "-fill", "blue", "-colorize", "100", out)
+	// return command.Run()
+	return nil
 }
 
 func createJSON(out string, pbr PBR) error {
