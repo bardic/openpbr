@@ -1,3 +1,6 @@
 {
-  "colorWheel.settings.workspaceColor": "hsl(117,91%,35%)"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[go]": {
+    "editor.defaultFormatter": "golang.go"
+  }
 }
