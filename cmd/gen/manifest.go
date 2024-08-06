@@ -1,7 +1,6 @@
 package gen
 
 import (
-	"fmt"
 	"html/template"
 	"os"
 	"strings"
@@ -34,7 +33,7 @@ var ManifestCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Println("Release Version: " + string(dat))
+
 		vals := strings.Split(string(dat)[1:], ".")
 
 		m := &data.Manifest{

@@ -14,12 +14,14 @@ const BaseAssets = "./input"
 const BuildDir = "./output/openpbr"
 const Overrides = "./overrides"
 const SettingDIr = "./settings"
-const IM_CMD = "magick"
+const IM_CMD = "convert"
 
 var Beta bool
-var CleanDir bool
+var DeleteAutoGen bool
 var SkipDownload bool
 var NormalMaps bool
+var ZipOnly bool
+var Crush bool
 var TexturesetVersion string
 
 var TargetAssets = []string{"blocks", "entity", "particle", "items"} //, "entity", "particle", "items"
@@ -29,9 +31,6 @@ func CheckForOverride(file string) (bool, error) {
 	items, _ := os.ReadDir(Overrides)
 	for _, item := range items {
 		if stringSlice[len(stringSlice)-1] == item.Name() {
-
-			fmt.Println("--- ---Item to override : " + item.Name())
-
 			p := filepath.Join(Overrides, item.Name())
 
 			e := CopyF(p, file)
@@ -119,4 +118,19 @@ func CreateNormalMap(in string, out string) error {
 	// nvtt_export.exe .\acacia_trapdoor.png -p .\normals\normal.dpf -o .\acacia_trapdoor_normal.png
 	c := exec.Command("nvtt_export.exe", in, "-p", "norm.dpf", "-o", out)
 	return c.Run()
+}
+
+func CrushFiles(out string) {
+	items, _ := os.ReadDir(out)
+	for _, item := range items {
+		if item.IsDir() {
+			CrushFiles(out + "/" + item.Name())
+			continue
+		}
+
+		if strings.Contains(item.Name(), ".png") {
+			c := exec.Command("pngcrush", "-brute", "-ow", item.Name())
+			c.Run()
+		}
+	}
 }

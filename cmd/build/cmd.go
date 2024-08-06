@@ -27,64 +27,51 @@ var Cmd = &cobra.Command{
 
 		fmt.Println(time.Now().String())
 
-		// if len(args) > 0 {
-		// 	for _, a := range args {
-		// 		if a == "clean" {
-		// 			fmt.Println("--- Clean build dir")
+		if !utils.ZipOnly {
 
-		// 			utils.CleanDir = true
-		// 		}
+			if utils.DeleteAutoGen {
+				fmt.Println("--- Cleaning workspace")
+				clean.Cmd.RunE(cmd, nil)
 
-		// 		if a == "skip" {
-		// 			fmt.Println("--- Skip Download")
-		// 			utils.SkipDownload = true
-		// 		}
+				fmt.Println("--- Download latest base assets")
 
-		// 		if a == "beta" {
-		// 			fmt.Println("--- Enable beta")
-		// 			utils.Beta = true
-		// 		}
-
-		// 		if a == "normals" {
-		// 			fmt.Println("--- Enable normals")
-		// 			utils.NormalMaps = true
-		// 		}
-
-		// 		if a == "v=1.21.30" {
-		// 			utils.TexturesetVersion = true
-		// 		}
-		// 	}
-		// }
-
-		if utils.CleanDir {
-			fmt.Println("--- Cleaning workspace")
-			clean.Cmd.RunE(cmd, nil)
-
-			fmt.Println("--- Download latest base assets")
-
-			if utils.SkipDownload {
-				download.Cmd.RunE(cmd, []string{"skip"})
-			} else {
-				download.Cmd.RunE(cmd, nil)
+				if utils.SkipDownload {
+					download.Cmd.RunE(cmd, []string{"skip"})
+				} else {
+					download.Cmd.RunE(cmd, nil)
+				}
 			}
+
+			fmt.Println("--- Prcoess Glowables")
+			gen.GlowablesCmd.RunE(cmd, []string{"./glowables/blocks"})
+
+			entries, _ := os.ReadDir(utils.BaseAssets)
+			f := entries[0]
+
+			for _, s := range utils.TargetAssets {
+				fmt.Println("--- Create json, mer and height files for " + s)
+				p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
+				build(cmd, s, p)
+			}
+			fmt.Println("--- Copy custom configs")
+			cp.Copy(utils.SettingDIr, utils.BuildDir)
+
+			fmt.Println("--- Create manifest")
+			gen.ManifestCmd.RunE(cmd, []string{})
 		}
 
-		fmt.Println("--- Prcoess Glowables")
-		gen.GlowablesCmd.RunE(cmd, []string{"./glowables/blocks"})
-
-		entries, _ := os.ReadDir(utils.BaseAssets)
-		f := entries[0]
-
-		for _, s := range utils.TargetAssets {
-			fmt.Println("--- Create json, mer and height files for " + s)
-			p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
-			build(cmd, s, p)
+		if utils.Crush {
+			fmt.Println("--- Crush images")
+			img.CrushCmd.RunE(cmd, []string{utils.BuildDir})
 		}
-		fmt.Println("--- Copy custom configs")
-		cp.Copy(utils.SettingDIr, utils.BuildDir)
 
-		fmt.Println("--- Create manifest")
-		gen.ManifestCmd.RunE(cmd, []string{})
+		gen.PackageCmd.RunE(cmd, []string{utils.BuildDir})
+
+		dat, err := os.ReadFile("VERSION")
+		if err != nil {
+			return
+		}
+		fmt.Println("Release Version: " + string(dat))
 	},
 }
 
@@ -120,14 +107,12 @@ func build(cmd *cobra.Command, target string, imgPath string) error {
 
 			if strings.Contains(out, ".png") {
 				if utils.NormalMaps {
-					fmt.Println("Create normalmaps")
 
 					err := gen.NormalCmd.RunE(cmd, []string{out, strings.ReplaceAll(out, ".png", "_normal.png")})
 					if err != nil {
 						return err
 					}
 				} else {
-					fmt.Println("Create heightmaps")
 					err := gen.HeightCmd.RunE(cmd, []string{out, strings.ReplaceAll(out, ".png", "_height.png")})
 					if err != nil {
 						fmt.Println(err)
@@ -136,8 +121,6 @@ func build(cmd *cobra.Command, target string, imgPath string) error {
 				}
 
 			}
-
-			fmt.Println("Check overrides")
 
 			b, err := utils.CheckForOverride(strings.ReplaceAll(out, ".png", "_mer.png"))
 
@@ -161,8 +144,6 @@ func build(cmd *cobra.Command, target string, imgPath string) error {
 				gen.UpscaleCmd.Run(cmd, []string{merOut, merOut})
 			}
 
-			fmt.Println("Create json")
-
 			mer := "[0, 0, 255]"
 			if utils.TexturesetVersion == "1.21.30" {
 				mer = "[0, 0, 255, 255]"
@@ -182,6 +163,7 @@ func build(cmd *cobra.Command, target string, imgPath string) error {
 				fmt.Println(err)
 				return err
 			}
+
 		}
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -18,7 +19,7 @@ var PackageCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		buildDir = args[0]
 
-		fmt.Println("creating zip archive...")
+		fmt.Println("--- Creating zip archive...")
 		archive, err := os.Create("openpbr.mcpack")
 		if err != nil {
 			return err
@@ -35,7 +36,6 @@ var PackageCmd = &cobra.Command{
 func addFileToZip(zipWriter *zip.Writer, filePath string) error {
 	files, _ := os.ReadDir(filePath)
 	for _, item := range files {
-		fmt.Println("Zip file: " + filePath + "/" + item.Name())
 		if item.IsDir() {
 			addFileToZip(zipWriter, filePath+"/"+item.Name())
 			continue
@@ -47,7 +47,8 @@ func addFileToZip(zipWriter *zip.Writer, filePath string) error {
 		}
 		defer f1.Close()
 
-		w1, err := zipWriter.Create(filePath + "/" + item.Name())
+		packagePath := strings.Replace(filePath, "./output/", "", 1)
+		w1, err := zipWriter.Create(packagePath + "/" + item.Name())
 		if err != nil {
 			return err
 		}
