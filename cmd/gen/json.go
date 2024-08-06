@@ -1,0 +1,59 @@
+package gen
+
+import (
+	"html/template"
+	"os"
+	"strconv"
+
+	"github.com/bardic/openpbr/data"
+	"github.com/spf13/cobra"
+)
+
+var JsonCmd = &cobra.Command{
+	Use:   "json",
+	Short: "create deferred json files",
+	Long:  ``,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		out := args[0]
+		color := args[1]
+		merArr := args[2]
+		merFile := args[3]
+		height := args[4]
+		overrideFile := args[5]
+		texturesetVersion := args[6]
+
+		var tmplFile = "./templates/pbr.tmpl"
+
+		if texturesetVersion == "1.21.30" {
+			tmplFile = "./templates/pbr2.tmpl"
+		}
+
+		i, _ := strconv.Atoi(overrideFile)
+
+		pbr := data.PBR{
+			Colour:  color,
+			MerArr:  merArr,
+			MerFile: merFile,
+			Height:  height,
+			MerType: i,
+		}
+
+		t, err := template.ParseFiles(tmplFile)
+		if err != nil {
+			return err
+		}
+
+		f, err := os.Create(out)
+		if err != nil {
+			return err
+		}
+
+		defer f.Close()
+
+		if err := t.Execute(f, pbr); err != nil {
+			return err
+		}
+
+		return nil
+	},
+}
