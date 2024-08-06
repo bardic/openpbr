@@ -104,5 +104,6 @@ dist
 .tern-port
 
 latest.zip
-base_assets/
-build/
+input/
+output/
+*.mcpack
