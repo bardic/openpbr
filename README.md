@@ -21,8 +21,16 @@ Packages include:
 ## Requirements
 
 - [Imagemagick](https://imagemagick.org/)
-- [NVIDIA Texture Tools Exporter](https://developer.nvidia.com/texture-tools-exporter)
-- [pngcrush](https://pmt.sourceforge.io/pngcrush/)
+- *[NVIDIA Texture Tools Exporter](https://developer.nvidia.com/texture-tools-exporter)
+- *[pngcrush](https://pmt.sourceforge.io/pngcrush/)
+
+These tools must be accessible via your PATH env. 
+
+Depending on your version of ImageMagick you may need to modify utils.go 
+
+* only needed if you use that flag
+
+`const IM_CMD = "magick"` to use `convert` instead.  This will be configurable in v3
 
 ## Run locally
 
