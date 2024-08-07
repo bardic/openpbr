@@ -42,8 +42,8 @@ var Cmd = &cobra.Command{
 				}
 			}
 
-			fmt.Println("--- Prcoess Glowables")
-			gen.GlowablesCmd.RunE(cmd, []string{"./glowables/blocks"})
+			fmt.Println("--- Prcoess PSDs")
+			gen.ConvertPsdCmd.RunE(cmd, []string{"./psds/blocks"})
 
 			entries, _ := os.ReadDir(utils.BaseAssets)
 			f := entries[0]
@@ -139,22 +139,32 @@ func build(cmd *cobra.Command, target string, imgPath string) error {
 			if utils.Beta {
 				gen.UpscaleCmd.Run(cmd, []string{out, out})
 				hmOut := strings.ReplaceAll(out, ".png", "_height.png")
+				if utils.NormalMaps {
+					hmOut = strings.ReplaceAll(out, ".png", "normal.png")
+				}
 				gen.UpscaleCmd.Run(cmd, []string{hmOut, hmOut})
 				merOut := strings.ReplaceAll(out, ".png", "_mer.png")
 				gen.UpscaleCmd.Run(cmd, []string{merOut, merOut})
 			}
 
-			mer := "[0, 0, 255]"
+			merArr := "[0, 0, 255]"
 			if utils.TexturesetVersion == "1.21.30" {
-				mer = "[0, 0, 255, 255]"
+				merArr = "[0, 0, 255, 255]"
+			}
+
+			merFile := fn + "_mer"
+
+			heightNormalFile := fn + "_height"
+			if utils.NormalMaps {
+				heightNormalFile = fn + "_normal"
 			}
 
 			err = gen.JsonCmd.RunE(cmd, []string{
 				strings.ReplaceAll(out, ".png", ".texture_set.json"),
 				fn,
-				mer,
-				fn + "_mer",
-				fn + "_height",
+				merArr,
+				merFile,
+				heightNormalFile,
 				strconv.Itoa(MerType),
 				utils.TexturesetVersion,
 			})

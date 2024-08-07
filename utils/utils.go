@@ -14,7 +14,8 @@ const BaseAssets = "./input"
 const BuildDir = "./output/openpbr"
 const Overrides = "./overrides"
 const SettingDIr = "./settings"
-const IM_CMD = "convert"
+const IM_CMD = "magick"
+const Psds = "./psds"
 
 var Beta bool
 var DeleteAutoGen bool
@@ -24,7 +25,7 @@ var ZipOnly bool
 var Crush bool
 var TexturesetVersion string
 
-var TargetAssets = []string{"blocks", "entity", "particle", "items"} //, "entity", "particle", "items"
+var TargetAssets = []string{"blocks", "entity", "particle", "items"}
 
 func CheckForOverride(file string) (bool, error) {
 	stringSlice := strings.Split(file, string(os.PathSeparator))
@@ -44,7 +45,6 @@ func CheckForOverride(file string) (bool, error) {
 }
 
 func CopyF(in string, out string) error {
-
 	data, err := os.ReadFile(in)
 
 	if err != nil {
@@ -64,10 +64,6 @@ func CopyD(in string, out string) error {
 }
 
 func TgaPng(in string, out string) error {
-	if b, err := CheckForOverride(out); err != nil || b {
-		return err
-	}
-
 	c1 := exec.Command(IM_CMD, in, out)
 	err := c1.Run()
 
@@ -103,19 +99,22 @@ func AdjustColor(in string) error {
 }
 
 func CreateHeightMap(in string, out string) error {
+	if b, err := CheckForOverride(in); err != nil || b {
+		return nil
+	}
 	command := exec.Command(IM_CMD, in, "-set", "colorspace", "Gray", "-negate", "-channel", "RGB", out)
 	return command.Run()
 }
 
 func Upscale(in string, out string) {
-	//c := exec.Command(IM_CMD, in, "-filter", "point", "-define", "filter:sigma=.3", "-resize", "800%", "-unsharp", "12x6+0.5+0", "-type", "truecolor", "png32:"+out)
 	c := exec.Command(IM_CMD, in, "-filter", "point", "-set", "option:distort:scale", "-distort", "SRT", "0", "-scale", "100%", "-unsharp", "12x6+0.5+0", "-type", "truecolor", "png32:"+out)
 	c.Run()
 }
 
 func CreateNormalMap(in string, out string) error {
-	//c := exec.Command(IM_CMD, in, "-filter", "point", "-define", "filter:sigma=.3", "-resize", "800%", "-unsharp", "12x6+0.5+0", "-type", "truecolor", "png32:"+out)
-	// nvtt_export.exe .\acacia_trapdoor.png -p .\normals\normal.dpf -o .\acacia_trapdoor_normal.png
+	if b, err := CheckForOverride(in); err != nil || b {
+		return nil
+	}
 	c := exec.Command("nvtt_export.exe", in, "-p", "norm.dpf", "-o", out)
 	return c.Run()
 }

@@ -19,4 +19,5 @@ func init() {
 	Cmd.AddCommand(UpscaleCmd)
 	Cmd.AddCommand(ManifestCmd)
 	Cmd.AddCommand(PackageCmd)
+	Cmd.AddCommand(ConvertPsdCmd)
 }

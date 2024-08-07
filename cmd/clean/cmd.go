@@ -20,10 +20,19 @@ var Cmd = &cobra.Command{
 			return e
 		}
 
+		if e := os.RemoveAll(utils.Overrides); e != nil {
+			return e
+		}
+
 		if e := os.MkdirAll(utils.BaseAssets, os.ModePerm); e != nil {
 			return e
 		}
+
 		if e := os.MkdirAll(utils.BuildDir, os.ModePerm); e != nil {
+			return e
+		}
+
+		if e := os.MkdirAll(utils.Overrides, os.ModePerm); e != nil {
 			return e
 		}
 

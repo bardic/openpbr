@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/bardic/openpbr/data"
+	"github.com/bardic/openpbr/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -24,8 +25,16 @@ var JsonCmd = &cobra.Command{
 
 		var tmplFile = "./templates/pbr.tmpl"
 
+		if utils.NormalMaps {
+			tmplFile = "./templates/pbr_normal.tmpl"
+		}
+
 		if texturesetVersion == "1.21.30" {
 			tmplFile = "./templates/pbr2.tmpl"
+
+			if utils.NormalMaps {
+				tmplFile = "./templates/pbr2_normal.tmpl"
+			}
 		}
 
 		i, _ := strconv.Atoi(overrideFile)

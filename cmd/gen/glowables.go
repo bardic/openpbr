@@ -1,8 +1,8 @@
 package gen
 
 import (
+	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -10,11 +10,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var GlowablesCmd = &cobra.Command{
-	Use:   "glowables",
-	Short: "processess glowables folders and if needed copies to overrides",
+var ConvertPsdCmd = &cobra.Command{
+	Use:   "psds",
+	Short: "processess psds folders and if needed copies to overrides",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("cats")
 		build(args[0])
 
 		return nil
@@ -22,13 +23,16 @@ var GlowablesCmd = &cobra.Command{
 }
 
 func build(in string) error {
+	fmt.Println(in)
 	items, err := os.ReadDir(in)
 
+	fmt.Println(err)
 	if err != nil {
 		return nil
 	}
 
 	for _, item := range items {
+		fmt.Println(item.Name())
 		if item.IsDir() {
 			if err := build(in + "/" + item.Name()); err != nil {
 				return err
@@ -37,9 +41,11 @@ func build(in string) error {
 			if filepath.Ext(item.Name()) != ".psd" {
 				continue
 			}
-			c := exec.Command("convert", in+"/"+item.Name()+"[0]/", utils.Overrides+strings.Replace(item.Name(), ".psd", ".png", 1))
-			if e := c.Run(); e != nil {
-				return nil
+
+			fmt.Println(in + "/" + item.Name())
+			err := utils.PsdPng(in+"/"+item.Name(), utils.Overrides+"/"+strings.Replace(item.Name(), ".psd", ".png", 1))
+			if err != nil {
+				fmt.Println(err)
 			}
 		}
 	}

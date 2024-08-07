@@ -34,11 +34,6 @@
         "water": {
           "max_density": 1.0,
           "uniform": true
-        },
-        "weather": {
-          "max_density": 0.19,
-          "max_density_height": 104,
-          "zero_density_height": 300
         }
       },
       "media_coefficients": {
