@@ -106,4 +106,5 @@ dist
 latest.zip
 input/
 output/
+overrides/
 *.mcpack
