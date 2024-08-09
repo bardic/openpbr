@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"fmt"
 	"html/template"
 	"os"
 	"strconv"
@@ -15,6 +16,9 @@ var JsonCmd = &cobra.Command{
 	Short: "create deferred json files",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
+
+		fmt.Println("json out" + args[0])
+
 		out := args[0]
 		color := args[1]
 		merArr := args[2]

@@ -43,7 +43,7 @@ var Cmd = &cobra.Command{
 			}
 
 			fmt.Println("--- Prcoess PSDs")
-			gen.ConvertPsdCmd.RunE(cmd, []string{"./psds/blocks"})
+			gen.ConvertPsdCmd.RunE(cmd, []string{utils.Psds})
 
 			fmt.Println("--- Copy custom configs")
 			cp.Copy(utils.SettingDIr, utils.OutDir)
@@ -99,38 +99,39 @@ func build(cmd *cobra.Command, target string, imgPath string) error {
 			p := filepath.Join(imgPath, item.Name())
 			build(cmd, target, p)
 		} else {
-			if !strings.Contains(item.Name(), ".tga") && !strings.Contains(item.Name(), ".png") {
-				continue
-			}
 
 			in := filepath.Join(imgPath, item.Name())
 
-			if strings.Contains(item.Name(), ".tga") {
+			if strings.Contains(outPath, ".tga") {
+				img.TgaPngCmd.RunE(cmd, []string{in, strings.ReplaceAll(in, ".tga", ".png")})
+				in = strings.ReplaceAll(in, ".tga", ".png")
 				outPath = strings.ReplaceAll(outPath, ".tga", ".png")
-				img.TgaPngCmd.RunE(cmd, []string{in, outPath})
-			} else {
-				err := utils.CopyF(in, outPath)
+			}
+
+			if !strings.Contains(outPath, ".png") {
+				continue
+			}
+
+			err := utils.CopyF(in, outPath)
+			if err != nil {
+				return err
+			}
+
+			img.AdjustColorCmd.Run(cmd, []string{outPath})
+
+			if utils.NormalMaps {
+				err := gen.NormalCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", "_normal.png")})
 				if err != nil {
+					return err
+				}
+			} else {
+				err := gen.HeightCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", "_height.png")})
+				if err != nil {
+					fmt.Println(err)
 					return err
 				}
 			}
 
-			if strings.Contains(outPath, ".png") {
-				img.AdjustColorCmd.Run(cmd, []string{outPath})
-
-				if utils.NormalMaps {
-					err := gen.NormalCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", "_normal.png")})
-					if err != nil {
-						return err
-					}
-				} else {
-					err := gen.HeightCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", "_height.png")})
-					if err != nil {
-						fmt.Println(err)
-						return err
-					}
-				}
-			}
 		}
 	}
 
@@ -138,6 +139,12 @@ func build(cmd *cobra.Command, target string, imgPath string) error {
 }
 
 func createMers(cmd *cobra.Command, inputPath string) error {
+
+	if filepath.Ext(inputPath) == ".tga" {
+		fmt.Println("Is a TGA")
+		return nil
+	}
+
 	subPaths := strings.Split(inputPath, string(os.PathSeparator))
 	items, _ := os.ReadDir(inputPath)
 
@@ -146,6 +153,7 @@ func createMers(cmd *cobra.Command, inputPath string) error {
 			createMers(cmd, inputPath+string(os.PathSeparator)+item.Name())
 		} else {
 			outPath := utils.OutDir + string(os.PathSeparator) + strings.Join(subPaths[3:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
+			outPath = strings.Replace(outPath, ".tga", ".png", 1)
 			merPath := strings.ReplaceAll(outPath, ".png", "_mer.png")
 
 			useMerFile := true

@@ -30,11 +30,11 @@ func build(in string) error {
 	}
 
 	for _, item := range items {
-		outPath := utils.OutDir + string(os.PathSeparator) + strings.Join(subPaths[1:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
+		outPath := utils.Overrides + string(os.PathSeparator) + item.Name()
+		if len(subPaths) > 1 {
+			outPath = utils.Overrides + string(os.PathSeparator) + strings.Join(subPaths[1:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
+		}
 		itemPath := in + string(os.PathSeparator) + item.Name()
-
-		fmt.Println("OUt path " + outPath)
-		fmt.Println("Item : " + itemPath)
 
 		if item.IsDir() {
 			if err := os.MkdirAll(outPath, os.ModePerm); err != nil {

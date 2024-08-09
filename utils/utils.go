@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -47,14 +46,7 @@ func CopyD(in string, out string) error {
 
 func TgaPng(in string, out string) error {
 	c1 := exec.Command(IM_CMD, in, "png32:"+out)
-	err := c1.Run()
-
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	return nil
+	return c1.Run()
 }
 
 func PsdPng(in string, out string) error {
