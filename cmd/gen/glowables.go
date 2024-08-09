@@ -15,26 +15,33 @@ var ConvertPsdCmd = &cobra.Command{
 	Short: "processess psds folders and if needed copies to overrides",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("cats")
 		build(args[0])
-
 		return nil
 	},
 }
 
 func build(in string) error {
-	fmt.Println(in)
+	fmt.Println("Convert PSD: " + in)
+	subPaths := strings.Split(in, string(os.PathSeparator))
 	items, err := os.ReadDir(in)
 
-	fmt.Println(err)
 	if err != nil {
 		return nil
 	}
 
 	for _, item := range items {
-		fmt.Println(item.Name())
+		outPath := utils.OutDir + string(os.PathSeparator) + strings.Join(subPaths[0:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
+		itemPath := in + string(os.PathSeparator) + item.Name()
+
+		fmt.Println("OUt path " + outPath)
+		fmt.Println("Item : " + itemPath)
+
 		if item.IsDir() {
-			if err := build(in + "/" + item.Name()); err != nil {
+			if err := os.MkdirAll(outPath, os.ModePerm); err != nil {
+				return err
+			}
+
+			if err := build(itemPath); err != nil {
 				return err
 			}
 		} else {
@@ -42,10 +49,9 @@ func build(in string) error {
 				continue
 			}
 
-			fmt.Println(in + "/" + item.Name())
-			err := utils.PsdPng(in+"/"+item.Name(), utils.Overrides+"/"+strings.Replace(item.Name(), ".psd", ".png", 1))
+			err := utils.PsdPng(itemPath, strings.Replace(outPath, ".psd", ".png", 1))
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println("PSD-PNG :: " + err.Error())
 			}
 		}
 	}

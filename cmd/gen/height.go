@@ -10,9 +10,9 @@ var HeightCmd = &cobra.Command{
 	Short: "create heightmaps based on colour image",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if b, err := utils.CheckForOverride(args[1]); err != nil || b {
-			return err
-		}
+		// if b, err := utils.CheckForOverride(args[1]); err != nil || b {
+		// 	fmt.Println("No override")
+		// }
 
 		return utils.CreateHeightMap(args[0], args[1])
 	},

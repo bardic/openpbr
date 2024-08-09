@@ -20,7 +20,7 @@ var JsonCmd = &cobra.Command{
 		merArr := args[2]
 		merFile := args[3]
 		height := args[4]
-		overrideFile := args[5]
+		useMerFile, _ := strconv.ParseBool(args[5])
 		texturesetVersion := args[6]
 
 		var tmplFile = "./templates/pbr.tmpl"
@@ -37,14 +37,12 @@ var JsonCmd = &cobra.Command{
 			}
 		}
 
-		i, _ := strconv.Atoi(overrideFile)
-
 		pbr := data.PBR{
 			Colour:  color,
 			MerArr:  merArr,
 			MerFile: merFile,
 			Height:  height,
-			MerType: i,
+			MerType: useMerFile,
 		}
 
 		t, err := template.ParseFiles(tmplFile)

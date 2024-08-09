@@ -22,7 +22,7 @@ var ManifestCmd = &cobra.Command{
 			return err
 		}
 
-		f, err := os.Create(utils.BuildDir + "/manifest.json")
+		f, err := os.Create(utils.OutDir + "/manifest.json")
 		if err != nil {
 			return err
 		}

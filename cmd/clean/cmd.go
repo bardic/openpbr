@@ -16,7 +16,7 @@ var Cmd = &cobra.Command{
 			return e
 		}
 
-		if e := os.RemoveAll(utils.BuildDir); e != nil {
+		if e := os.RemoveAll(utils.OutDir); e != nil {
 			return e
 		}
 
@@ -28,7 +28,7 @@ var Cmd = &cobra.Command{
 			return e
 		}
 
-		if e := os.MkdirAll(utils.BuildDir, os.ModePerm); e != nil {
+		if e := os.MkdirAll(utils.OutDir, os.ModePerm); e != nil {
 			return e
 		}
 
@@ -37,7 +37,7 @@ var Cmd = &cobra.Command{
 		}
 
 		for _, s := range utils.TargetAssets {
-			if e := os.MkdirAll(utils.BuildDir+"/textures/"+s, os.ModePerm); e != nil {
+			if e := os.MkdirAll(utils.OutDir+"/textures/"+s, os.ModePerm); e != nil {
 				return e
 			}
 

@@ -7,7 +7,7 @@ type Manifest struct {
 
 type PBR struct {
 	Colour  string
-	MerType int
+	MerType bool
 	MerFile string
 	MerArr  string
 	Height  string

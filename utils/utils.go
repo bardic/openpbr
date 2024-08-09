@@ -4,18 +4,17 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 
 	cp "github.com/otiai10/copy"
 )
 
-const BaseAssets = "./input"
-const BuildDir = "./output/openpbr"
-const Overrides = "./overrides"
-const SettingDIr = "./settings"
+const BaseAssets = "input"
+const OutDir = "output" + string(os.PathSeparator) + "openpbr"
+const Overrides = "overrides"
+const SettingDIr = "settings"
 const IM_CMD = "magick"
-const Psds = "./psds"
+const Psds = "psds"
 
 var Beta bool
 var DeleteAutoGen bool
@@ -26,23 +25,6 @@ var Crush bool
 var TexturesetVersion string
 
 var TargetAssets = []string{"blocks", "entity", "particle", "items"}
-
-func CheckForOverride(file string) (bool, error) {
-	stringSlice := strings.Split(file, string(os.PathSeparator))
-	items, _ := os.ReadDir(Overrides)
-	for _, item := range items {
-		if stringSlice[len(stringSlice)-1] == item.Name() {
-			p := filepath.Join(Overrides, item.Name())
-
-			e := CopyF(p, file)
-			if e != nil {
-				return false, e
-			}
-			return true, nil
-		}
-	}
-	return false, nil
-}
 
 func CopyF(in string, out string) error {
 	data, err := os.ReadFile(in)
@@ -64,7 +46,7 @@ func CopyD(in string, out string) error {
 }
 
 func TgaPng(in string, out string) error {
-	c1 := exec.Command(IM_CMD, in, out)
+	c1 := exec.Command(IM_CMD, in, "png32:"+out)
 	err := c1.Run()
 
 	if err != nil {
@@ -76,33 +58,18 @@ func TgaPng(in string, out string) error {
 }
 
 func PsdPng(in string, out string) error {
-	c := exec.Command(IM_CMD, in+"[0]", out)
+	c := exec.Command(IM_CMD, in+"[0]", "png32:"+out)
 	return c.Run()
 }
 
 func AdjustColor(in string) error {
-	if b, err := CheckForOverride(in); err != nil || b {
-		return nil
-	}
-
-	c2 := exec.Command(IM_CMD, in, "-modulate", "101,99,99", in)
+	c2 := exec.Command(IM_CMD, in, "-modulate", "95,105,105", "png32:"+in)
 	e := c2.Run()
-
-	if e != nil {
-		return e
-	}
-
-	c1 := exec.Command(IM_CMD, in, "-colorspace", "sRGB", "-type", "truecolor", "png32:"+in)
-	e = c1.Run()
-
 	return e
 }
 
 func CreateHeightMap(in string, out string) error {
-	if b, err := CheckForOverride(in); err != nil || b {
-		return nil
-	}
-	command := exec.Command(IM_CMD, in, "-set", "colorspace", "Gray", "-negate", "-channel", "RGB", out)
+	command := exec.Command(IM_CMD, in, "-set", "colorspace", "Gray", "-negate", "-channel", "RGB", "png32:"+out)
 	return command.Run()
 }
 
@@ -112,9 +79,6 @@ func Upscale(in string, out string) {
 }
 
 func CreateNormalMap(in string, out string) error {
-	if b, err := CheckForOverride(in); err != nil || b {
-		return nil
-	}
 	c := exec.Command("nvtt_export.exe", in, "-p", "norm.dpf", "-o", out)
 	return c.Run()
 }
