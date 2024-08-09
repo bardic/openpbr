@@ -30,7 +30,7 @@ func build(in string) error {
 	}
 
 	for _, item := range items {
-		outPath := utils.OutDir + string(os.PathSeparator) + strings.Join(subPaths[0:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
+		outPath := utils.OutDir + string(os.PathSeparator) + strings.Join(subPaths[1:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
 		itemPath := in + string(os.PathSeparator) + item.Name()
 
 		fmt.Println("OUt path " + outPath)
