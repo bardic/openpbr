@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/csv"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,7 +10,7 @@ import (
 
 	"github.com/bardic/openpbr/cmd/gen"
 	"github.com/bardic/openpbr/cmd/img"
-	"github.com/bardic/openpbr/utils"
+	"github.com/bardic/openpbr/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -69,7 +70,6 @@ func Build(cmd *cobra.Command, target string, imgPath string) error {
 func CreateMers(cmd *cobra.Command, inputPath string) error {
 
 	if filepath.Ext(inputPath) == ".tga" {
-		fmt.Println("Is a TGA")
 		return nil
 	}
 
@@ -91,9 +91,11 @@ func CreateMers(cmd *cobra.Command, inputPath string) error {
 
 			fn := strings.TrimSuffix(item.Name(), filepath.Ext(item.Name()))
 
-			merArr := "[0, 0, 255]"
-			if utils.TexturesetVersion == "1.21.30" {
-				merArr = "[0, 0, 255, 255]"
+			merArr, err := merLookup(strings.Join(subPaths[3:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name())
+
+			if err != nil {
+				fmt.Println(err)
+				return err
 			}
 
 			merFile := fn + "_mer"
@@ -103,7 +105,7 @@ func CreateMers(cmd *cobra.Command, inputPath string) error {
 				heightNormalFile = fn + "_normal"
 			}
 
-			err := gen.JsonCmd.RunE(cmd, []string{
+			err = gen.JsonCmd.RunE(cmd, []string{
 				strings.ReplaceAll(outPath, ".png", ".texture_set.json"),
 				fn,
 				merArr,
@@ -121,4 +123,34 @@ func CreateMers(cmd *cobra.Command, inputPath string) error {
 	}
 
 	return nil
+}
+
+func merLookup(asset string) (string, error) {
+	f, err := os.Open("mer.csv")
+	if err != nil {
+		fmt.Println(err.Error())
+		return "", err
+	}
+
+	r := csv.NewReader(f)
+	records, err := r.ReadAll()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, record := range records {
+		if record[0] == asset {
+			if utils.TexturesetVersion != "1.21.30" {
+				return "[" + record[1] + "," + record[2] + "," + record[3] + "]", nil
+			}
+
+			return "[" + record[1] + "," + record[2] + "," + record[3] + "," + record[4] + "]", nil
+		}
+	}
+
+	if utils.TexturesetVersion != "1.21.30" {
+		return "[0,0,255]", nil
+	}
+
+	return "[0,0,255,255]", nil
 }

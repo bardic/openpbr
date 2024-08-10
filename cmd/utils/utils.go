@@ -9,7 +9,7 @@ import (
 )
 
 const BaseAssets = "input"
-const OutDir = "output" + string(os.PathSeparator) + "openpbr"
+const OutDir = "openpbr"
 const Overrides = "overrides"
 const SettingDIr = "settings"
 const IM_CMD = "magick"
@@ -45,8 +45,8 @@ func CopyD(in string, out string) error {
 }
 
 func TgaPng(in string, out string) error {
-	c1 := exec.Command(IM_CMD, in, "png32:"+out)
-	return c1.Run()
+	c := exec.Command(IM_CMD, in, "png32:"+out)
+	return c.Run()
 }
 
 func PsdPng(in string, out string) error {
@@ -55,14 +55,14 @@ func PsdPng(in string, out string) error {
 }
 
 func AdjustColor(in string) error {
-	c2 := exec.Command(IM_CMD, in, "-modulate", "95,105,105", "png32:"+in)
-	e := c2.Run()
+	c := exec.Command(IM_CMD, in, "-modulate", "95,105,105", "png32:"+in)
+	e := c.Run()
 	return e
 }
 
 func CreateHeightMap(in string, out string) error {
-	command := exec.Command(IM_CMD, in, "-set", "colorspace", "Gray", "-negate", "-channel", "RGB", "png32:"+out)
-	return command.Run()
+	c := exec.Command(IM_CMD, in, "-set", "colorspace", "Gray", "-negate", "-channel", "RGB", "png32:"+out)
+	return c.Run()
 }
 
 func Upscale(in string, out string) {

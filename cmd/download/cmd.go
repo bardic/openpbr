@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bardic/openpbr/utils"
+	"github.com/bardic/openpbr/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -22,17 +22,19 @@ var Cmd = &cobra.Command{
 	Short: "Downloads latest release",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if args == nil {
-
-			r := &GithubRelease{}
-			if e := getJson("https://api.github.com/repos/Mojang/bedrock-samples/releases/latest", r); e != nil {
-				return e
-			}
-			if e := downloadRelease(r.Zipball_url); e != nil {
-				return e
-			}
+		r := &GithubRelease{}
+		if e := getJson("https://api.github.com/repos/Mojang/bedrock-samples/releases/latest", r); e != nil {
+			return e
 		}
-		extract()
+		if e := downloadRelease(r.Zipball_url); e != nil {
+			return e
+		}
+
+		err := extract()
+
+		if err != nil {
+			return err
+		}
 
 		return nil
 	},

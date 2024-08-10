@@ -3,7 +3,7 @@ package clean
 import (
 	"os"
 
-	"github.com/bardic/openpbr/utils"
+	"github.com/bardic/openpbr/cmd/utils"
 	"github.com/spf13/cobra"
 )
 

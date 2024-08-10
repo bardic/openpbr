@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -37,18 +36,17 @@ func addFileToZip(zipWriter *zip.Writer, filePath string) error {
 	files, _ := os.ReadDir(filePath)
 	for _, item := range files {
 		if item.IsDir() {
-			addFileToZip(zipWriter, filePath+"/"+item.Name())
+			addFileToZip(zipWriter, filePath+string(os.PathSeparator)+item.Name())
 			continue
 		}
 
-		f1, err := os.Open(filePath + "/" + item.Name())
+		f1, err := os.Open(filePath + string(os.PathSeparator) + item.Name())
 		if err != nil {
 			return err
 		}
 		defer f1.Close()
 
-		packagePath := strings.Replace(filePath, "./output/", "", 1)
-		w1, err := zipWriter.Create(packagePath + "/" + item.Name())
+		w1, err := zipWriter.Create(filePath + string(os.PathSeparator) + item.Name())
 		if err != nil {
 			return err
 		}

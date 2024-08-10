@@ -2,6 +2,7 @@ package build
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,7 +14,7 @@ import (
 	"github.com/bardic/openpbr/cmd/download"
 	"github.com/bardic/openpbr/cmd/gen"
 	"github.com/bardic/openpbr/cmd/img"
-	"github.com/bardic/openpbr/utils"
+	"github.com/bardic/openpbr/cmd/utils"
 	cp "github.com/otiai10/copy"
 	"github.com/spf13/cobra"
 )
@@ -37,35 +38,64 @@ var Cmd = &cobra.Command{
 	Use:   "build",
 	Short: "build project based on json config",
 	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		// Open our jsonFile
+	RunE: func(cmd *cobra.Command, args []string) error {
+
 		jsonFile, err := os.Open("config.json")
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Fatal error: config.json missing")
+			return err
 		}
 
 		defer jsonFile.Close()
 
-		byteValue, _ := io.ReadAll(jsonFile)
+		byteValue, err := io.ReadAll(jsonFile)
 
-		var targets Targets
-		json.Unmarshal(byteValue, &targets)
+		if err != nil {
+			fmt.Println("Fatal error: failed to read config.json")
+			return err
+		}
 
-		fmt.Println(targets)
+		var jsonConfig Targets
+		json.Unmarshal(byteValue, &jsonConfig)
+
+		if len(jsonConfig.Targets) == 0 {
+			fmt.Println("Fatal error: no targets configured in config")
+			return errors.New("no targets configured")
+		}
+
+		utils.TexturesetVersion = jsonConfig.Targets[0].Textureset_format
 
 		fmt.Println(time.Now().String())
 
 		fmt.Println("--- Cleaning workspace")
-		clean.Cmd.RunE(cmd, nil)
+		err = clean.Cmd.RunE(cmd, nil)
+
+		if err != nil {
+			fmt.Println("Fatal error: Failed to clean")
+			return err
+		}
 
 		fmt.Println("--- Download latest base assets")
-		download.Cmd.RunE(cmd, []string{"skip"})
+		err = download.Cmd.RunE(cmd, []string{})
+
+		if err != nil {
+			fmt.Println("Fatal error: Failed to download assets")
+			return err
+		}
 
 		fmt.Println("--- Prcoess PSDs")
-		gen.ConvertPsdCmd.RunE(cmd, []string{utils.Psds})
+		err = gen.ConvertPsdCmd.RunE(cmd, []string{utils.Psds})
+
+		if err != nil {
+			fmt.Println("Warning: Failed to convert PSDs")
+		}
 
 		fmt.Println("--- Copy custom configs")
-		cp.Copy(utils.SettingDIr, utils.OutDir)
+		err = cp.Copy(utils.SettingDIr, utils.OutDir)
+
+		if err != nil {
+			fmt.Println("Warning: Failed to copy custom configs")
+		}
 
 		entries, _ := os.ReadDir(utils.BaseAssets)
 		f := entries[0]
@@ -73,38 +103,63 @@ var Cmd = &cobra.Command{
 		for _, s := range utils.TargetAssets {
 			fmt.Println("--- Create height files for " + s)
 			p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
-			common.Build(cmd, s, p)
+			err = common.Build(cmd, s, p)
+
+			if err != nil {
+				fmt.Println("Fatal error: Failed to build item in pack - " + s)
+				return err
+			}
 		}
 
 		fmt.Println("--- Copy Overrides")
-		cp.Copy(utils.Overrides, utils.OutDir+string(os.PathSeparator)+"textures")
+		err = cp.Copy(utils.Overrides, utils.OutDir+string(os.PathSeparator)+"textures")
+
+		if err != nil {
+			fmt.Println("Warning: Failed to copy overrides")
+		}
 
 		for _, s := range utils.TargetAssets {
 			fmt.Println("--- Create JSON files")
 			p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
-			common.CreateMers(cmd, p)
+			err = common.CreateMers(cmd, p)
+
+			if err != nil {
+				fmt.Println("Fatal error: Failed to create JSON for item in pack - " + s)
+				return err
+			}
 		}
 
 		fmt.Println("--- Create manifest")
-		gen.ManifestCmd.RunE(cmd, []string{
-			targets.Targets[0].Name,
-			targets.Targets[0].Description,
-			targets.Targets[0].Header_uuid,
-			targets.Targets[0].Module_uuid,
-			targets.Targets[0].Version,
+		err = gen.ManifestCmd.RunE(cmd, []string{
+			jsonConfig.Targets[0].Name,
+			jsonConfig.Targets[0].Description,
+			jsonConfig.Targets[0].Header_uuid,
+			jsonConfig.Targets[0].Module_uuid,
+			jsonConfig.Targets[0].Version,
 		})
 
-		fmt.Println("--- Crush images")
-		img.CrushCmd.RunE(cmd, []string{utils.OutDir})
-
-		gen.PackageCmd.RunE(cmd, []string{utils.OutDir})
-
-		dat, err := os.ReadFile("VERSION")
 		if err != nil {
-			return
+			fmt.Println("Fatal error: failed to create manifest")
+			return err
 		}
 
-		fmt.Println("Release Version: " + string(dat))
+		fmt.Println("--- Crush images")
+		err = img.CrushCmd.RunE(cmd, []string{utils.OutDir})
 
+		if err != nil {
+			fmt.Println("Warning: failed to crush")
+		}
+
+		fmt.Println("--- Package Release")
+		err = gen.PackageCmd.RunE(cmd, []string{utils.OutDir})
+
+		if err != nil {
+			fmt.Println("Warning : packaging failed ")
+			return err
+		}
+
+		fmt.Println("--- OpenPBR complete")
+
+		return nil
 	},
 }

@@ -1,13 +1,12 @@
 package gen
 
 import (
-	"fmt"
 	"html/template"
 	"os"
 	"strconv"
 
-	"github.com/bardic/openpbr/data"
-	"github.com/bardic/openpbr/utils"
+	"github.com/bardic/openpbr/cmd/data"
+	"github.com/bardic/openpbr/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -16,9 +15,6 @@ var JsonCmd = &cobra.Command{
 	Short: "create deferred json files",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-
-		fmt.Println("json out" + args[0])
-
 		out := args[0]
 		color := args[1]
 		merArr := args[2]

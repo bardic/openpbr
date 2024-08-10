@@ -4,7 +4,7 @@ import (
 	"github.com/bardic/openpbr/cmd/build"
 	"github.com/bardic/openpbr/cmd/clean"
 	"github.com/bardic/openpbr/cmd/download"
-	"github.com/bardic/openpbr/cmd/gen" 
+	"github.com/bardic/openpbr/cmd/gen"
 	"github.com/spf13/cobra"
 )
 

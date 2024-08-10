@@ -107,4 +107,5 @@ latest.zip
 input/
 output/
 overrides/
+openpbr/
 *.mcpack
