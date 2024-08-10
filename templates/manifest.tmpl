@@ -1,18 +1,18 @@
 {
   "format_version": 2,
   "header": {
-    "name": "OpenPBR",
-    "description": "{{.VersionStr}}",
-    "uuid": "6df2dc94-ac10-4a12-86d1-0b43fd98a8e7",
-    "version": {{.VersionArr}},
+    "name": "{{.Name}}",
+    "description": "{{.Description}}",
+    "uuid": "{{.Header_uuid}}",
+    "version": {{.Version}},
     "min_engine_version": [1, 21, 0]
   },
   "modules": [
     {
-      "description": "openpbr",
+      "description": "{{.Description}}",
       "type": "resources",
-      "uuid": "55efe15f-8a0b-4d2a-9270-3eadf22a1304",
-      "version": {{.VersionArr}}
+      "uuid": "{{.Module_uuid}}",
+      "version": {{.Version}}
     }
   ],
   "metadata": {
