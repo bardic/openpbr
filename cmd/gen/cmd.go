@@ -22,4 +22,5 @@ func init() {
 	Cmd.AddCommand(ConvertPsdCmd)
 	Cmd.AddCommand(CreateCSVCmd)
 	Cmd.AddCommand(ReadCSVCmd)
+	Cmd.AddCommand(ConfigCmd)
 }

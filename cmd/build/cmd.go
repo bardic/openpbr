@@ -11,6 +11,7 @@ import (
 
 	"github.com/bardic/openpbr/cmd/clean"
 	"github.com/bardic/openpbr/cmd/common"
+	"github.com/bardic/openpbr/cmd/data"
 	"github.com/bardic/openpbr/cmd/download"
 	"github.com/bardic/openpbr/cmd/gen"
 	"github.com/bardic/openpbr/cmd/img"
@@ -19,28 +20,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type Targets struct {
-	Targets []Target
-}
-
-type Target struct {
-	Buildname         string
-	Name              string
-	Header_uuid       string
-	Module_uuid       string
-	Description       string
-	Textureset_format string
-	Default_mer       string
-	Version           string
-}
-
 var Cmd = &cobra.Command{
 	Use:   "build",
 	Short: "build project based on json config",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
 
-		jsonFile, err := os.Open("config.json")
+		jsonFile, err := os.Open(args[0])
 		if err != nil {
 			fmt.Println("Fatal error: config.json missing")
 			return err
@@ -55,7 +41,7 @@ var Cmd = &cobra.Command{
 			return err
 		}
 
-		var jsonConfig Targets
+		var jsonConfig data.Targets
 		json.Unmarshal(byteValue, &jsonConfig)
 
 		if len(jsonConfig.Targets) == 0 {
@@ -131,6 +117,7 @@ var Cmd = &cobra.Command{
 
 		fmt.Println("--- Create manifest")
 		err = gen.ManifestCmd.RunE(cmd, []string{
+			"",
 			jsonConfig.Targets[0].Name,
 			jsonConfig.Targets[0].Description,
 			jsonConfig.Targets[0].Header_uuid,

@@ -16,3 +16,18 @@ type PBR struct {
 type GithubRelease struct {
 	Zipball_url string
 }
+
+type Targets struct {
+	Targets []Target
+}
+
+type Target struct {
+	Buildname         string
+	Name              string
+	Header_uuid       string
+	Module_uuid       string
+	Description       string
+	Textureset_format string
+	Default_mer       string
+	Version           string
+}
