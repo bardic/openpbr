@@ -1,14 +1,15 @@
 package build
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/bardic/openpbr/cmd/clean"
+	"github.com/bardic/openpbr/cmd/common"
 	"github.com/bardic/openpbr/cmd/download"
 	"github.com/bardic/openpbr/cmd/gen"
 	"github.com/bardic/openpbr/cmd/img"
@@ -17,62 +18,84 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// Cmd represents the build command
+type Targets struct {
+	Targets []Target
+}
+
+type Target struct {
+	Buildname         string
+	Name              string
+	Header_uuid       string
+	Module_uuid       string
+	Description       string
+	Textureset_format string
+	Default_mer       string
+	Version           string
+}
+
 var Cmd = &cobra.Command{
-	Use:              "build",
-	Short:            "build pack",
-	Long:             ``,
-	TraverseChildren: true,
+	Use:   "build",
+	Short: "build project based on json config",
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		// Open our jsonFile
+		jsonFile, err := os.Open("config.json")
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		defer jsonFile.Close()
+
+		byteValue, _ := io.ReadAll(jsonFile)
+
+		var targets Targets
+		json.Unmarshal(byteValue, &targets)
+
+		fmt.Println(targets)
 
 		fmt.Println(time.Now().String())
 
-		if !utils.ZipOnly {
+		fmt.Println("--- Cleaning workspace")
+		clean.Cmd.RunE(cmd, nil)
 
-			if utils.DeleteAutoGen {
-				fmt.Println("--- Cleaning workspace")
-				clean.Cmd.RunE(cmd, nil)
+		fmt.Println("--- Download latest base assets")
+		download.Cmd.RunE(cmd, []string{"skip"})
 
-				fmt.Println("--- Download latest base assets")
+		fmt.Println("--- Prcoess PSDs")
+		gen.ConvertPsdCmd.RunE(cmd, []string{utils.Psds})
 
-				if utils.SkipDownload {
-					download.Cmd.RunE(cmd, []string{"skip"})
-				} else {
-					download.Cmd.RunE(cmd, nil)
-				}
-			}
+		fmt.Println("--- Copy custom configs")
+		cp.Copy(utils.SettingDIr, utils.OutDir)
 
-			fmt.Println("--- Prcoess PSDs")
-			gen.ConvertPsdCmd.RunE(cmd, []string{utils.Psds})
+		entries, _ := os.ReadDir(utils.BaseAssets)
+		f := entries[0]
 
-			fmt.Println("--- Copy custom configs")
-			cp.Copy(utils.SettingDIr, utils.OutDir)
-
-			entries, _ := os.ReadDir(utils.BaseAssets)
-			f := entries[0]
-
-			for _, s := range utils.TargetAssets {
-				fmt.Println("--- Create json, mer and height files for " + s)
-				p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
-				build(cmd, s, p)
-			}
-
-			fmt.Println("--- Copy Overrides")
-			cp.Copy(utils.Overrides, utils.OutDir+string(os.PathSeparator)+"textures")
-
-			for _, s := range utils.TargetAssets {
-				p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
-				createMers(cmd, p)
-			}
-
-			fmt.Println("--- Create manifest")
-			gen.ManifestCmd.RunE(cmd, []string{})
+		for _, s := range utils.TargetAssets {
+			fmt.Println("--- Create height files for " + s)
+			p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
+			common.Build(cmd, s, p)
 		}
 
-		if utils.Crush {
-			fmt.Println("--- Crush images")
-			img.CrushCmd.RunE(cmd, []string{utils.OutDir})
+		fmt.Println("--- Copy Overrides")
+		cp.Copy(utils.Overrides, utils.OutDir+string(os.PathSeparator)+"textures")
+
+		for _, s := range utils.TargetAssets {
+			fmt.Println("--- Create JSON files")
+			p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
+			common.CreateMers(cmd, p)
 		}
+
+		fmt.Println("--- Create manifest")
+		gen.ManifestCmd.RunE(cmd, []string{
+			targets.Targets[0].Name,
+			targets.Targets[0].Description,
+			targets.Targets[0].Header_uuid,
+			targets.Targets[0].Module_uuid,
+			targets.Targets[0].Version,
+		})
+
+		fmt.Println("--- Crush images")
+		img.CrushCmd.RunE(cmd, []string{utils.OutDir})
 
 		gen.PackageCmd.RunE(cmd, []string{utils.OutDir})
 
@@ -82,115 +105,6 @@ var Cmd = &cobra.Command{
 		}
 
 		fmt.Println("Release Version: " + string(dat))
+
 	},
-}
-
-// build is a recursive function that processes the images and generates json, mer, and height files.
-func build(cmd *cobra.Command, target string, imgPath string) error {
-	subPaths := strings.Split(imgPath, string(os.PathSeparator))
-	items, _ := os.ReadDir(imgPath)
-
-	for _, item := range items {
-		outPath := utils.OutDir + string(os.PathSeparator) + strings.Join(subPaths[3:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
-		if item.IsDir() {
-			if err := os.MkdirAll(outPath, os.ModePerm); err != nil {
-				return err
-			}
-			p := filepath.Join(imgPath, item.Name())
-			build(cmd, target, p)
-		} else {
-
-			in := filepath.Join(imgPath, item.Name())
-
-			if strings.Contains(outPath, ".tga") {
-				img.TgaPngCmd.RunE(cmd, []string{in, strings.ReplaceAll(in, ".tga", ".png")})
-				in = strings.ReplaceAll(in, ".tga", ".png")
-				outPath = strings.ReplaceAll(outPath, ".tga", ".png")
-			}
-
-			if !strings.Contains(outPath, ".png") {
-				continue
-			}
-
-			err := utils.CopyF(in, outPath)
-			if err != nil {
-				return err
-			}
-
-			img.AdjustColorCmd.Run(cmd, []string{outPath})
-
-			if utils.NormalMaps {
-				err := gen.NormalCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", "_normal.png")})
-				if err != nil {
-					return err
-				}
-			} else {
-				err := gen.HeightCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", "_height.png")})
-				if err != nil {
-					fmt.Println(err)
-					return err
-				}
-			}
-
-		}
-	}
-
-	return nil
-}
-
-func createMers(cmd *cobra.Command, inputPath string) error {
-
-	if filepath.Ext(inputPath) == ".tga" {
-		fmt.Println("Is a TGA")
-		return nil
-	}
-
-	subPaths := strings.Split(inputPath, string(os.PathSeparator))
-	items, _ := os.ReadDir(inputPath)
-
-	for _, item := range items {
-		if item.IsDir() {
-			createMers(cmd, inputPath+string(os.PathSeparator)+item.Name())
-		} else {
-			outPath := utils.OutDir + string(os.PathSeparator) + strings.Join(subPaths[3:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
-			outPath = strings.Replace(outPath, ".tga", ".png", 1)
-			merPath := strings.ReplaceAll(outPath, ".png", "_mer.png")
-
-			useMerFile := true
-			if _, err := os.Stat(merPath); err != nil {
-				useMerFile = false
-			}
-
-			fn := strings.TrimSuffix(item.Name(), filepath.Ext(item.Name()))
-
-			merArr := "[0, 0, 255]"
-			if utils.TexturesetVersion == "1.21.30" {
-				merArr = "[0, 0, 255, 255]"
-			}
-
-			merFile := fn + "_mer"
-
-			heightNormalFile := fn + "_height"
-			if utils.NormalMaps {
-				heightNormalFile = fn + "_normal"
-			}
-
-			err := gen.JsonCmd.RunE(cmd, []string{
-				strings.ReplaceAll(outPath, ".png", ".texture_set.json"),
-				fn,
-				merArr,
-				merFile,
-				heightNormalFile,
-				strconv.FormatBool(useMerFile),
-				utils.TexturesetVersion,
-			})
-
-			if err != nil {
-				fmt.Println(err)
-				return err
-			}
-		}
-	}
-
-	return nil
 }
