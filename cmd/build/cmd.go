@@ -88,9 +88,6 @@ var Cmd = &cobra.Command{
 		for _, s := range utils.TargetAssets {
 			utils.AppendLoadOut("--- Create height files for " + s)
 			p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
-
-			utils.AppendLoadOut(p)
-
 			err = common.Build(cmd, s, utils.LocalPath(p))
 
 			if err != nil {
@@ -106,6 +103,11 @@ var Cmd = &cobra.Command{
 			utils.AppendLoadOut("Warning: Failed to copy overrides")
 		}
 
+		if jsonConfig.Targets[0].ExportMer {
+			utils.AppendLoadOut("--- Create Mer CVS")
+			gen.CreateCSVCmd.RunE(cmd, []string{utils.LocalPath(utils.OutDir), jsonConfig.Targets[0].Default_mer})
+		}
+
 		for _, s := range utils.TargetAssets {
 			utils.AppendLoadOut("--- Create JSON files")
 			p := utils.LocalPath(filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s))
@@ -119,7 +121,6 @@ var Cmd = &cobra.Command{
 
 		utils.AppendLoadOut("--- Create manifest")
 		err = gen.ManifestCmd.RunE(cmd, []string{
-			"",
 			jsonConfig.Targets[0].Name,
 			jsonConfig.Targets[0].Description,
 			jsonConfig.Targets[0].Header_uuid,

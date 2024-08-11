@@ -56,12 +56,12 @@ func Build(cmd *cobra.Command, target string, imgPath string) error {
 			img.AdjustColorCmd.Run(cmd, []string{outPath})
 
 			if utils.NormalMaps {
-				err := gen.NormalCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", "_normal.png")})
+				err := gen.NormalCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", utils.NormalMapNameSuffix+".png")})
 				if err != nil {
 					return err
 				}
 			} else {
-				err := gen.HeightCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", "_height.png")})
+				err := gen.HeightCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", utils.HeightMapNameSuffix+".png")})
 				if err != nil {
 					fmt.Println(err)
 					return err
@@ -80,15 +80,27 @@ func CreateMers(cmd *cobra.Command, inputPath string) error {
 	}
 
 	subPaths := strings.Split(inputPath, string(os.PathSeparator))
+
+	fmt.Println(subPaths)
+
 	items, _ := os.ReadDir(inputPath)
 
 	for _, item := range items {
 		if item.IsDir() {
 			CreateMers(cmd, inputPath+string(os.PathSeparator)+item.Name())
 		} else {
-			outPath := utils.LocalPath(utils.OutDir + string(os.PathSeparator) + "textures" + string(os.PathSeparator) + item.Name())
+			q, e := utils.GetTextureSubpath(inputPath)
+
+			if e != nil {
+				return e
+			}
+
+			fmt.Println(q)
+
+			//Need to get proper path here. this is fucked
+			outPath := utils.LocalPath(utils.OutDir + string(os.PathSeparator) + q + string(os.PathSeparator) + item.Name())
 			outPath = strings.Replace(outPath, ".tga", ".png", 1)
-			merPath := strings.ReplaceAll(outPath, ".png", "_mer.png")
+			merPath := strings.ReplaceAll(outPath, ".png", utils.MerMapNameSuffix+".png")
 
 			useMerFile := true
 			if _, err := os.Stat(merPath); err != nil {
@@ -97,25 +109,23 @@ func CreateMers(cmd *cobra.Command, inputPath string) error {
 
 			fn := strings.TrimSuffix(item.Name(), filepath.Ext(item.Name()))
 
-			merArr, err := merLookup(strings.Join(subPaths[3:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name())
+			merArr, err := merLookup(q + string(os.PathSeparator) + item.Name())
 
 			if err != nil {
 				fmt.Println(err)
 				return err
 			}
 
-			merFile := fn + "_mer"
-
-			heightNormalFile := fn + "_height"
+			heightNormalFile := fn + utils.HeightMapNameSuffix
 			if utils.NormalMaps {
-				heightNormalFile = fn + "_normal"
+				heightNormalFile = fn + utils.NormalMapNameSuffix
 			}
 
 			err = gen.JsonCmd.RunE(cmd, []string{
 				strings.ReplaceAll(outPath, ".png", ".texture_set.json"),
 				fn,
 				merArr,
-				merFile,
+				fn + utils.MerMapNameSuffix,
 				heightNormalFile,
 				strconv.FormatBool(useMerFile),
 				utils.TexturesetVersion,
@@ -132,7 +142,7 @@ func CreateMers(cmd *cobra.Command, inputPath string) error {
 }
 
 func merLookup(asset string) (string, error) {
-	f, err := os.Open("mer.csv")
+	f, err := os.Open(utils.LocalPath("mer.csv"))
 	if err != nil {
 		fmt.Println(err.Error())
 		return "", err

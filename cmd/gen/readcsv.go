@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/bardic/openpbr/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +21,7 @@ var ReadCSVCmd = &cobra.Command{
 }
 
 func ReadCSV() {
-	f, err := os.Open("mer.csv")
+	f, err := os.Open(utils.LocalPath("mer.csv"))
 	if err != nil {
 		fmt.Println(err.Error())
 		return

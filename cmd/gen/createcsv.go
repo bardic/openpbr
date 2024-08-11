@@ -12,14 +12,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var defaultMer = []string{"0", "0", "255", "255"}
+
 var CreateCSVCmd = &cobra.Command{
 	Use:   "createcsv",
 	Short: "create a base csv to modify",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("cats")
+		defaultMer = strings.Split(args[1], ",")
+
 		for _, target := range utils.TargetAssets {
-			CreateBaseCSV(args[0] + string(os.PathSeparator) + target)
+			CreateBaseCSV(args[0] + string(os.PathSeparator) + "textures" + string(os.PathSeparator) + target)
 		}
 
 		return nil
@@ -31,9 +34,7 @@ var records = [][]string{
 }
 
 func CreateBaseCSV(in string) {
-	fmt.Println(in)
-
-	f, err := os.Create("mer.csv")
+	f, err := os.Create(utils.LocalPath("mer.csv"))
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -42,8 +43,6 @@ func CreateBaseCSV(in string) {
 	defer f.Close()
 
 	scan(in)
-
-	fmt.Println(records)
 	w := csv.NewWriter(f)
 	w.WriteAll(records)
 
@@ -53,7 +52,6 @@ func CreateBaseCSV(in string) {
 }
 
 func scan(in string) {
-	subPaths := strings.Split(in, string(os.PathSeparator))
 	items, _ := os.ReadDir(in)
 	for _, item := range items {
 
@@ -62,12 +60,23 @@ func scan(in string) {
 			continue
 		}
 
+		ss := "255"
+		if len(defaultMer) > 3 {
+			ss = defaultMer[4]
+		}
+
+		p, e := utils.GetTextureSubpath(in)
+
+		if e != nil {
+			return
+		}
+
 		records = append(records, []string{
-			strings.Join(subPaths[3:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name(),
-			"0",
-			"0",
-			"255",
-			"255",
+			p + string(os.PathSeparator) + item.Name(),
+			defaultMer[0],
+			defaultMer[1],
+			defaultMer[2],
+			ss,
 		})
 
 	}

@@ -3,6 +3,7 @@ package gen
 import (
 	"encoding/json"
 	"os"
+	"strconv"
 
 	"github.com/bardic/openpbr/cmd/data"
 	"github.com/spf13/cobra"
@@ -13,6 +14,12 @@ var ConfigCmd = &cobra.Command{
 	Short: "create normalmaps based on colour image",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		exportMer, err := strconv.ParseBool(args[15])
+
+		if err != nil {
+			return err
+		}
+
 		c := data.Targets{
 			Targets: []data.Target{
 				{
@@ -31,6 +38,7 @@ var ConfigCmd = &cobra.Command{
 					HeightTemplate:    args[12],
 					NormalTemplate:    args[13],
 					MerTemplate:       args[14],
+					ExportMer:         exportMer,
 				},
 			},
 		}

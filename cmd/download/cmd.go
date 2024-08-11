@@ -3,7 +3,6 @@ package download
 import (
 	"archive/zip"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -92,7 +91,7 @@ func extract() error {
 	}
 	defer archive.Close()
 
-	fmt.Println("--- --- Extracting base assets")
+	utils.AppendLoadOut("--- --- Extracting base assets")
 	for _, f := range archive.File {
 		filePath := filepath.Join(utils.LocalPath(utils.BaseAssets), f.Name)
 		if f.FileInfo().IsDir() {

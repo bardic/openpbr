@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -14,9 +16,9 @@ const BaseAssets = "input"
 const OutDir = "openpbr"
 const Overrides = "overrides"
 const SettingDir = "settings"
-const IM_CMD = "magick"
 const Psds = "psds"
 
+var IM_CMD = "magick convert"
 var Beta bool
 var DeleteAutoGen bool
 var SkipDownload bool
@@ -25,10 +27,34 @@ var ZipOnly bool
 var Crush bool
 var TexturesetVersion string
 var Basedir string
-
+var Failed bool
 var TargetAssets = []string{"blocks", "entity", "particle", "items"}
 
+var HeightMapNameSuffix = "_height"
+var NormalMapNameSuffix = "_normal"
+var MerMapNameSuffix = "_mer"
+
 var LoadStdOut *widget.TextGrid
+
+func CheckEnv() {
+	fmt.Println("Check env")
+
+	if _, err := exec.LookPath(IM_CMD); err != nil {
+		if _, err := exec.LookPath("convert"); err != nil {
+			fmt.Println("--- Fatal :: ImageMagick not found")
+		} else {
+			IM_CMD = "convert"
+		}
+	}
+
+	if _, err := exec.LookPath("pngcrush"); err != nil {
+		fmt.Println("--- Fatal :: PNGCrush not found")
+	}
+
+	if _, err := exec.LookPath("nvtt_export.exe"); err != nil {
+		fmt.Println("--- Warning :: Nvidia Texture Tools not found")
+	}
+}
 
 func LocalPath(partialPath string) string {
 	return Basedir + string(os.PathSeparator) + partialPath
@@ -60,6 +86,7 @@ func TgaPng(in string, out string) error {
 
 func PsdPng(in string, out string) error {
 	c := exec.Command(IM_CMD, in+"[0]", "png32:"+out)
+	fmt.Println(c.Args)
 	return c.Run()
 }
 
@@ -101,4 +128,16 @@ func CrushFiles(out string) {
 
 func AppendLoadOut(s string) {
 	LoadStdOut.SetText(LoadStdOut.Text() + "\n" + s)
+}
+
+func GetTextureSubpath(p string) (string, error) {
+	subpaths := strings.Split(p, string(os.PathSeparator))
+	for i, subpath := range subpaths {
+		if subpath == "textures" {
+			sub := strings.Join(subpaths[i:], string(os.PathSeparator))
+			return sub, nil
+		}
+	}
+
+	return "", errors.New("")
 }

@@ -37,4 +37,5 @@ type Target struct {
 	HeightTemplate    string
 	NormalTemplate    string
 	MerTemplate       string
+	ExportMer         bool
 }

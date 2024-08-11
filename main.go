@@ -2,11 +2,13 @@ package main
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -16,6 +18,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/bardic/openpbr/cmd"
+	"github.com/bardic/openpbr/cmd/data"
 	"github.com/bardic/openpbr/cmd/utils"
 	"github.com/google/uuid"
 )
@@ -27,6 +30,8 @@ func main() {
 
 	a := app.New()
 	w := a.NewWindow("OpenPBR Config Creator")
+
+	cmd.CheckEnv()
 
 	manifestName := widget.NewEntry()
 	manifestNameContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Name"), manifestName)
@@ -92,6 +97,11 @@ func main() {
 	defaultMERArrEntry.SetPlaceHolder("ex: [255, 0, 255, 200]")
 	defaultMERArrEntryContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Default MER Array"), defaultMERArrEntry)
 
+	exportMERCSVCheck := widget.NewCheck("Export MER Override CSV", func(b bool) {
+
+	})
+	exportMERCSVCheckContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel(""), exportMERCSVCheck)
+
 	manifestSectionHeader := widget.NewLabel("Manifest")
 	manifestSectionHeader.TextStyle.Bold = true
 	manifestSectionHeader.TextStyle.Underline = true
@@ -118,6 +128,7 @@ func main() {
 		heightTemplateEntryContainer,
 		normalTemplateEntryContainer,
 		merTemplateEntryContainer,
+		exportMERCSVCheckContainer,
 		widget.NewButton("Save", func() {
 			dialog.ShowFileSave(func(f fyne.URIWriteCloser, err error) {
 
@@ -130,6 +141,7 @@ func main() {
 				}
 				var saveFile = f.URI().Path()
 
+				cmd.CreateCSV(saveFile, defaultMERArrEntry.Text)
 				cmd.CreateManifest([]string{
 					saveFile,
 					manifestName.Text,
@@ -146,6 +158,7 @@ func main() {
 					heightTemplateEntry.Text,
 					normalTemplateEntry.Text,
 					merTemplateEntry.Text,
+					strconv.FormatBool(exportMERCSVCheck.Checked),
 				})
 			}, w)
 		}))
@@ -202,13 +215,24 @@ func main() {
 					return
 				}
 			}
-			loadConfigContainer.Add(widget.NewProgressBarInfinite())
+			pb := widget.NewProgressBarInfinite()
+			loadConfigContainer.Add(pb)
 			utils.LoadStdOut = widget.NewTextGrid()
 			loadConfigContainer.Add(utils.LoadStdOut)
+
 			w.Canvas().Content().Refresh()
-			cmd.Build([]string{
+			err = cmd.Build([]string{
 				saveFile,
 			})
+			pb.Stop()
+			if err != nil {
+				pb.Theme().Color(fyne.ThemeColorName("red"), fyne.ThemeVariant(1))
+				return
+			}
+
+			pb.Theme().Color(fyne.ThemeColorName("green"), fyne.ThemeVariant(1))
+			w.Canvas().Content().Refresh()
+
 		}, w)
 	})
 
@@ -224,8 +248,82 @@ func main() {
 
 	w.SetContent(tabs)
 	w.Resize(fyne.NewSize(800, 600))
+
+	w.SetMainMenu(fyne.NewMainMenu(&fyne.Menu{
+		Label: "Actions",
+		Items: []*fyne.MenuItem{
+			fyne.NewMenuItem(
+				"MER CSV",
+				func() {
+					dialog.ShowFileOpen(func(f fyne.URIReadCloser, err error) {
+
+						if err != nil {
+							dialog.ShowError(err, w)
+							return
+						}
+						if f == nil {
+							return
+						}
+						var saveFile = f.URI().Path()
+
+						jsonFile, err := os.Open(saveFile)
+						if err != nil {
+							utils.AppendLoadOut("Fatal error: config.json missing")
+							return
+						}
+
+						defer jsonFile.Close()
+
+						byteValue, err := io.ReadAll(jsonFile)
+
+						if err != nil {
+							utils.AppendLoadOut("Fatal error: failed to read config.json")
+							return
+						}
+
+						var jsonConfig data.Targets
+						json.Unmarshal(byteValue, &jsonConfig)
+
+						if len(jsonConfig.Targets) == 0 {
+							utils.AppendLoadOut("Fatal error: no targets configured in config")
+							return
+						}
+
+						manifestName.Text = jsonConfig.Targets[0].Name
+						manifestDescription.Text = jsonConfig.Targets[0].Description
+						manifestHeaderUUID.Text = jsonConfig.Targets[0].Header_uuid
+						manifestModuleUUID.Text = jsonConfig.Targets[0].Module_uuid
+						if jsonConfig.Targets[0].Textureset_format == "1.16.100" {
+							texturesetSelector.SetSelectedIndex(0)
+						} else {
+							texturesetSelector.SetSelectedIndex(1)
+						}
+						defaultMERArrEntry.Text = jsonConfig.Targets[0].Default_mer
+						manifestVersion.Text = jsonConfig.Targets[0].Version
+						authorEntry.Text = jsonConfig.Targets[0].Author
+						licenseURL.Text = jsonConfig.Targets[0].License
+						packageURL.Text = jsonConfig.Targets[0].URL
+						if jsonConfig.Targets[0].Capibility == "PBR" {
+							capibility.SetSelectedIndex(0)
+						} else {
+							capibility.SetSelectedIndex(1)
+						}
+						heightTemplateEntry.Text = jsonConfig.Targets[0].HeightTemplate
+						normalTemplateEntry.Text = jsonConfig.Targets[0].NormalTemplate
+						merTemplateEntry.Text = jsonConfig.Targets[0].MerTemplate
+
+						exportMERCSVCheck.Checked = jsonConfig.Targets[0].ExportMer
+
+						w.Canvas().Content().Refresh()
+
+					}, w)
+
+				}),
+		},
+	}))
+
 	w.Show()
-	
+
 	a.Run()
 
 	cmd.Execute()

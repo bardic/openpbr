@@ -2,7 +2,6 @@ package gen
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
 	"os"
 
@@ -19,7 +18,7 @@ var PackageCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		buildDir = args[0]
 
-		fmt.Println("--- Creating zip archive...")
+		utils.AppendLoadOut("--- Creating zip archive...")
 		archive, err := os.Create(utils.LocalPath("openpbr.mcpack"))
 		if err != nil {
 			return err
