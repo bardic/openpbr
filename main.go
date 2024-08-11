@@ -51,6 +51,7 @@ func main() {
 	manifestHeaderUUID := widget.NewEntry()
 	uuidBtn1 := widget.NewButton("<", func() {
 		manifestHeaderUUID.Text = uuid.New().String()
+		w.Canvas().Content().Refresh()
 	})
 
 	group1 := container.New(layout.NewAdaptiveGridLayout(2), manifestHeaderUUID, uuidBtn1)
@@ -60,6 +61,7 @@ func main() {
 	manifestModuleUUID := widget.NewEntry()
 	uuidBtn2 := widget.NewButton("<", func() {
 		manifestModuleUUID.Text = uuid.New().String()
+		w.Canvas().Content().Refresh()
 	})
 	uuidBtn2.Resize(fyne.NewSize(25, 25))
 	group2 := container.New(layout.NewAdaptiveGridLayout(2), manifestModuleUUID, uuidBtn2)
@@ -140,65 +142,74 @@ func main() {
 			}, w)
 		}))
 
-	tabs := container.NewAppTabs(
-		container.NewTabItem("Create Config", v),
-		container.NewTabItem("Build Package", widget.NewButton("Load Config", func() {
-			dialog.ShowFileOpen(func(f fyne.URIReadCloser, err error) {
-				if err != nil {
-					dialog.ShowError(err, w)
-					return
-				}
-				if f == nil {
-					return
-				}
-				var saveFile = f.URI().Path()
-				utils.Basedir = filepath.Dir(saveFile)
+	loadConfigContainer := container.New(layout.NewVBoxLayout())
+	loadBtn := widget.NewButton("Load Config", func() {
+		dialog.ShowFileOpen(func(f fyne.URIReadCloser, err error) {
+			if err != nil {
+				dialog.ShowError(err, w)
+				return
+			}
+			if f == nil {
+				return
+			}
+			var saveFile = f.URI().Path()
+			utils.Basedir = filepath.Dir(saveFile)
 
-				dir, err := templates.ReadDir("templates")
+			dir, err := templates.ReadDir("templates")
+
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			tempDir := utils.LocalPath("templates")
+			os.MkdirAll(tempDir, os.ModePerm)
+			os.MkdirAll(utils.LocalPath(utils.OutDir), os.ModePerm)
+			os.MkdirAll(utils.LocalPath(utils.Psds), os.ModePerm)
+			os.MkdirAll(utils.LocalPath(utils.Overrides), os.ModePerm)
+			os.MkdirAll(utils.LocalPath(utils.SettingDir), os.ModePerm)
+
+			for _, v := range dir {
+
+				filePath := tempDir + string(os.PathSeparator) + v.Name()
+				out, err := os.Create(filePath)
+
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
+				defer out.Close()
+
+				b, err := templates.ReadFile("templates/" + v.Name())
 
 				if err != nil {
 					fmt.Println(err)
 					return
 				}
 
-				tempDir := utils.LocalPath("templates")
-				os.MkdirAll(tempDir, os.ModePerm)
-				os.MkdirAll(utils.LocalPath(utils.OutDir), os.ModePerm)
-				os.MkdirAll(utils.LocalPath(utils.Psds), os.ModePerm)
-				os.MkdirAll(utils.LocalPath(utils.Overrides), os.ModePerm)
-				os.MkdirAll(utils.LocalPath(utils.SettingDir), os.ModePerm)
+				_, err = io.WriteString(out, string(b))
 
-				for _, v := range dir {
-
-					filePath := tempDir + string(os.PathSeparator) + v.Name()
-					out, err := os.Create(filePath)
-
-					if err != nil {
-						fmt.Println(err)
-						return
-					}
-					defer out.Close()
-
-					b, err := templates.ReadFile("templates/" + v.Name())
-
-					if err != nil {
-						fmt.Println(err)
-						return
-					}
-
-					_, err = io.WriteString(out, string(b))
-
-					if err != nil {
-						fmt.Println(err)
-						return
-					}
+				if err != nil {
+					fmt.Println(err)
+					return
 				}
+			}
+			loadConfigContainer.Add(widget.NewProgressBarInfinite())
+			utils.LoadStdOut = widget.NewTextGrid()
+			loadConfigContainer.Add(utils.LoadStdOut)
+			w.Canvas().Content().Refresh()
+			cmd.Build([]string{
+				saveFile,
+			})
+		}, w)
+	})
 
-				cmd.Build([]string{
-					saveFile,
-				})
-			}, w)
-		})),
+	loadBtn.Resize(fyne.NewSize(25, 25))
+	loadConfigContainer.Add(loadBtn)
+
+	tabs := container.NewAppTabs(
+		container.NewTabItem("Create Config", v),
+		container.NewTabItem("Build Package", loadConfigContainer),
 	)
 
 	tabs.SetTabLocation(container.TabLocationTop)

@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"fyne.io/fyne/v2/widget"
 	cp "github.com/otiai10/copy"
 )
 
@@ -26,6 +27,8 @@ var TexturesetVersion string
 var Basedir string
 
 var TargetAssets = []string{"blocks", "entity", "particle", "items"}
+
+var LoadStdOut *widget.TextGrid
 
 func LocalPath(partialPath string) string {
 	return Basedir + string(os.PathSeparator) + partialPath
@@ -94,4 +97,8 @@ func CrushFiles(out string) {
 			c.Run()
 		}
 	}
+}
+
+func AppendLoadOut(s string) {
+	LoadStdOut.SetText(LoadStdOut.Text() + "\n" + s)
 }
