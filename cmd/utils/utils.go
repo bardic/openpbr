@@ -8,10 +8,11 @@ import (
 	cp "github.com/otiai10/copy"
 )
 
+// Folders
 const BaseAssets = "input"
 const OutDir = "openpbr"
 const Overrides = "overrides"
-const SettingDIr = "settings"
+const SettingDir = "settings"
 const IM_CMD = "magick"
 const Psds = "psds"
 
@@ -22,8 +23,13 @@ var NormalMaps bool
 var ZipOnly bool
 var Crush bool
 var TexturesetVersion string
+var Basedir string
 
 var TargetAssets = []string{"blocks", "entity", "particle", "items"}
+
+func LocalPath(partialPath string) string {
+	return Basedir + string(os.PathSeparator) + partialPath
+}
 
 func CopyF(in string, out string) error {
 	data, err := os.ReadFile(in)

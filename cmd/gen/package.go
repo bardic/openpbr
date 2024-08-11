@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/bardic/openpbr/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +20,7 @@ var PackageCmd = &cobra.Command{
 		buildDir = args[0]
 
 		fmt.Println("--- Creating zip archive...")
-		archive, err := os.Create("openpbr.mcpack")
+		archive, err := os.Create(utils.LocalPath("openpbr.mcpack"))
 		if err != nil {
 			return err
 		}

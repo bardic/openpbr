@@ -69,7 +69,7 @@ func downloadRelease(r string) error {
 	}
 
 	// Create the file
-	out, err := os.Create("latest.zip")
+	out, err := os.Create(utils.LocalPath("latest.zip"))
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func downloadRelease(r string) error {
 }
 
 func extract() error {
-	archive, err := zip.OpenReader("latest.zip")
+	archive, err := zip.OpenReader(utils.LocalPath("latest.zip"))
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func extract() error {
 
 	fmt.Println("--- --- Extracting base assets")
 	for _, f := range archive.File {
-		filePath := filepath.Join(utils.BaseAssets, f.Name)
+		filePath := filepath.Join(utils.LocalPath(utils.BaseAssets), f.Name)
 		if f.FileInfo().IsDir() {
 			if err := os.MkdirAll(filePath, os.ModePerm); err != nil {
 				return err

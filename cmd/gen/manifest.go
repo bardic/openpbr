@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"fmt"
 	"html/template"
 	"os"
 
@@ -14,6 +15,10 @@ type Manifest struct {
 	Module_uuid string
 	Description string
 	Version     string
+	Author      string
+	License     string
+	URL         string
+	Capibility  string
 }
 
 var ManifestCmd = &cobra.Command{
@@ -27,17 +32,23 @@ var ManifestCmd = &cobra.Command{
 			Header_uuid: args[2],
 			Module_uuid: args[3],
 			Version:     args[4],
+			Author:      args[5],
+			License:     args[6],
+			URL:         args[7],
+			Capibility:  args[8],
 		}
 
-		var tmplFile = "./templates/manifest.tmpl"
+		var tmplFile = utils.LocalPath("templates" + string(os.PathSeparator) + "manifest.tmpl")
 
 		t, err := template.ParseFiles(tmplFile)
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 
-		f, err := os.Create(utils.OutDir + "/manifest.json")
+		f, err := os.Create(utils.LocalPath(utils.OutDir + string(os.PathSeparator) + "manifest.json"))
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 
@@ -45,6 +56,7 @@ var ManifestCmd = &cobra.Command{
 
 		err = t.Execute(f, manifest)
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 

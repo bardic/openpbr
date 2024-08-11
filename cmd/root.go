@@ -37,12 +37,5 @@ func Build(args []string) {
 }
 
 func CreateManifest(args []string) {
-	/*
-		Name:        args[0],
-					Description: args[1],
-					Header_uuid: args[2],
-					Module_uuid: args[3],
-					Version:     args[4],
-	*/
 	gen.ConfigCmd.RunE(RootCmd, args)
 }

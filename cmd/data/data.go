@@ -30,4 +30,11 @@ type Target struct {
 	Textureset_format string
 	Default_mer       string
 	Version           string
+	Author            string
+	License           string
+	URL               string
+	Capibility        string
+	HeightTemplate    string
+	NormalTemplate    string
+	MerTemplate       string
 }

@@ -70,26 +70,29 @@ var Cmd = &cobra.Command{
 		}
 
 		fmt.Println("--- Prcoess PSDs")
-		err = gen.ConvertPsdCmd.RunE(cmd, []string{utils.Psds})
+		err = gen.ConvertPsdCmd.RunE(cmd, []string{utils.LocalPath(utils.Psds)})
 
 		if err != nil {
 			fmt.Println("Warning: Failed to convert PSDs")
 		}
 
 		fmt.Println("--- Copy custom configs")
-		err = cp.Copy(utils.SettingDIr, utils.OutDir)
+		err = cp.Copy(utils.LocalPath(utils.SettingDir), utils.LocalPath(utils.OutDir))
 
 		if err != nil {
 			fmt.Println("Warning: Failed to copy custom configs")
 		}
 
-		entries, _ := os.ReadDir(utils.BaseAssets)
+		entries, _ := os.ReadDir(utils.LocalPath(utils.BaseAssets))
 		f := entries[0]
 
 		for _, s := range utils.TargetAssets {
 			fmt.Println("--- Create height files for " + s)
 			p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
-			err = common.Build(cmd, s, p)
+
+			fmt.Println(p)
+
+			err = common.Build(cmd, s, utils.LocalPath(p))
 
 			if err != nil {
 				fmt.Println("Fatal error: Failed to build item in pack - " + s)
@@ -98,7 +101,7 @@ var Cmd = &cobra.Command{
 		}
 
 		fmt.Println("--- Copy Overrides")
-		err = cp.Copy(utils.Overrides, utils.OutDir+string(os.PathSeparator)+"textures")
+		err = cp.Copy(utils.LocalPath(utils.Overrides), utils.LocalPath(utils.OutDir+string(os.PathSeparator)+"textures"))
 
 		if err != nil {
 			fmt.Println("Warning: Failed to copy overrides")
@@ -106,7 +109,7 @@ var Cmd = &cobra.Command{
 
 		for _, s := range utils.TargetAssets {
 			fmt.Println("--- Create JSON files")
-			p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
+			p := utils.LocalPath(filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s))
 			err = common.CreateMers(cmd, p)
 
 			if err != nil {
@@ -123,6 +126,10 @@ var Cmd = &cobra.Command{
 			jsonConfig.Targets[0].Header_uuid,
 			jsonConfig.Targets[0].Module_uuid,
 			jsonConfig.Targets[0].Version,
+			jsonConfig.Targets[0].Author,
+			jsonConfig.Targets[0].License,
+			jsonConfig.Targets[0].URL,
+			jsonConfig.Targets[0].Capibility,
 		})
 
 		if err != nil {
@@ -131,14 +138,14 @@ var Cmd = &cobra.Command{
 		}
 
 		fmt.Println("--- Crush images")
-		err = img.CrushCmd.RunE(cmd, []string{utils.OutDir})
+		err = img.CrushCmd.RunE(cmd, []string{utils.LocalPath(utils.OutDir)})
 
 		if err != nil {
 			fmt.Println("Warning: failed to crush")
 		}
 
 		fmt.Println("--- Package Release")
-		err = gen.PackageCmd.RunE(cmd, []string{utils.OutDir})
+		err = gen.PackageCmd.RunE(cmd, []string{utils.LocalPath(utils.OutDir)})
 
 		if err != nil {
 			fmt.Println("Warning : packaging failed ")

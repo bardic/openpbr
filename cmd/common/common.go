@@ -16,11 +16,18 @@ import (
 
 // Build is a recursive function that processes the images and generates json, mer, and height files.
 func Build(cmd *cobra.Command, target string, imgPath string) error {
-	subPaths := strings.Split(imgPath, string(os.PathSeparator))
-	items, _ := os.ReadDir(imgPath)
+	items, err := os.ReadDir(imgPath)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	for _, item := range items {
-		outPath := utils.OutDir + string(os.PathSeparator) + strings.Join(subPaths[3:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
+
+		os.MkdirAll(utils.LocalPath(utils.OutDir+string(os.PathSeparator)+"textures"+string(os.PathSeparator)+target), os.ModePerm)
+
+		outPath := utils.LocalPath(utils.OutDir + string(os.PathSeparator) + "textures" + string(os.PathSeparator) + target + string(os.PathSeparator) + item.Name())
+
 		if item.IsDir() {
 			if err := os.MkdirAll(outPath, os.ModePerm); err != nil {
 				return err
@@ -60,7 +67,6 @@ func Build(cmd *cobra.Command, target string, imgPath string) error {
 					return err
 				}
 			}
-
 		}
 	}
 
@@ -80,7 +86,7 @@ func CreateMers(cmd *cobra.Command, inputPath string) error {
 		if item.IsDir() {
 			CreateMers(cmd, inputPath+string(os.PathSeparator)+item.Name())
 		} else {
-			outPath := utils.OutDir + string(os.PathSeparator) + strings.Join(subPaths[3:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
+			outPath := utils.LocalPath(utils.OutDir + string(os.PathSeparator) + "textures" + string(os.PathSeparator) + item.Name())
 			outPath = strings.Replace(outPath, ".tga", ".png", 1)
 			merPath := strings.ReplaceAll(outPath, ".png", "_mer.png")
 
