@@ -29,16 +29,16 @@ func main() {
 	w := a.NewWindow("OpenPBR Config Creator")
 
 	manifestName := widget.NewEntry()
-	item1 := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Name"), manifestName)
+	manifestNameContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Name"), manifestName)
 
 	authorEntry := widget.NewEntry()
-	authorContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Author Name"), authorEntry)
+	authorEntryContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Author Name"), authorEntry)
 
 	licenseURL := widget.NewEntry()
-	licenseContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("License URL"), licenseURL)
+	licenseURLContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("License URL"), licenseURL)
 
 	packageURL := widget.NewEntry()
-	packageContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Package URL"), packageURL)
+	packageURLContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Package URL"), packageURL)
 
 	capibility := widget.NewSelect([]string{"PBR", "RTX"}, func(value string) {
 		log.Println("Select set to", value)
@@ -46,70 +46,78 @@ func main() {
 	capibilityContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Capibility"), capibility)
 
 	manifestDescription := widget.NewEntry()
-	item2 := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Description"), manifestDescription)
+	manifestDescriptionContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Description"), manifestDescription)
 
 	manifestHeaderUUID := widget.NewEntry()
-	uuidBtn1 := widget.NewButton("<", func() {
+	manifestHeaderUUIDBtn := widget.NewButton("<", func() {
 		manifestHeaderUUID.Text = uuid.New().String()
 		w.Canvas().Content().Refresh()
 	})
 
-	group1 := container.New(layout.NewAdaptiveGridLayout(2), manifestHeaderUUID, uuidBtn1)
-	uuidBtn1.Resize(fyne.NewSize(25, 25))
-	item3 := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Header Guid"), group1)
+	manifestHeaderUUIDGroup := container.New(layout.NewAdaptiveGridLayout(2), manifestHeaderUUID, manifestHeaderUUIDBtn)
+	manifestHeaderUUIDBtn.Resize(fyne.NewSize(25, 25))
+	manifestHeaderUUIDContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Header Guid"), manifestHeaderUUIDGroup)
 
 	manifestModuleUUID := widget.NewEntry()
-	uuidBtn2 := widget.NewButton("<", func() {
+	manifestModuleUUIDBtn := widget.NewButton("<", func() {
 		manifestModuleUUID.Text = uuid.New().String()
 		w.Canvas().Content().Refresh()
 	})
-	uuidBtn2.Resize(fyne.NewSize(25, 25))
-	group2 := container.New(layout.NewAdaptiveGridLayout(2), manifestModuleUUID, uuidBtn2)
-	item4 := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Module Guid"), group2)
+	manifestModuleUUIDBtn.Resize(fyne.NewSize(25, 25))
+	manifestModuleUUIDGroup := container.New(layout.NewAdaptiveGridLayout(2), manifestModuleUUID, manifestModuleUUIDBtn)
+	manifestModuleUUIDContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Module Guid"), manifestModuleUUIDGroup)
 
 	manifestVersion := widget.NewEntry()
 	manifestVersion.SetPlaceHolder("ex: [1, 0, 5]")
-	item5 := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Version"), manifestVersion)
+	manifestVersionContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Version"), manifestVersion)
 
 	heightTemplateEntry := widget.NewEntry()
 	heightTemplateEntry.SetPlaceHolder("ex: _height")
-	heightContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Height Template"), heightTemplateEntry)
+	heightTemplateEntryContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Height Template"), heightTemplateEntry)
 
 	normalTemplateEntry := widget.NewEntry()
 	normalTemplateEntry.SetPlaceHolder("ex: _normal")
-	normalContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Normal Template"), normalTemplateEntry)
+	normalTemplateEntryContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Normal Template"), normalTemplateEntry)
 
 	merTemplateEntry := widget.NewEntry()
 	merTemplateEntry.SetPlaceHolder("ex: _mer")
-	merContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("MER Template"), merTemplateEntry)
+	merTemplateEntryContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("MER Template"), merTemplateEntry)
 
-	combo := widget.NewSelect([]string{"1.16.100", "1.21.30"}, func(value string) {
+	texturesetSelector := widget.NewSelect([]string{"1.16.100", "1.21.30"}, func(value string) {
 		log.Println("Select set to", value)
 	})
-	item6 := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Texture Set Version"), combo)
+	texturesetSelectorContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Texture Set Version"), texturesetSelector)
 
-	defaultMERArr := widget.NewEntry()
-	defaultMERArr.SetPlaceHolder("ex: [255, 0, 255, 200]")
-	item8 := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Default MER Array"), defaultMERArr)
+	defaultMERArrEntry := widget.NewEntry()
+	defaultMERArrEntry.SetPlaceHolder("ex: [255, 0, 255, 200]")
+	defaultMERArrEntryContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Default MER Array"), defaultMERArrEntry)
+
+	manifestSectionHeader := widget.NewLabel("Manifest")
+	manifestSectionHeader.TextStyle.Bold = true
+	manifestSectionHeader.TextStyle.Underline = true
+
+	pbrSectionHeader := widget.NewLabel("PBR Settings")
+	pbrSectionHeader.TextStyle.Bold = true
+	pbrSectionHeader.TextStyle.Underline = true
 
 	v := container.New(
 		layout.NewVBoxLayout(),
-		widget.NewLabel("Manifest"),
-		item1,
-		authorContainer,
-		licenseContainer,
-		packageContainer,
+		manifestSectionHeader,
+		manifestNameContainer,
+		authorEntryContainer,
+		licenseURLContainer,
+		packageURLContainer,
 		capibilityContainer,
-		item2,
-		item3,
-		item4,
-		item5,
-		widget.NewLabel("PBR Settings"),
-		item6,
-		item8,
-		heightContainer,
-		normalContainer,
-		merContainer,
+		manifestDescriptionContainer,
+		manifestHeaderUUIDContainer,
+		manifestModuleUUIDContainer,
+		manifestVersionContainer,
+		pbrSectionHeader,
+		texturesetSelectorContainer,
+		defaultMERArrEntryContainer,
+		heightTemplateEntryContainer,
+		normalTemplateEntryContainer,
+		merTemplateEntryContainer,
 		widget.NewButton("Save", func() {
 			dialog.ShowFileSave(func(f fyne.URIWriteCloser, err error) {
 
@@ -128,8 +136,8 @@ func main() {
 					manifestDescription.Text,
 					manifestHeaderUUID.Text,
 					manifestModuleUUID.Text,
-					combo.Selected,
-					defaultMERArr.Text,
+					texturesetSelector.Selected,
+					defaultMERArrEntry.Text,
 					manifestVersion.Text,
 					authorEntry.Text,
 					licenseURL.Text,
@@ -216,9 +224,8 @@ func main() {
 
 	w.SetContent(tabs)
 	w.Resize(fyne.NewSize(800, 600))
-
 	w.Show()
-
+	
 	a.Run()
 
 	cmd.Execute()
