@@ -5,4 +5,4 @@ Website = "https://github.com/bardic/openpbr"
   Name = "OpenPBR"
   ID = "ca.openbracket.openpbr"
   Version = "3.0.0"
-  Build = 6
+  Build = 7

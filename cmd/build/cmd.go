@@ -110,7 +110,7 @@ var Cmd = &cobra.Command{
 
 		for _, s := range utils.TargetAssets {
 			utils.AppendLoadOut("--- Create JSON files")
-			p := utils.LocalPath(filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s))
+			p := utils.LocalPath(filepath.Join(utils.OutDir, "textures", s))
 			err = common.CreateMers(cmd, p)
 
 			if err != nil {
@@ -118,6 +118,8 @@ var Cmd = &cobra.Command{
 				return err
 			}
 		}
+
+		
 
 		utils.AppendLoadOut("--- Create manifest")
 		err = gen.ManifestCmd.RunE(cmd, []string{

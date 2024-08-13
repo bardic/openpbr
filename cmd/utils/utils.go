@@ -13,7 +13,7 @@ import (
 
 // Folders
 const BaseAssets = "input"
-const OutDir = "openpbr"
+const OutDir = "openpbr_out"
 const Overrides = "overrides"
 const SettingDir = "settings"
 const Psds = "psds"

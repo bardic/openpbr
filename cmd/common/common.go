@@ -41,7 +41,10 @@ func Build(cmd *cobra.Command, target string, imgPath string) error {
 			os.MkdirAll(filepath.Dir(outPath), os.ModePerm)
 
 			if strings.Contains(outPath, ".tga") {
-				img.TgaPngCmd.RunE(cmd, []string{in, strings.ReplaceAll(in, ".tga", ".png")})
+				err := img.TgaPngCmd.RunE(cmd, []string{in, strings.ReplaceAll(outPath, ".tga", ".png")})
+				if err != nil {
+					return err
+				}
 				in = strings.ReplaceAll(in, ".tga", ".png")
 				outPath = strings.ReplaceAll(outPath, ".tga", ".png")
 			}
@@ -75,19 +78,14 @@ func Build(cmd *cobra.Command, target string, imgPath string) error {
 	return nil
 }
 
-func CreateMers(cmd *cobra.Command, inputPath string) error {
-
-	if filepath.Ext(inputPath) == ".tga" {
-		return nil
-	}
-
-	items, _ := os.ReadDir(inputPath)
+func CreateMers(cmd *cobra.Command, out string) error {
+	items, _ := os.ReadDir(out)
 
 	for _, item := range items {
 		if item.IsDir() {
-			CreateMers(cmd, inputPath+string(os.PathSeparator)+item.Name())
+			CreateMers(cmd, out+string(os.PathSeparator)+item.Name())
 		} else {
-			q, e := utils.GetTextureSubpath(inputPath, "textures")
+			q, e := utils.GetTextureSubpath(out, "textures")
 
 			if e != nil {
 				return e

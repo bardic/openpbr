@@ -26,7 +26,7 @@ var PackageCmd = &cobra.Command{
 		}
 		defer archive.Close()
 		zipWriter := zip.NewWriter(archive)
-		subpath, _ := utils.GetTextureSubpath(buildDir, "openpbr")
+		subpath, _ := utils.GetTextureSubpath(buildDir, utils.OutDir)
 		addFileToZip(zipWriter, utils.LocalPath(subpath))
 		zipWriter.Close()
 
@@ -53,7 +53,7 @@ func addFileToZip(zipWriter *zip.Writer, filePath string) error {
 		}
 		defer f1.Close()
 
-		subpath, _ := utils.GetTextureSubpath(filePath+string(os.PathSeparator)+item.Name(), "openpbr")
+		subpath, _ := utils.GetTextureSubpath(filePath+string(os.PathSeparator)+item.Name(), utils.OutDir)
 		w1, err := zipWriter.Create(subpath)
 		if err != nil {
 			return err
