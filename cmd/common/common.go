@@ -50,10 +50,10 @@ func Build(cmd *cobra.Command, target string, imgPath string) error {
 				continue
 			}
 
-			err = utils.CopyF(in, outPath)
-			if err != nil {
-				return err
-			}
+			go utils.CopyF(in, outPath)
+			// if err != nil {
+			// 	return err
+			// }
 
 			img.AdjustColorCmd.Run(cmd, []string{outPath})
 
