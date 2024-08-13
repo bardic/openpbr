@@ -1,8 +1,8 @@
 Website = "https://github.com/bardic/openpbr"
 
 [Details]
-Icon = "settings/pack_icon.png"
-Name = "OpenPBR Packer"
-ID = "ca.openbracket.openpbr"
-Version = "3.0.0"
-Build = 1
+  Icon = "settings/pack_icon.png"
+  Name = "OpenPBR"
+  ID = "ca.openbracket.openpbr"
+  Version = "3.0.0"
+  Build = 6

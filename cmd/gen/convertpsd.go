@@ -22,7 +22,6 @@ var ConvertPsdCmd = &cobra.Command{
 
 func build(in string) error {
 	utils.AppendLoadOut("Convert PSD: " + in)
-	// subPaths := strings.Split(in, string(os.PathSeparator))
 	items, err := os.ReadDir(in)
 
 	if err != nil {
@@ -30,15 +29,13 @@ func build(in string) error {
 	}
 
 	for _, item := range items {
-		// outPath := utils.Overrides + string(os.PathSeparator) + subpath
-		// if len(subPaths) > 1 {
-		// 	outPath = utils.Overrides + string(os.PathSeparator) + strings.Join(subPaths[1:], string(os.PathSeparator)) + string(os.PathSeparator) + item.Name()
-		// }
-		outPath := utils.LocalPath(utils.Overrides + string(os.PathSeparator) + item.Name())
-		itemPath := utils.LocalPath("psds" + string(os.PathSeparator) + item.Name())
+		newIn := in + string(os.PathSeparator) + item.Name()
+		out := strings.Replace(newIn, ".psd", ".png", 1)
+		out = strings.Replace(out, "psds", "overrides", 1)
 
 		if item.IsDir() {
-			if err := build(itemPath); err != nil {
+			os.MkdirAll(out, os.ModePerm)
+			if err := build(newIn); err != nil {
 				return err
 			}
 		} else {
@@ -46,7 +43,7 @@ func build(in string) error {
 				continue
 			}
 
-			err := utils.PsdPng(itemPath, strings.Replace(outPath, ".psd", ".png", 1))
+			err := utils.PsdPng(newIn, out)
 			if err != nil {
 				fmt.Println("PSD-PNG :: " + err.Error())
 			}

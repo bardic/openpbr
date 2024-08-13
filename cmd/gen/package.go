@@ -2,6 +2,7 @@ package gen
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
 	"os"
 
@@ -25,7 +26,8 @@ var PackageCmd = &cobra.Command{
 		}
 		defer archive.Close()
 		zipWriter := zip.NewWriter(archive)
-		addFileToZip(zipWriter, buildDir)
+		subpath, _ := utils.GetTextureSubpath(buildDir, "openpbr")
+		addFileToZip(zipWriter, utils.LocalPath(subpath))
 		zipWriter.Close()
 
 		return nil
@@ -33,7 +35,12 @@ var PackageCmd = &cobra.Command{
 }
 
 func addFileToZip(zipWriter *zip.Writer, filePath string) error {
-	files, _ := os.ReadDir(filePath)
+	files, err := os.ReadDir(filePath)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	for _, item := range files {
 		if item.IsDir() {
 			addFileToZip(zipWriter, filePath+string(os.PathSeparator)+item.Name())
@@ -46,7 +53,8 @@ func addFileToZip(zipWriter *zip.Writer, filePath string) error {
 		}
 		defer f1.Close()
 
-		w1, err := zipWriter.Create(filePath + string(os.PathSeparator) + item.Name())
+		subpath, _ := utils.GetTextureSubpath(filePath+string(os.PathSeparator)+item.Name(), "openpbr")
+		w1, err := zipWriter.Create(subpath)
 		if err != nil {
 			return err
 		}

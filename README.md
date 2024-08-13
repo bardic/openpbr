@@ -31,6 +31,15 @@ Depending on your version of ImageMagick you may need to modify utils.go
 
 \* only needed if building normal maps
 
+## Usage
+
+- Special dirs/files
+  - psds - Any psd found in this directory is converted to png and placed in the overrides folder
+  - overrides - Generated files to be copied
+  - settings - everything here is blindly copied
+  - templates - is genereated when the build occurs.
+  - mer.csv : path, metalness, emissive, roughness, subsurface
+
 ## Run locally
 
 - Download latest release and run

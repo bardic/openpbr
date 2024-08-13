@@ -21,8 +21,27 @@ var CreateCSVCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		defaultMer = strings.Split(args[1], ",")
 
-		for _, target := range utils.TargetAssets {
-			CreateBaseCSV(args[0] + string(os.PathSeparator) + "textures" + string(os.PathSeparator) + target)
+		_, err := os.Stat(utils.LocalPath("mer.csv"))
+
+		if err == nil {
+			return nil
+		}
+
+		f, err := os.Create(utils.LocalPath("mer.csv"))
+
+		if err != nil {
+			fmt.Println(err.Error())
+			return err
+		}
+
+		defer f.Close()
+
+		scan(args[0] + string(os.PathSeparator) + "textures")
+		w := csv.NewWriter(f)
+		w.WriteAll(records)
+
+		if err := w.Error(); err != nil {
+			log.Fatalln("error writing csv:", err)
 		}
 
 		return nil
@@ -33,26 +52,13 @@ var records = [][]string{
 	{"path", "metalness", "emissive", "roughness", "subsurface"},
 }
 
-func CreateBaseCSV(in string) {
-	f, err := os.Create(utils.LocalPath("mer.csv"))
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-
-	defer f.Close()
-
-	scan(in)
-	w := csv.NewWriter(f)
-	w.WriteAll(records)
-
-	if err := w.Error(); err != nil {
-		log.Fatalln("error writing csv:", err)
-	}
-}
-
 func scan(in string) {
-	items, _ := os.ReadDir(in)
+	items, err := os.ReadDir(in)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	for _, item := range items {
 
 		if item.IsDir() {
@@ -65,7 +71,7 @@ func scan(in string) {
 			ss = defaultMer[4]
 		}
 
-		p, e := utils.GetTextureSubpath(in)
+		p, e := utils.GetTextureSubpath(in, "textures")
 
 		if e != nil {
 			return

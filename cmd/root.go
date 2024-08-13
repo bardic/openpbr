@@ -4,6 +4,8 @@ import (
 	// "fyne.io/fyne/v2/app"
 	// "fyne.io/fyne/v2/widget"
 
+	"embed"
+
 	"github.com/bardic/openpbr/cmd/build"
 	"github.com/bardic/openpbr/cmd/clean"
 	"github.com/bardic/openpbr/cmd/download"
@@ -21,7 +23,8 @@ var (
 )
 
 // Execute executes the root command.
-func Execute() error {
+func Execute(templates embed.FS) error {
+	UI(templates)
 	return RootCmd.Execute()
 }
 

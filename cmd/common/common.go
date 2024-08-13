@@ -24,19 +24,21 @@ func Build(cmd *cobra.Command, target string, imgPath string) error {
 
 	for _, item := range items {
 
-		os.MkdirAll(utils.LocalPath(utils.OutDir+string(os.PathSeparator)+"textures"+string(os.PathSeparator)+target), os.ModePerm)
-
-		outPath := utils.LocalPath(utils.OutDir + string(os.PathSeparator) + "textures" + string(os.PathSeparator) + target + string(os.PathSeparator) + item.Name())
-
 		if item.IsDir() {
-			if err := os.MkdirAll(outPath, os.ModePerm); err != nil {
-				return err
-			}
 			p := filepath.Join(imgPath, item.Name())
+
 			Build(cmd, target, p)
 		} else {
+			subpath, err := utils.GetTextureSubpath(imgPath, "textures")
+
+			if err != nil {
+				return err
+
+			}
 
 			in := filepath.Join(imgPath, item.Name())
+			outPath := utils.LocalPath(utils.OutDir + string(os.PathSeparator) + subpath + string(os.PathSeparator) + item.Name())
+			os.MkdirAll(filepath.Dir(outPath), os.ModePerm)
 
 			if strings.Contains(outPath, ".tga") {
 				img.TgaPngCmd.RunE(cmd, []string{in, strings.ReplaceAll(in, ".tga", ".png")})
@@ -48,7 +50,7 @@ func Build(cmd *cobra.Command, target string, imgPath string) error {
 				continue
 			}
 
-			err := utils.CopyF(in, outPath)
+			err = utils.CopyF(in, outPath)
 			if err != nil {
 				return err
 			}
@@ -79,25 +81,18 @@ func CreateMers(cmd *cobra.Command, inputPath string) error {
 		return nil
 	}
 
-	subPaths := strings.Split(inputPath, string(os.PathSeparator))
-
-	fmt.Println(subPaths)
-
 	items, _ := os.ReadDir(inputPath)
 
 	for _, item := range items {
 		if item.IsDir() {
 			CreateMers(cmd, inputPath+string(os.PathSeparator)+item.Name())
 		} else {
-			q, e := utils.GetTextureSubpath(inputPath)
+			q, e := utils.GetTextureSubpath(inputPath, "textures")
 
 			if e != nil {
 				return e
 			}
 
-			fmt.Println(q)
-
-			//Need to get proper path here. this is fucked
 			outPath := utils.LocalPath(utils.OutDir + string(os.PathSeparator) + q + string(os.PathSeparator) + item.Name())
 			outPath = strings.Replace(outPath, ".tga", ".png", 1)
 			merPath := strings.ReplaceAll(outPath, ".png", utils.MerMapNameSuffix+".png")

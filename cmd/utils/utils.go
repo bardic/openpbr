@@ -6,9 +6,9 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 
 	"fyne.io/fyne/v2/widget"
-	cp "github.com/otiai10/copy"
 )
 
 // Folders
@@ -18,7 +18,7 @@ const Overrides = "overrides"
 const SettingDir = "settings"
 const Psds = "psds"
 
-var IM_CMD = "magick convert"
+var IM_CMD = "magick"
 var Beta bool
 var DeleteAutoGen bool
 var SkipDownload bool
@@ -67,7 +67,9 @@ func CopyF(in string, out string) error {
 		return err
 	}
 
+	// Write data to dst
 	err = os.WriteFile(out, data, 0644)
+
 	if err != nil {
 		return err
 	}
@@ -75,40 +77,45 @@ func CopyF(in string, out string) error {
 	return nil
 }
 
-func CopyD(in string, out string) error {
-	return cp.Copy(in, out)
-}
-
 func TgaPng(in string, out string) error {
 	c := exec.Command(IM_CMD, in, "png32:"+out)
-	return c.Run()
+	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
+	go c.Run()
+	return nil
 }
 
 func PsdPng(in string, out string) error {
 	c := exec.Command(IM_CMD, in+"[0]", "png32:"+out)
-	fmt.Println(c.Args)
-	return c.Run()
+	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
+	go c.Run()
+	return nil
 }
 
 func AdjustColor(in string) error {
 	c := exec.Command(IM_CMD, in, "-modulate", "95,105,105", "png32:"+in)
-	e := c.Run()
-	return e
+	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
+	go c.Run()
+	return nil
 }
 
 func CreateHeightMap(in string, out string) error {
-	c := exec.Command(IM_CMD, in, "-set", "colorspace", "Gray", "-negate", "-channel", "RGB", "png32:"+out)
-	return c.Run()
+	c := exec.Command(IM_CMD, in, "-channel", "RGB", "-negate", "-set", "colorspace", "Gray", "png32:"+out)
+	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
+	go c.Run()
+	return nil
 }
 
 func Upscale(in string, out string) {
 	c := exec.Command(IM_CMD, in, "-filter", "point", "-set", "option:distort:scale", "-distort", "SRT", "0", "-scale", "100%", "-unsharp", "12x6+0.5+0", "-type", "truecolor", "png32:"+out)
-	c.Run()
+	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
+	go c.Run()
 }
 
 func CreateNormalMap(in string, out string) error {
 	c := exec.Command("nvtt_export.exe", in, "-p", "norm.dpf", "-o", out)
-	return c.Run()
+	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
+	go c.Run()
+	return nil
 }
 
 func CrushFiles(out string) {
@@ -121,7 +128,9 @@ func CrushFiles(out string) {
 
 		if strings.Contains(item.Name(), ".png") {
 			c := exec.Command("pngcrush", "-brute", "-ow", item.Name())
-			c.Run()
+			c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
+			go c.Run()
+			return
 		}
 	}
 }
@@ -130,10 +139,10 @@ func AppendLoadOut(s string) {
 	LoadStdOut.SetText(LoadStdOut.Text() + "\n" + s)
 }
 
-func GetTextureSubpath(p string) (string, error) {
+func GetTextureSubpath(p string, key string) (string, error) {
 	subpaths := strings.Split(p, string(os.PathSeparator))
 	for i, subpath := range subpaths {
-		if subpath == "textures" {
+		if subpath == key {
 			sub := strings.Join(subpaths[i:], string(os.PathSeparator))
 			return sub, nil
 		}

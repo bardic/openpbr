@@ -100,7 +100,7 @@ var Cmd = &cobra.Command{
 		err = cp.Copy(utils.LocalPath(utils.Overrides), utils.LocalPath(utils.OutDir+string(os.PathSeparator)+"textures"))
 
 		if err != nil {
-			utils.AppendLoadOut("Warning: Failed to copy overrides")
+			utils.AppendLoadOut("Warninmg: Failed to copy overrides")
 		}
 
 		if jsonConfig.Targets[0].ExportMer {
@@ -145,6 +145,7 @@ var Cmd = &cobra.Command{
 		}
 
 		utils.AppendLoadOut("--- Package Release")
+
 		err = gen.PackageCmd.RunE(cmd, []string{utils.LocalPath(utils.OutDir)})
 
 		if err != nil {
