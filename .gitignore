@@ -109,3 +109,5 @@ output/
 overrides/
 openpbr/
 *.mcpack
+*.exe
+tmp-pkg/
