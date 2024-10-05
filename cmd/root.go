@@ -10,7 +10,6 @@ import (
 	"github.com/bardic/openpbr/cmd/clean"
 	"github.com/bardic/openpbr/cmd/download"
 	"github.com/bardic/openpbr/cmd/gen"
-	"github.com/bardic/openpbr/cmd/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +36,6 @@ func init() {
 }
 
 func Build(args []string) error {
-	CheckEnv()
 	return build.Cmd.RunE(RootCmd, args)
 }
 
@@ -47,8 +45,4 @@ func CreateManifest(args []string) {
 
 func CreateCSV(p string, defaultMer string) {
 	gen.CreateCSVCmd.RunE(RootCmd, []string{p, defaultMer})
-}
-
-func CheckEnv() {
-	utils.CheckEnv()
 }

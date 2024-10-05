@@ -21,12 +21,6 @@ var CreateCSVCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		defaultMer = strings.Split(args[1], ",")
 
-		_, err := os.Stat(utils.LocalPath("mer.csv"))
-
-		if err == nil {
-			return nil
-		}
-
 		f, err := os.Create(utils.LocalPath("mer.csv"))
 
 		if err != nil {

@@ -27,8 +27,6 @@ func UI(templates embed.FS) {
 	a := app.New()
 	w := a.NewWindow("OpenPBR Config Creator")
 
-	CheckEnv()
-
 	manifestName := widget.NewEntry()
 	manifestNameContainer := container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Name"), manifestName)
 

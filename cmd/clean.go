@@ -1,4 +1,4 @@
-package clean
+package cmd
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Cmd = &cobra.Command{
+var CleanCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "delete and regenerates release workspace",
 	Long:  ``,

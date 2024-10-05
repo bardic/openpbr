@@ -1,15 +1,17 @@
-package build
+package cmd
 
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/bardic/openpbr/cmd/clean"
-	"github.com/bardic/openpbr/cmd/common"
 	"github.com/bardic/openpbr/cmd/data"
 	"github.com/bardic/openpbr/cmd/download"
 	"github.com/bardic/openpbr/cmd/gen"
@@ -19,12 +21,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Cmd = &cobra.Command{
+var BuildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "build project based on json config",
 	Long:  ``,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		utils.LoadStdOut.Text()
 		jsonFile, err := os.Open(args[0])
 		if err != nil {
 			utils.AppendLoadOut("Fatal error: config.json missing")
@@ -82,13 +83,13 @@ var Cmd = &cobra.Command{
 			utils.AppendLoadOut("Warning: Failed to copy custom configs")
 		}
 
+		utils.AppendLoadOut("--- Create height files for ")
 		entries, _ := os.ReadDir(utils.LocalPath(utils.BaseAssets))
 		f := entries[0]
-
 		for _, s := range utils.TargetAssets {
-			utils.AppendLoadOut("--- Create height files for " + s)
+			utils.AppendLoadOut("--- --- " + s)
 			p := filepath.Join(utils.BaseAssets, f.Name(), "resource_pack", "textures", s)
-			err = common.Build(cmd, s, utils.LocalPath(p))
+			err = CreateHeightNormalFile(cmd, s, utils.LocalPath(p))
 
 			if err != nil {
 				utils.AppendLoadOut("Fatal error: Failed to build item in pack - " + s)
@@ -100,26 +101,20 @@ var Cmd = &cobra.Command{
 		err = cp.Copy(utils.LocalPath(utils.Overrides), utils.LocalPath(utils.OutDir+string(os.PathSeparator)+"textures"))
 
 		if err != nil {
-			utils.AppendLoadOut("Warninmg: Failed to copy overrides")
-		}
-
-		if jsonConfig.Targets[0].ExportMer {
-			utils.AppendLoadOut("--- Create Mer CVS")
-			gen.CreateCSVCmd.RunE(cmd, []string{utils.LocalPath(utils.OutDir), jsonConfig.Targets[0].Default_mer})
+			utils.AppendLoadOut("Warning: Failed to copy overrides")
 		}
 
 		for _, s := range utils.TargetAssets {
 			utils.AppendLoadOut("--- Create JSON files")
 			p := utils.LocalPath(filepath.Join(utils.OutDir, "textures", s))
-			err = common.CreateMers(cmd, p)
+			utils.AppendLoadOut("--- --- " + p)
+			err = CreateTextureSets(cmd, p)
 
 			if err != nil {
 				utils.AppendLoadOut("Fatal error: Failed to create JSON for item in pack - " + s)
 				return err
 			}
 		}
-
-		
 
 		utils.AppendLoadOut("--- Create manifest")
 		err = gen.ManifestCmd.RunE(cmd, []string{
@@ -139,13 +134,6 @@ var Cmd = &cobra.Command{
 			return err
 		}
 
-		utils.AppendLoadOut("--- Crush images")
-		err = img.CrushCmd.RunE(cmd, []string{utils.LocalPath(utils.OutDir)})
-
-		if err != nil {
-			utils.AppendLoadOut("Warning: failed to crush")
-		}
-
 		utils.AppendLoadOut("--- Package Release")
 
 		err = gen.PackageCmd.RunE(cmd, []string{utils.LocalPath(utils.OutDir)})
@@ -159,4 +147,108 @@ var Cmd = &cobra.Command{
 
 		return nil
 	},
+}
+
+func CreateHeightNormalFile(cmd *cobra.Command, target string, imgPath string) error {
+	items, err := os.ReadDir(imgPath)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, item := range items {
+		if item.IsDir() {
+			p := filepath.Join(imgPath, item.Name())
+			CreateHeightNormalFile(cmd, target, p)
+		} else {
+			subpath, err := utils.GetTextureSubpath(imgPath, "textures")
+
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+
+			in := filepath.Join(imgPath, item.Name())
+			outPath := utils.LocalPath(utils.OutDir + string(os.PathSeparator) + subpath + string(os.PathSeparator) + item.Name())
+			os.MkdirAll(filepath.Dir(outPath), os.ModePerm)
+
+			if strings.Contains(outPath, ".tga") {
+				out := strings.ReplaceAll(in, ".tga", ".png")
+				err := img.TgaPngCmd.RunE(cmd, []string{in, out})
+				if err != nil {
+					fmt.Println(err)
+					return err
+				}
+
+				in = out
+			}
+
+			go func(in, out string) {
+				err := cp.Copy(in, out)
+
+				if err != nil {
+					utils.AppendLoadOut("Warning: Failed to copy custom configs")
+				}
+			}(utils.LocalPath(utils.SettingDir), utils.LocalPath(utils.OutDir))
+
+			err = gen.HeightCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", utils.HeightMapNameSuffix+".png")})
+			if err != nil {
+				fmt.Println(err)
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func CreateTextureSets(cmd *cobra.Command, out string) error {
+	items, _ := os.ReadDir(out)
+
+	for _, item := range items {
+		if item.IsDir() {
+			CreateTextureSets(cmd, out+string(os.PathSeparator)+item.Name())
+		} else {
+			fn := strings.TrimSuffix(item.Name(), filepath.Ext(item.Name()))
+
+			if strings.Contains(fn, "_height") || strings.Contains(fn, "texture_set") || strings.Contains(fn, "_mer") {
+				continue
+			}
+
+			q, e := utils.GetTextureSubpath(out, "textures")
+
+			if e != nil {
+				continue
+			}
+
+			outPath := utils.LocalPath(utils.OutDir + string(os.PathSeparator) + q + string(os.PathSeparator) + item.Name())
+			merPath := strings.ReplaceAll(outPath, ".png", utils.MerMapNameSuffix+".png")
+
+			useMerFile := true
+			if _, err := os.Stat(merPath); err != nil {
+				useMerFile = false
+			}
+
+			heightNormalFile := fn + utils.HeightMapNameSuffix
+			if utils.NormalMaps {
+				heightNormalFile = fn + utils.NormalMapNameSuffix
+			}
+
+			err := gen.JsonCmd.RunE(cmd, []string{
+				strings.ReplaceAll(outPath, ".png", ".texture_set.json"),
+				fn,
+				"[0,0,255]",
+				fn + utils.MerMapNameSuffix,
+				heightNormalFile,
+				strconv.FormatBool(useMerFile),
+				utils.TexturesetVersion,
+			})
+
+			if err != nil {
+				continue
+			}
+		}
+	}
+
+	return nil
 }

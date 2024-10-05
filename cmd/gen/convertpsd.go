@@ -3,8 +3,10 @@ package gen
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/bardic/openpbr/cmd/utils"
 	"github.com/spf13/cobra"
@@ -43,7 +45,10 @@ func build(in string) error {
 				continue
 			}
 
-			err := utils.PsdPng(newIn, out)
+			c := exec.Command(utils.IM_CMD, newIn+"[0]", "png32:"+out)
+			c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
+			go c.Run()
+
 			if err != nil {
 				fmt.Println("PSD-PNG :: " + err.Error())
 			}

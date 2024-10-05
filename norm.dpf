@@ -1,1 +1,0 @@
---format bc7 --quality production --no-mips --bias-r -2 --bias-g -2 --bias-b -0.2 --bias-a 0.5 --zcmp 5 --to-normal --normal-filter 9x9 --normal-scale 10.039 --height max --normal-alpha set-to-1

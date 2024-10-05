@@ -1,4 +1,4 @@
-package data
+package cmd
 
 type Manifest struct {
 	VersionStr string

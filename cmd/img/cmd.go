@@ -13,6 +13,5 @@ var Cmd = &cobra.Command{
 }
 
 func init() {
-	Cmd.AddCommand(AdjustColorCmd)
 	Cmd.AddCommand(TgaPngCmd)
 }
