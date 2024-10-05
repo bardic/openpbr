@@ -3,9 +3,7 @@ package utils
 import (
 	"errors"
 	"os"
-	"os/exec"
 	"strings"
-	"syscall"
 
 	"fyne.io/fyne/v2/widget"
 )
@@ -37,13 +35,6 @@ var LoadStdOut *widget.TextGrid
 
 func LocalPath(partialPath string) string {
 	return Basedir + string(os.PathSeparator) + partialPath
-}
-
-func CreateHeightMap(in string, out string) error {
-	c := exec.Command(IM_CMD, in, "-channel", "RGB", "-negate", "-set", "colorspace", "Gray", "png32:"+out)
-	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
-	go c.Run()
-	return nil
 }
 
 func AppendLoadOut(s string) {

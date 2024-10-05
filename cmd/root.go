@@ -1,15 +1,6 @@
 package cmd
 
 import (
-	// "fyne.io/fyne/v2/app"
-	// "fyne.io/fyne/v2/widget"
-
-	"embed"
-
-	"github.com/bardic/openpbr/cmd/build"
-	"github.com/bardic/openpbr/cmd/clean"
-	"github.com/bardic/openpbr/cmd/download"
-	"github.com/bardic/openpbr/cmd/gen"
 	"github.com/spf13/cobra"
 )
 
@@ -22,27 +13,27 @@ var (
 )
 
 // Execute executes the root command.
-func Execute(templates embed.FS) error {
-	UI(templates)
+func Execute() error {
 	return RootCmd.Execute()
 }
 
 func init() {
-	RootCmd.AddCommand(clean.Cmd)
-	RootCmd.AddCommand(download.Cmd)
-	RootCmd.AddCommand(gen.Cmd)
-	RootCmd.AddCommand(build.Cmd)
+	RootCmd.AddCommand(CleanCmd)
+	RootCmd.AddCommand(DownloadCmd)
+	RootCmd.AddCommand(BuildCmd)
 	RootCmd.AddCommand(versionCmd)
+	RootCmd.AddCommand(HeightCmd)
+	RootCmd.AddCommand(JsonCmd)
+	RootCmd.AddCommand(ManifestCmd)
+	RootCmd.AddCommand(PackageCmd)
+	RootCmd.AddCommand(ConvertPsdCmd)
+	RootCmd.AddCommand(ConfigCmd)
 }
 
 func Build(args []string) error {
-	return build.Cmd.RunE(RootCmd, args)
+	return BuildCmd.RunE(RootCmd, args)
 }
 
 func CreateManifest(args []string) {
-	gen.ConfigCmd.RunE(RootCmd, args)
-}
-
-func CreateCSV(p string, defaultMer string) {
-	gen.CreateCSVCmd.RunE(RootCmd, []string{p, defaultMer})
+	ConfigCmd.RunE(RootCmd, args)
 }

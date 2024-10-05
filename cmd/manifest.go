@@ -1,25 +1,13 @@
-package gen
+package cmd
 
 import (
 	"fmt"
 	"html/template"
 	"os"
 
-	"github.com/bardic/openpbr/cmd/utils"
+	"github.com/bardic/openpbr/utils"
 	"github.com/spf13/cobra"
 )
-
-type Manifest struct {
-	Name        string
-	Header_uuid string
-	Module_uuid string
-	Description string
-	Version     string
-	Author      string
-	License     string
-	URL         string
-	Capibility  string
-}
 
 var ManifestCmd = &cobra.Command{
 	Use:   "manifest",

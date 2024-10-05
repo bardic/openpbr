@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/bardic/openpbr/cmd/utils"
+	"github.com/bardic/openpbr/utils"
 	"github.com/spf13/cobra"
 )
 

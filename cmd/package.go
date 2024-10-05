@@ -1,4 +1,4 @@
-package gen
+package cmd
 
 import (
 	"archive/zip"
@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/bardic/openpbr/cmd/utils"
+	"github.com/bardic/openpbr/utils"
 	"github.com/spf13/cobra"
 )
 

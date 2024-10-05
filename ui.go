@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"embed"
@@ -17,8 +17,8 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 
-	"github.com/bardic/openpbr/cmd/data"
-	"github.com/bardic/openpbr/cmd/utils"
+	"github.com/bardic/openpbr/cmd"
+	"github.com/bardic/openpbr/utils"
 	"github.com/google/uuid"
 )
 
@@ -135,8 +135,7 @@ func UI(templates embed.FS) {
 				}
 				var saveFile = f.URI().Path()
 
-				//cmd.CreateCSV(saveFile, defaultMERArrEntry.Text)
-				CreateManifest([]string{
+				cmd.CreateManifest([]string{
 					saveFile,
 					manifestName.Text,
 					manifestDescription.Text,
@@ -202,7 +201,7 @@ func UI(templates embed.FS) {
 					return
 				}
 
-				_, err = io.WriteString(out, string(b))
+				_, err = io.Writer.Write(out, b)
 
 				if err != nil {
 					fmt.Println(err)
@@ -215,7 +214,7 @@ func UI(templates embed.FS) {
 			loadConfigContainer.Add(utils.LoadStdOut)
 
 			w.Canvas().Content().Refresh()
-			err = Build([]string{
+			err = cmd.Build([]string{
 				saveFile,
 			})
 			pb.Stop()
@@ -275,7 +274,7 @@ func UI(templates embed.FS) {
 							return
 						}
 
-						var jsonConfig data.Targets
+						var jsonConfig cmd.Targets
 						json.Unmarshal(byteValue, &jsonConfig)
 
 						if len(jsonConfig.Targets) == 0 {

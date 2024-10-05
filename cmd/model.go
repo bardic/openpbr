@@ -1,8 +1,15 @@
 package cmd
 
 type Manifest struct {
-	VersionStr string
-	VersionArr string
+	Name        string
+	Header_uuid string
+	Module_uuid string
+	Description string
+	Version     string
+	Author      string
+	License     string
+	URL         string
+	Capibility  string
 }
 
 type PBR struct {

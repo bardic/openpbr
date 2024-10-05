@@ -8,15 +8,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bardic/openpbr/cmd/utils"
+	"github.com/bardic/openpbr/utils"
 	"github.com/spf13/cobra"
 )
 
-type GithubRelease struct {
-	Zipball_url string
-}
-
-var Cmd = &cobra.Command{
+var DownloadCmd = &cobra.Command{
 	Use:   "download",
 	Short: "Downloads latest release",
 	Long:  ``,

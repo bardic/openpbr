@@ -1,11 +1,10 @@
-package gen
+package cmd
 
 import (
 	"encoding/json"
 	"os"
 	"strconv"
 
-	"github.com/bardic/openpbr/cmd/data"
 	"github.com/spf13/cobra"
 )
 
@@ -20,8 +19,8 @@ var ConfigCmd = &cobra.Command{
 			return err
 		}
 
-		c := data.Targets{
-			Targets: []data.Target{
+		c := Targets{
+			Targets: []Target{
 				{
 					Buildname:         "",
 					Name:              args[1],

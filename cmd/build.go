@@ -11,12 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bardic/openpbr/cmd/clean"
-	"github.com/bardic/openpbr/cmd/data"
-	"github.com/bardic/openpbr/cmd/download"
-	"github.com/bardic/openpbr/cmd/gen"
-	"github.com/bardic/openpbr/cmd/img"
-	"github.com/bardic/openpbr/cmd/utils"
+	"github.com/bardic/openpbr/utils"
 	cp "github.com/otiai10/copy"
 	"github.com/spf13/cobra"
 )
@@ -41,7 +36,7 @@ var BuildCmd = &cobra.Command{
 			return err
 		}
 
-		var jsonConfig data.Targets
+		var jsonConfig Targets
 		json.Unmarshal(byteValue, &jsonConfig)
 
 		if len(jsonConfig.Targets) == 0 {
@@ -54,7 +49,7 @@ var BuildCmd = &cobra.Command{
 		utils.AppendLoadOut(time.Now().String())
 
 		utils.AppendLoadOut("--- Cleaning workspace")
-		err = clean.Cmd.RunE(cmd, nil)
+		err = CleanCmd.RunE(cmd, nil)
 
 		if err != nil {
 			utils.AppendLoadOut("Fatal error: Failed to clean")
@@ -62,7 +57,7 @@ var BuildCmd = &cobra.Command{
 		}
 
 		utils.AppendLoadOut("--- Download latest base assets")
-		err = download.Cmd.RunE(cmd, []string{})
+		err = DownloadCmd.RunE(cmd, []string{})
 
 		if err != nil {
 			utils.AppendLoadOut("Fatal error: Failed to download assets")
@@ -70,7 +65,7 @@ var BuildCmd = &cobra.Command{
 		}
 
 		utils.AppendLoadOut("--- Prcoess PSDs")
-		err = gen.ConvertPsdCmd.RunE(cmd, []string{utils.LocalPath(utils.Psds)})
+		err = ConvertPsdCmd.RunE(cmd, []string{utils.LocalPath(utils.Psds)})
 
 		if err != nil {
 			utils.AppendLoadOut("Warning: Failed to convert PSDs")
@@ -117,7 +112,7 @@ var BuildCmd = &cobra.Command{
 		}
 
 		utils.AppendLoadOut("--- Create manifest")
-		err = gen.ManifestCmd.RunE(cmd, []string{
+		err = ManifestCmd.RunE(cmd, []string{
 			jsonConfig.Targets[0].Name,
 			jsonConfig.Targets[0].Description,
 			jsonConfig.Targets[0].Header_uuid,
@@ -136,7 +131,7 @@ var BuildCmd = &cobra.Command{
 
 		utils.AppendLoadOut("--- Package Release")
 
-		err = gen.PackageCmd.RunE(cmd, []string{utils.LocalPath(utils.OutDir)})
+		err = PackageCmd.RunE(cmd, []string{utils.LocalPath(utils.OutDir)})
 
 		if err != nil {
 			utils.AppendLoadOut("Warning : packaging failed ")
@@ -174,13 +169,11 @@ func CreateHeightNormalFile(cmd *cobra.Command, target string, imgPath string) e
 
 			if strings.Contains(outPath, ".tga") {
 				out := strings.ReplaceAll(in, ".tga", ".png")
-				err := img.TgaPngCmd.RunE(cmd, []string{in, out})
+				err := TgaPngCmd.RunE(cmd, []string{in, out})
 				if err != nil {
 					fmt.Println(err)
 					return err
 				}
-
-				in = out
 			}
 
 			go func(in, out string) {
@@ -191,7 +184,7 @@ func CreateHeightNormalFile(cmd *cobra.Command, target string, imgPath string) e
 				}
 			}(utils.LocalPath(utils.SettingDir), utils.LocalPath(utils.OutDir))
 
-			err = gen.HeightCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", utils.HeightMapNameSuffix+".png")})
+			err = HeightCmd.RunE(cmd, []string{outPath, strings.ReplaceAll(outPath, ".png", utils.HeightMapNameSuffix+".png")})
 			if err != nil {
 				fmt.Println(err)
 				return err
@@ -234,7 +227,7 @@ func CreateTextureSets(cmd *cobra.Command, out string) error {
 				heightNormalFile = fn + utils.NormalMapNameSuffix
 			}
 
-			err := gen.JsonCmd.RunE(cmd, []string{
+			err := JsonCmd.RunE(cmd, []string{
 				strings.ReplaceAll(outPath, ".png", ".texture_set.json"),
 				fn,
 				"[0,0,255]",

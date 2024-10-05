@@ -1,12 +1,11 @@
-package gen
+package cmd
 
 import (
 	"html/template"
 	"os"
 	"strconv"
 
-	"github.com/bardic/openpbr/cmd/data"
-	"github.com/bardic/openpbr/cmd/utils"
+	"github.com/bardic/openpbr/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -37,7 +36,7 @@ var JsonCmd = &cobra.Command{
 			}
 		}
 
-		pbr := data.PBR{
+		pbr := PBR{
 			Colour:  color,
 			MerArr:  merArr,
 			MerFile: merFile,
