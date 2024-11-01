@@ -1,17 +1,5 @@
 package cmd
 
-type Manifest struct {
-	Name        string
-	Header_uuid string
-	Module_uuid string
-	Description string
-	Version     string
-	Author      string
-	License     string
-	URL         string
-	Capibility  string
-}
-
 type PBR struct {
 	Colour  string
 	MerType bool
@@ -22,10 +10,6 @@ type PBR struct {
 
 type GithubRelease struct {
 	Zipball_url string
-}
-
-type Targets struct {
-	Targets []Target
 }
 
 type Target struct {

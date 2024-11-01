@@ -111,3 +111,5 @@ openpbr/
 *.mcpack
 *.exe
 tmp-pkg/
+openpbr_out/
+.idea/

@@ -7,31 +7,25 @@ import (
 	"os"
 
 	"github.com/bardic/openpbr/utils"
-	"github.com/spf13/cobra"
 )
 
-var buildDir string
+type PackBundle struct {
+	InDir  string
+	OutDir string
+}
 
-var PackageCmd = &cobra.Command{
-	Use:   "package",
-	Short: "package project",
-	Long:  ``,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		buildDir = args[0]
+func (cmd *PackBundle) Perform() error {
+	archive, err := os.Create("openpbr.mcpack")
+	if err != nil {
+		return err
+	}
+	defer archive.Close()
+	zipWriter := zip.NewWriter(archive)
+	addFileToZip(zipWriter, "openpbr_out")
+	zipWriter.Close()
 
-		utils.AppendLoadOut("--- Creating zip archive...")
-		archive, err := os.Create(utils.LocalPath("openpbr.mcpack"))
-		if err != nil {
-			return err
-		}
-		defer archive.Close()
-		zipWriter := zip.NewWriter(archive)
-		subpath, _ := utils.GetTextureSubpath(buildDir, utils.OutDir)
-		addFileToZip(zipWriter, utils.LocalPath(subpath))
-		zipWriter.Close()
+	return nil
 
-		return nil
-	},
 }
 
 func addFileToZip(zipWriter *zip.Writer, filePath string) error {

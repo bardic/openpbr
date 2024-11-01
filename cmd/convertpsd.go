@@ -8,17 +8,14 @@ import (
 	"syscall"
 
 	"github.com/bardic/openpbr/utils"
-	"github.com/spf13/cobra"
 )
 
-var ConvertPsdCmd = &cobra.Command{
-	Use:   "psds",
-	Short: "processess psds folders and if needed copies to overrides",
-	Long:  ``,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		build(args[0])
-		return nil
-	},
+type ConvertPSD struct {
+	Path string
+}
+
+func (cmd *ConvertPSD) Perform() error {
+	return build(cmd.Path)
 }
 
 func build(in string) error {
@@ -30,7 +27,7 @@ func build(in string) error {
 	}
 
 	for _, item := range items {
-		newIn := in + string(os.PathSeparator) + item.Name()
+		newIn := filepath.Join(in, item.Name())
 		out := strings.Replace(newIn, ".psd", ".png", 1)
 		out = strings.Replace(out, "psds", "overrides", 1)
 

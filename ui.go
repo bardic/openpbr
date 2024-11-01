@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -133,30 +132,27 @@ func UI(templates embed.FS) {
 				if f == nil {
 					return
 				}
-				var saveFile = f.URI().Path()
+				//var saveFile = f.URI().Path()
 
-				cmd.CreateManifest([]string{
-					saveFile,
-					manifestName.Text,
-					manifestDescription.Text,
-					manifestHeaderUUID.Text,
-					manifestModuleUUID.Text,
-					texturesetSelector.Selected,
-					defaultMERArrEntry.Text,
-					manifestVersion.Text,
-					authorEntry.Text,
-					licenseURL.Text,
-					packageURL.Text,
-					capibility.Selected,
-					heightTemplateEntry.Text,
-					normalTemplateEntry.Text,
-					merTemplateEntry.Text,
-					strconv.FormatBool(exportMERCSVCheck.Checked),
-				})
+				err = (&cmd.Manifest{
+					Name:        manifestName.Text,
+					Header_uuid: manifestHeaderUUID.Text,
+					Module_uuid: manifestModuleUUID.Text,
+					Description: manifestDescription.Text,
+					Version:     manifestVersion.Text,
+					Author:      authorEntry.Text,
+					License:     licenseURL.Text,
+					URL:         packageURL.Text,
+					Capibility:  capibility.Selected,
+				}).Perform()
 			}, w)
 		}))
 
-	loadConfigContainer := container.New(layout.NewVBoxLayout())
+	pb := widget.NewProgressBarInfinite()
+	utils.LoadStdOut = widget.NewRichText()
+	utils.LoadStdOut.Resize(fyne.NewSize(300, 600))
+	utils.LoadStdOut.Scroll = widget.NewEntry().Scroll
+
 	loadBtn := widget.NewButton("Load Config", func() {
 		dialog.ShowFileOpen(func(f fyne.URIReadCloser, err error) {
 			if err != nil {
@@ -208,15 +204,16 @@ func UI(templates embed.FS) {
 					return
 				}
 			}
-			pb := widget.NewProgressBarInfinite()
-			loadConfigContainer.Add(pb)
-			utils.LoadStdOut = widget.NewTextGrid()
-			loadConfigContainer.Add(utils.LoadStdOut)
 
 			w.Canvas().Content().Refresh()
-			err = cmd.Build([]string{
-				saveFile,
-			})
+			err = (&cmd.Build{
+				ConfigPath: saveFile,
+			}).Perform()
+
+			if err != nil {
+				return
+			}
+
 			pb.Stop()
 			if err != nil {
 				pb.Theme().Color(fyne.ThemeColorName("red"), fyne.ThemeVariant(1))
@@ -228,6 +225,8 @@ func UI(templates embed.FS) {
 
 		}, w)
 	})
+
+	loadConfigContainer := container.NewBorder(pb, nil, nil, loadBtn, utils.LoadStdOut)
 
 	loadBtn.Resize(fyne.NewSize(25, 25))
 	loadConfigContainer.Add(loadBtn)
@@ -274,38 +273,38 @@ func UI(templates embed.FS) {
 							return
 						}
 
-						var jsonConfig cmd.Targets
+						var jsonConfig cmd.Target
 						json.Unmarshal(byteValue, &jsonConfig)
 
-						if len(jsonConfig.Targets) == 0 {
-							utils.AppendLoadOut("Fatal error: no targets configured in config")
-							return
-						}
+						// if len(jsonConfig.Targets) == 0 {
+						// 	utils.AppendLoadOut("Fatal error: no targets configured in config")
+						// 	return
+						// }
 
-						manifestName.Text = jsonConfig.Targets[0].Name
-						manifestDescription.Text = jsonConfig.Targets[0].Description
-						manifestHeaderUUID.Text = jsonConfig.Targets[0].Header_uuid
-						manifestModuleUUID.Text = jsonConfig.Targets[0].Module_uuid
-						if jsonConfig.Targets[0].Textureset_format == "1.16.100" {
+						manifestName.Text = jsonConfig.Name
+						manifestDescription.Text = jsonConfig.Description
+						manifestHeaderUUID.Text = jsonConfig.Header_uuid
+						manifestModuleUUID.Text = jsonConfig.Module_uuid
+						if jsonConfig.Textureset_format == "1.16.100" {
 							texturesetSelector.SetSelectedIndex(0)
 						} else {
 							texturesetSelector.SetSelectedIndex(1)
 						}
-						defaultMERArrEntry.Text = jsonConfig.Targets[0].Default_mer
-						manifestVersion.Text = jsonConfig.Targets[0].Version
-						authorEntry.Text = jsonConfig.Targets[0].Author
-						licenseURL.Text = jsonConfig.Targets[0].License
-						packageURL.Text = jsonConfig.Targets[0].URL
-						if jsonConfig.Targets[0].Capibility == "pbr" {
+						defaultMERArrEntry.Text = jsonConfig.Default_mer
+						manifestVersion.Text = jsonConfig.Version
+						authorEntry.Text = jsonConfig.Author
+						licenseURL.Text = jsonConfig.License
+						packageURL.Text = jsonConfig.URL
+						if jsonConfig.Capibility == "pbr" {
 							capibility.SetSelectedIndex(0)
 						} else {
 							capibility.SetSelectedIndex(1)
 						}
-						heightTemplateEntry.Text = jsonConfig.Targets[0].HeightTemplate
-						normalTemplateEntry.Text = jsonConfig.Targets[0].NormalTemplate
-						merTemplateEntry.Text = jsonConfig.Targets[0].MerTemplate
+						heightTemplateEntry.Text = jsonConfig.HeightTemplate
+						normalTemplateEntry.Text = jsonConfig.NormalTemplate
+						merTemplateEntry.Text = jsonConfig.MerTemplate
 
-						exportMERCSVCheck.Checked = jsonConfig.Targets[0].ExportMer
+						exportMERCSVCheck.Checked = jsonConfig.ExportMer
 
 						w.Canvas().Content().Refresh()
 

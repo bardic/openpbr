@@ -31,14 +31,14 @@ var HeightMapNameSuffix = "_height"
 var NormalMapNameSuffix = "_normal"
 var MerMapNameSuffix = "_mer"
 
-var LoadStdOut *widget.TextGrid
+var LoadStdOut *widget.RichText
 
 func LocalPath(partialPath string) string {
 	return Basedir + string(os.PathSeparator) + partialPath
 }
 
 func AppendLoadOut(s string) {
-	LoadStdOut.SetText(LoadStdOut.Text() + "\n" + s)
+	LoadStdOut.AppendMarkdown(s)
 }
 
 func GetTextureSubpath(p string, key string) (string, error) {

@@ -9,30 +9,27 @@ import (
 	"path/filepath"
 
 	"github.com/bardic/openpbr/utils"
-	"github.com/spf13/cobra"
 )
 
-var DownloadCmd = &cobra.Command{
-	Use:   "download",
-	Short: "Downloads latest release",
-	Long:  ``,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		r := &GithubRelease{}
-		if e := getJson("https://api.github.com/repos/Mojang/bedrock-samples/releases/latest", r); e != nil {
-			return e
-		}
-		if e := downloadRelease(r.Zipball_url); e != nil {
-			return e
-		}
+type Download struct {
+}
 
-		err := extract()
+func (cmd *Download) Perform() error {
+	r := &GithubRelease{}
+	if e := getJson("https://api.github.com/repos/Mojang/bedrock-samples/releases/latest", r); e != nil {
+		return e
+	}
+	if e := downloadRelease(r.Zipball_url); e != nil {
+		return e
+	}
 
-		if err != nil {
-			return err
-		}
+	err := extract()
 
-		return nil
-	},
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func getJson(url string, target interface{}) error {
