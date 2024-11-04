@@ -18,6 +18,8 @@ type TextureSet struct {
 }
 
 func (cmd *TextureSet) Perform() error {
+	utils.AppendLoadOut("--- Export Texture JSON ")
+
 	for _, s := range utils.TargetAssets {
 		utils.AppendLoadOut("--- Create JSON files")
 		cmd.SubRoot = filepath.Join(cmd.Root, s)

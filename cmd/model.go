@@ -30,3 +30,7 @@ type Target struct {
 	MerTemplate       string
 	ExportMer         bool
 }
+
+func (t *Target) Perform() error {
+	return nil
+}

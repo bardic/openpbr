@@ -12,15 +12,15 @@ import (
 	"github.com/bardic/openpbr/utils"
 )
 
-type HeightMap struct {
+type AdjustColor struct {
 	Root    string
 	SubRoot string
 	In      string
 	Out     string
 }
 
-func (cmd *HeightMap) Perform() error {
-	utils.AppendLoadOut("--- Create height files for ")
+func (cmd *AdjustColor) Perform() error {
+	utils.AppendLoadOut("--- Adjust colours")
 	for _, s := range utils.TargetAssets {
 		utils.AppendLoadOut("--- --- " + s)
 		cmd.SubRoot = filepath.Join(cmd.Root, s)
@@ -35,7 +35,7 @@ func (cmd *HeightMap) Perform() error {
 	return nil
 }
 
-func (cmd *HeightMap) walkDir() error {
+func (cmd *AdjustColor) walkDir() error {
 	root := cmd.SubRoot
 	fileSystem := os.DirFS(root)
 
@@ -59,19 +59,9 @@ func (cmd *HeightMap) walkDir() error {
 	return nil
 }
 
-func (cmd *HeightMap) Exec() error {
+func (cmd *AdjustColor) Exec() error {
 
-	c := exec.Command(
-		utils.IM_CMD,
-		cmd.In,
-		"-channel",
-		"RGB",
-		"-negate",
-		"-set",
-		"colorspace",
-		"Gray",
-		"png32:"+cmd.Out,
-	)
+	c := exec.Command(utils.IM_CMD, cmd.In, "-modulate", "106,106,95", "png32:"+cmd.In)
 
 	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
 	go c.Run()

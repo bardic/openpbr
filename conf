@@ -1,0 +1,18 @@
+{
+    "Buildname": "C:\\Users\\tj\\Development\\openpbr\\conf",
+    "Name": "OpenPBR v5.0",
+    "Description": "OpenPBR v5.0 PBR - 1.16",
+    "Header_uuid": "bd05ec3b-969f-46f6-86a0-c51660fdd442",
+    "Module_uuid": "fe2aee73-1a10-4d0e-87f8-ccdf0e6055b8",
+    "Textureset_format": "1.16.100",
+    "Default_mer": "0, 0, 255",
+    "Version": "[5,0,0]",
+    "Author": "judohippo",
+    "License": "https://github.com/bardic/openpbr/blob/main/UNLICENSE",
+    "URL": "https://github.com/bardic/openpbr",
+    "Capibility": "pbr",
+    "HeightTemplate": "_height",
+    "NormalTemplate": "_normal",
+    "MerTemplate": "_mer",
+    "ExportMer": "false"
+}

@@ -15,6 +15,8 @@ type Download struct {
 }
 
 func (cmd *Download) Perform() error {
+	utils.AppendLoadOut("--- Download latest base assets")
+
 	r := &GithubRelease{}
 	if e := getJson("https://api.github.com/repos/Mojang/bedrock-samples/releases/latest", r); e != nil {
 		return e

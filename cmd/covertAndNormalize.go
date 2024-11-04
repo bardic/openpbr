@@ -20,6 +20,7 @@ type CovertAndNormalize struct {
 }
 
 func (cmd *CovertAndNormalize) Perform() error {
+	utils.AppendLoadOut("--- Normalize source images")
 	entries, _ := os.ReadDir(cmd.Root)
 	f := entries[0]
 	for _, s := range utils.TargetAssets {

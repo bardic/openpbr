@@ -10,8 +10,8 @@ type Clean struct {
 }
 
 func (c *Clean) Perform() error {
+	utils.AppendLoadOut("--- Cleaning workspace")
 
-	
 	if e := os.RemoveAll(utils.BaseAssets); e != nil {
 		return e
 	}

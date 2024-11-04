@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/bardic/openpbr/utils"
-	cp "github.com/otiai10/copy"
 )
 
 type Build struct {
@@ -16,6 +15,7 @@ type Build struct {
 }
 
 func (cmd *Build) Perform() error {
+
 	utils.AppendLoadOut(time.Now().String())
 
 	jsonFile, err := os.Open(cmd.ConfigPath)
@@ -30,53 +30,33 @@ func (cmd *Build) Perform() error {
 	err = json.Unmarshal(byteValue, &jsonConfig)
 	logE(err)
 
-	// utils.TexturesetVersion = jsonConfig.Textureset_format
-
-	utils.AppendLoadOut("--- Cleaning workspace")
-	err = (&Clean{}).Perform()
-	logE(err)
-
-	utils.AppendLoadOut("--- Download latest base assets")
-	err = (&Download{}).Perform()
-	logE(err)
-
-	utils.AppendLoadOut("--- Prcoess PSDs")
-	err = (&ConvertPSD{
+	cmds := []ICmd{}
+	cmds = append(cmds, &Clean{})
+	cmds = append(cmds, &Download{})
+	cmds = append(cmds, &ConvertPSD{
 		Path: utils.LocalPath(utils.Psds),
-	}).Perform()
-	logE(err)
-
-	utils.AppendLoadOut("--- Copy custom configs")
-	err = cp.Copy(
-		utils.LocalPath(utils.SettingDir),
-		utils.LocalPath(utils.OutDir),
-	)
-	logE(err)
-
-	utils.AppendLoadOut("--- Convert TGA to PNG")
-	err = (&CovertAndNormalize{
+	})
+	cmds = append(cmds, &Copy{
+		Target: utils.SettingDir,
+		Dest:   utils.OutDir,
+	})
+	cmds = append(cmds, &CovertAndNormalize{
 		Root: utils.LocalPath(utils.BaseAssets),
-	}).Perform()
-	logE(err)
-
-	utils.AppendLoadOut("--- Create height files for ")
-	err = (&HeightMap{
+	})
+	cmds = append(cmds, &HeightMap{
 		Root: utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
-	}).Perform()
-	logE(err)
-
-	utils.AppendLoadOut("--- Copy Overrides")
-	err = cp.Copy(utils.LocalPath(utils.Overrides), utils.LocalPath(filepath.Join(utils.OutDir, "textures")))
-	logE(err)
-
-	utils.AppendLoadOut("--- Export Texture JSON ")
-	err = (&TextureSet{
+	})
+	cmds = append(cmds, &AdjustColor{
 		Root: utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
-	}).Perform()
-	logE(err)
-
-	utils.AppendLoadOut("--- Create manifest")
-	err = (&Manifest{
+	})
+	cmds = append(cmds, &Copy{
+		Target: utils.Overrides,
+		Dest:   filepath.Join(utils.OutDir, "textures"),
+	})
+	cmds = append(cmds, &TextureSet{
+		Root: utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
+	})
+	cmds = append(cmds, &Manifest{
 		Name:        jsonConfig.Name,
 		Description: jsonConfig.Description,
 		Header_uuid: jsonConfig.Header_uuid,
@@ -86,18 +66,26 @@ func (cmd *Build) Perform() error {
 		License:     jsonConfig.License,
 		URL:         jsonConfig.URL,
 		Capibility:  jsonConfig.Capibility,
-	}).Perform()
-	logE(err)
-
-	utils.AppendLoadOut("--- Package Release")
-	err = (&PackBundle{
+	})
+	cmds = append(cmds, &PackBundle{
 		InDir:  utils.LocalPath(utils.OutDir),
 		OutDir: utils.OutDir,
-	}).Perform()
-	logE(err)
+	})
+
+	logE(Exec(cmds))
+
+	return nil
+}
+
+func Exec(cmds []ICmd) error {
+	for _, c := range cmds {
+		err := c.Perform()
+		if err != nil {
+			return err
+		}
+	}
 
 	utils.AppendLoadOut("--- OpenPBR complete")
-
 	return nil
 }
 

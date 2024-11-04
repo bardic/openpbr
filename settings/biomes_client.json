@@ -2,7 +2,7 @@
   "biomes": {
     "default": {
       "water_surface_color": "#44AFF5",
-      "water_surface_transparency": 0.65,
+      "water_surface_transparency": 0.45,
       "fog_identifier": "openpbr:fog_default",
       "remove_all_prior_fog": false,
       "inherit_from_prior_fog": false

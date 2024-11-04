@@ -25,6 +25,6 @@ type Config struct {
 }
 
 func (cmd *Config) Perform() error {
-	rankingsJson, _ := json.Marshal(cmd)
-	return os.WriteFile(cmd.Buildname, rankingsJson, 0644)
+	conf, _ := json.Marshal(cmd)
+	return os.WriteFile(cmd.Buildname, conf, 0644)
 }

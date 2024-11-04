@@ -39,6 +39,8 @@ func LocalPath(partialPath string) string {
 
 func AppendLoadOut(s string) {
 	LoadStdOut.AppendMarkdown(s)
+
+	LoadStdOut.Refresh()
 }
 
 func GetTextureSubpath(p string, key string) (string, error) {

@@ -15,6 +15,8 @@ type ConvertPSD struct {
 }
 
 func (cmd *ConvertPSD) Perform() error {
+	utils.AppendLoadOut("--- Prcoess PSDs")
+
 	return build(cmd.Path)
 }
 

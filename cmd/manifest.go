@@ -21,6 +21,7 @@ type Manifest struct {
 }
 
 func (cmd *Manifest) Perform() error {
+	utils.AppendLoadOut("--- Create manifest")
 	var tmplFile = utils.LocalPath("templates" + string(os.PathSeparator) + "manifest.tmpl")
 
 	t, err := template.ParseFiles(tmplFile)

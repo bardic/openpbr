@@ -1,0 +1,205 @@
+package ui
+
+import (
+	"log"
+	"strconv"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
+	"github.com/bardic/openpbr/cmd"
+	"github.com/bardic/openpbr/utils"
+	"github.com/google/uuid"
+)
+
+type Create struct {
+	manifestName                 *widget.Entry
+	manifestNameContainer        *fyne.Container
+	authorEntry                  *widget.Entry
+	authorEntryContainer         *fyne.Container
+	licenseURL                   *widget.Entry
+	licenseURLContainer          *fyne.Container
+	packageURL                   *widget.Entry
+	packageURLContainer          *fyne.Container
+	capibility                   *widget.Select
+	capibilityContainer          *fyne.Container
+	manifestDescription          *widget.Entry
+	manifestDescriptionContainer *fyne.Container
+	manifestHeaderUUID           *widget.Entry
+	manifestHeaderUUIDBtn        *widget.Button
+	manifestHeaderUUIDGroup      *fyne.Container
+	manifestHeaderUUIDContainer  *fyne.Container
+	manifestModuleUUID           *widget.Entry
+	manifestModuleUUIDBtn        *widget.Button
+	manifestModuleUUIDGroup      *fyne.Container
+	manifestModuleUUIDContainer  *fyne.Container
+	manifestVersion              *widget.Entry
+	manifestVersionContainer     *fyne.Container
+	heightTemplateEntry          *widget.Entry
+	heightTemplateEntryContainer *fyne.Container
+	normalTemplateEntry          *widget.Entry
+	normalTemplateEntryContainer *fyne.Container
+	merTemplateEntry             *widget.Entry
+	merTemplateEntryContainer    *fyne.Container
+	texturesetSelector           *widget.Select
+	texturesetSelectorContainer  *fyne.Container
+	defaultMERArrEntry           *widget.Entry
+	defaultMERArrEntryContainer  *fyne.Container
+	exportMERCSVCheck            *widget.Check
+	exportMERCSVCheckContainer   *fyne.Container
+	manifestSectionHeader        *widget.Label
+	pbrSectionHeader             *widget.Label
+}
+
+func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, error), popupErr func(error)) *fyne.Container {
+	c.manifestName = widget.NewEntry()
+	c.manifestNameContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Name"), c.manifestName)
+
+	c.authorEntry = widget.NewEntry()
+	c.authorEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Author Name"), c.authorEntry)
+
+	c.licenseURL = widget.NewEntry()
+	c.licenseURLContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("License URL"), c.licenseURL)
+
+	c.packageURL = widget.NewEntry()
+	c.packageURLContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Package URL"), c.packageURL)
+
+	c.capibility = widget.NewSelect([]string{"pbr", "rtx"}, func(value string) {
+		log.Println("Select set to", value)
+	})
+	c.capibilityContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Capibility"), c.capibility)
+
+	c.manifestDescription = widget.NewEntry()
+	c.manifestDescriptionContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Description"), c.manifestDescription)
+
+	c.manifestHeaderUUID = widget.NewEntry()
+	c.manifestHeaderUUIDBtn = widget.NewButton("<", func() {
+		c.manifestHeaderUUID.Text = uuid.New().String()
+		refresh()
+	})
+
+	c.manifestHeaderUUIDGroup = container.New(layout.NewAdaptiveGridLayout(2), c.manifestHeaderUUID, c.manifestHeaderUUIDBtn)
+	c.manifestHeaderUUIDBtn.Resize(fyne.NewSize(25, 25))
+	c.manifestHeaderUUIDContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Header Guid"), c.manifestHeaderUUIDGroup)
+
+	c.manifestModuleUUID = widget.NewEntry()
+	c.manifestModuleUUIDBtn = widget.NewButton("<", func() {
+		c.manifestModuleUUID.Text = uuid.New().String()
+		refresh()
+	})
+	c.manifestModuleUUIDBtn.Resize(fyne.NewSize(25, 25))
+	c.manifestModuleUUIDGroup = container.New(layout.NewAdaptiveGridLayout(2), c.manifestModuleUUID, c.manifestModuleUUIDBtn)
+	c.manifestModuleUUIDContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Module Guid"), c.manifestModuleUUIDGroup)
+
+	c.manifestVersion = widget.NewEntry()
+	c.manifestVersion.SetPlaceHolder("ex: [1, 0, 5]")
+	c.manifestVersionContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Version"), c.manifestVersion)
+
+	c.heightTemplateEntry = widget.NewEntry()
+	c.heightTemplateEntry.SetText("_height")
+	c.heightTemplateEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Height Template"), c.heightTemplateEntry)
+
+	c.normalTemplateEntry = widget.NewEntry()
+	c.normalTemplateEntry.SetText("_normal")
+	c.normalTemplateEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Normal Template"), c.normalTemplateEntry)
+
+	c.merTemplateEntry = widget.NewEntry()
+	c.merTemplateEntry.SetText("_mer")
+	c.merTemplateEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("MER Template"), c.merTemplateEntry)
+
+	c.texturesetSelector = widget.NewSelect([]string{"1.16.100", "1.21.30"}, func(value string) {
+		log.Println("Select set to", value)
+	})
+	c.texturesetSelectorContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Texture Set Version"), c.texturesetSelector)
+
+	c.defaultMERArrEntry = widget.NewEntry()
+	c.defaultMERArrEntry.SetPlaceHolder("ex: [255, 0, 255, 200]")
+	c.defaultMERArrEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Default MER Array"), c.defaultMERArrEntry)
+
+	c.exportMERCSVCheck = widget.NewCheck("Export MER Override CSV", func(b bool) {
+
+	})
+	c.exportMERCSVCheckContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel(""), c.exportMERCSVCheck)
+
+	c.manifestSectionHeader = widget.NewLabel("Manifest")
+	c.manifestSectionHeader.TextStyle.Bold = true
+	c.manifestSectionHeader.TextStyle.Underline = true
+
+	c.pbrSectionHeader = widget.NewLabel("PBR Settings")
+	c.pbrSectionHeader.TextStyle.Bold = true
+	c.pbrSectionHeader.TextStyle.Underline = true
+
+	v := container.New(
+		layout.NewVBoxLayout(),
+		c.manifestSectionHeader,
+		c.manifestNameContainer,
+		c.authorEntryContainer,
+		c.licenseURLContainer,
+		c.packageURLContainer,
+		c.capibilityContainer,
+		c.manifestDescriptionContainer,
+		c.manifestHeaderUUIDContainer,
+		c.manifestModuleUUIDContainer,
+		c.manifestVersionContainer,
+		c.pbrSectionHeader,
+		c.texturesetSelectorContainer,
+		c.defaultMERArrEntryContainer,
+		c.heightTemplateEntryContainer,
+		c.normalTemplateEntryContainer,
+		c.merTemplateEntryContainer,
+		c.exportMERCSVCheckContainer,
+		widget.NewButton("Save", func() {
+
+			config := &cmd.Config{
+				Buildname:         utils.LocalPath("conf"),
+				Name:              c.manifestName.Text,
+				Header_uuid:       c.manifestHeaderUUID.Text,
+				Module_uuid:       c.manifestModuleUUID.Text,
+				Description:       c.manifestDescription.Text,
+				Textureset_format: c.texturesetSelector.Selected,
+				Default_mer:       c.defaultMERArrEntry.Text,
+				Version:           c.manifestVersion.Text,
+				Author:            c.authorEntry.Text,
+				License:           c.licenseURL.Text,
+				URL:               c.packageURL.Text,
+				Capibility:        c.capibility.Selected,
+				HeightTemplate:    c.heightTemplateEntry.Text,
+				NormalTemplate:    c.normalTemplateEntry.Text,
+				MerTemplate:       c.merTemplateEntry.Text,
+				ExportMer:         strconv.FormatBool(c.exportMERCSVCheck.Checked),
+			}
+
+			config.Perform()
+		}))
+
+	return v
+}
+
+func (c *Create) Update(t cmd.Target) {
+
+	c.manifestName.Text = t.Name
+	c.manifestDescription.Text = t.Description
+	c.manifestHeaderUUID.Text = t.Header_uuid
+	c.manifestModuleUUID.Text = t.Module_uuid
+	if t.Textureset_format == "1.16.100" {
+		c.texturesetSelector.SetSelectedIndex(0)
+	} else {
+		c.texturesetSelector.SetSelectedIndex(1)
+	}
+	c.defaultMERArrEntry.Text = t.Default_mer
+	c.manifestVersion.Text = t.Version
+	c.authorEntry.Text = t.Author
+	c.licenseURL.Text = t.License
+	c.packageURL.Text = t.URL
+	if t.Capibility == "pbr" {
+		c.capibility.SetSelectedIndex(0)
+	} else {
+		c.capibility.SetSelectedIndex(1)
+	}
+	c.heightTemplateEntry.Text = t.HeightTemplate
+	c.normalTemplateEntry.Text = t.NormalTemplate
+	c.merTemplateEntry.Text = t.MerTemplate
+
+	c.exportMERCSVCheck.Checked = t.ExportMer
+}

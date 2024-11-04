@@ -2,11 +2,13 @@ package main
 
 import (
 	"embed"
+	"github.com/bardic/openpbr/ui"
 )
 
 //go:embed templates/*.tmpl
 var templates embed.FS
 
 func main() {
-	UI(templates)
+	ui := ui.UI{}
+	ui.Build(templates)
 }

@@ -17,7 +17,12 @@ type PBRExport struct {
 
 func (cmd *PBRExport) Perform() error {
 
-	tmplFile := "./templates/pbr2.tmpl"
+	tmplFile := "./templates/pbr.tmpl"
+
+	if cmd.TextureSetVer == "1.21.30" {
+		tmplFile = "./templates/pbr2.tmpl"
+
+	}
 
 	pbr := PBR{
 		Colour:  cmd.Color,

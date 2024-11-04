@@ -15,6 +15,7 @@ type PackBundle struct {
 }
 
 func (cmd *PackBundle) Perform() error {
+	utils.AppendLoadOut("--- Package Release")
 	archive, err := os.Create("openpbr.mcpack")
 	if err != nil {
 		return err
