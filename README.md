@@ -1,21 +1,19 @@
 # OpenPBR
 
-OpenPBR is software that makes creating PBR packs for Minecraft easier. It does this by downloading the latest textures from the Majong assets repo and uses Imagemagick, Nvidia Texture tools and pngcrush to automatically create Height maps, Normal Maps and MER files.
+OpenPBR is software that makes creating PBR packs for Minecraft easier. It does this by downloading the latest textures from the Majong assets repo and uses Imagemagick create Height maps and MER files.
 
 This software also supports easily adding custom MER via a folder of PSDs that are exported to PNG during build.
 
-Packages produced by this project
-
-**REQUIRES MINECRAFT PREVIEW OR BETTER RENDER DRAGON**
+## PACKAGES PRODUCED BY THIS PROJECT REQUIRES MINECRAFT PREVIEW OR BETTER RENDER DRAGON
 
 Packages include:
 
 - Tweaked sky colors (UNDER CONSTRUCTION)
-- Emissive Ores
+- Emissive Ores (PBR only)
+- Outlined ores
 - Lighting Tweaks (UNDER CONSTRUCTION)
 - Hables tone-mapping
 - Vanilla Block Assets + Heightmaps and MER
-- Vanilla Block Assets + Normals and MER
 - Upscaling (UNDER CONSTRUCTION)
 
 ## Requirements
@@ -32,7 +30,7 @@ Depending on your version of ImageMagick you may need to modify utils.go
 - Special dirs/files
   - psds - Any psd found in this directory is converted to png and placed in the overrides folder
   - overrides - Generated files to be copied
-  - settings - everything here is blindly copied
+  - settings - shared is first copied. Then the everything within the textureset version subfolder
   - templates - is genereated when the build occurs.
 
 ## Run locally
