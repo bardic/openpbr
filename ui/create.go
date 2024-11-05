@@ -2,7 +2,6 @@ package ui
 
 import (
 	"log"
-	"strconv"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -38,18 +37,19 @@ type Create struct {
 	manifestVersionContainer     *fyne.Container
 	heightTemplateEntry          *widget.Entry
 	heightTemplateEntryContainer *fyne.Container
-	normalTemplateEntry          *widget.Entry
-	normalTemplateEntryContainer *fyne.Container
 	merTemplateEntry             *widget.Entry
 	merTemplateEntryContainer    *fyne.Container
 	texturesetSelector           *widget.Select
 	texturesetSelectorContainer  *fyne.Container
 	defaultMERArrEntry           *widget.Entry
 	defaultMERArrEntryContainer  *fyne.Container
-	exportMERCSVCheck            *widget.Check
-	exportMERCSVCheckContainer   *fyne.Container
 	manifestSectionHeader        *widget.Label
 	pbrSectionHeader             *widget.Label
+	rbgInfoHeader                *widget.Label
+	rgbContainer                 *fyne.Container
+	rText                        *widget.Entry
+	gText                        *widget.Entry
+	bText                        *widget.Entry
 }
 
 func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, error), popupErr func(error)) *fyne.Container {
@@ -92,6 +92,16 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 	c.manifestModuleUUIDGroup = container.New(layout.NewAdaptiveGridLayout(2), c.manifestModuleUUID, c.manifestModuleUUIDBtn)
 	c.manifestModuleUUIDContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Module Guid"), c.manifestModuleUUIDGroup)
 
+	c.rText = widget.NewEntry()
+	c.rText.SetText("0")
+	c.gText = widget.NewEntry()
+	c.gText.SetText("0")
+	c.bText = widget.NewEntry()
+	c.bText.SetText("0")
+
+	c.rbgInfoHeader = widget.NewLabel("Reasonable RGB offset values are between -15 and 15")
+	c.rgbContainer = container.New(layout.NewAdaptiveGridLayout(3), c.rText, c.gText, c.bText)
+
 	c.manifestVersion = widget.NewEntry()
 	c.manifestVersion.SetPlaceHolder("ex: [1, 0, 5]")
 	c.manifestVersionContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Version"), c.manifestVersion)
@@ -99,10 +109,6 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 	c.heightTemplateEntry = widget.NewEntry()
 	c.heightTemplateEntry.SetText("_height")
 	c.heightTemplateEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Height Template"), c.heightTemplateEntry)
-
-	c.normalTemplateEntry = widget.NewEntry()
-	c.normalTemplateEntry.SetText("_normal")
-	c.normalTemplateEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Normal Template"), c.normalTemplateEntry)
 
 	c.merTemplateEntry = widget.NewEntry()
 	c.merTemplateEntry.SetText("_mer")
@@ -116,11 +122,6 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 	c.defaultMERArrEntry = widget.NewEntry()
 	c.defaultMERArrEntry.SetPlaceHolder("ex: [255, 0, 255, 200]")
 	c.defaultMERArrEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Default MER Array"), c.defaultMERArrEntry)
-
-	c.exportMERCSVCheck = widget.NewCheck("Export MER Override CSV", func(b bool) {
-
-	})
-	c.exportMERCSVCheckContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel(""), c.exportMERCSVCheck)
 
 	c.manifestSectionHeader = widget.NewLabel("Manifest")
 	c.manifestSectionHeader.TextStyle.Bold = true
@@ -143,12 +144,12 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 		c.manifestModuleUUIDContainer,
 		c.manifestVersionContainer,
 		c.pbrSectionHeader,
+		c.rbgInfoHeader,
+		c.rgbContainer,
 		c.texturesetSelectorContainer,
 		c.defaultMERArrEntryContainer,
 		c.heightTemplateEntryContainer,
-		c.normalTemplateEntryContainer,
 		c.merTemplateEntryContainer,
-		c.exportMERCSVCheckContainer,
 		widget.NewButton("Save", func() {
 
 			config := &cmd.Config{
@@ -165,18 +166,20 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 				URL:               c.packageURL.Text,
 				Capibility:        c.capibility.Selected,
 				HeightTemplate:    c.heightTemplateEntry.Text,
-				NormalTemplate:    c.normalTemplateEntry.Text,
 				MerTemplate:       c.merTemplateEntry.Text,
-				ExportMer:         strconv.FormatBool(c.exportMERCSVCheck.Checked),
+				ROffset:           c.rText.Text,
+				GOffset:           c.gText.Text,
+				BOffset:           c.bText.Text,
 			}
 
-			config.Perform()
+			//config.Perform()
+			popupSave(config, nil)
 		}))
 
 	return v
 }
 
-func (c *Create) Update(t cmd.Target) {
+func (c *Create) Update(t cmd.Config) {
 
 	c.manifestName.Text = t.Name
 	c.manifestDescription.Text = t.Description
@@ -198,8 +201,8 @@ func (c *Create) Update(t cmd.Target) {
 		c.capibility.SetSelectedIndex(1)
 	}
 	c.heightTemplateEntry.Text = t.HeightTemplate
-	c.normalTemplateEntry.Text = t.NormalTemplate
 	c.merTemplateEntry.Text = t.MerTemplate
-
-	c.exportMERCSVCheck.Checked = t.ExportMer
+	c.rText.Text = t.ROffset
+	c.gText.Text = t.GOffset
+	c.bText.Text = t.BOffset
 }

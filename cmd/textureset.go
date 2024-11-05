@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,10 +10,11 @@ import (
 )
 
 type TextureSet struct {
-	Root    string
-	SubRoot string
-	In      string
-	Out     string
+	Root              string
+	SubRoot           string
+	In                string
+	Out               string
+	TexturesetVersion string
 }
 
 func (cmd *TextureSet) Perform() error {
@@ -39,9 +39,9 @@ func (cmd *TextureSet) CreateTextureSets() error {
 	root := cmd.SubRoot
 	fileSystem := os.DirFS(root)
 
-	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		if d.IsDir() {
@@ -58,7 +58,7 @@ func (cmd *TextureSet) CreateTextureSets() error {
 		subpath, err := utils.GetTextureSubpath(cmd.In, "textures")
 
 		if err != nil {
-			return nil
+			return err
 		}
 
 		cmd.Out = filepath.Join(utils.LocalPath(utils.OutDir), subpath)
@@ -80,7 +80,7 @@ func (cmd *TextureSet) CreateTextureSets() error {
 			MerFile:       merPath,
 			Height:        heightPath,
 			UseMerFile:    useMerFile,
-			TextureSetVer: utils.TexturesetVersion,
+			TextureSetVer: cmd.TexturesetVersion,
 		}).Perform()
 
 		if err != nil {
@@ -90,5 +90,5 @@ func (cmd *TextureSet) CreateTextureSets() error {
 		return nil
 	})
 
-	return nil
+	return err
 }

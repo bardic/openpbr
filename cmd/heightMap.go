@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/bardic/openpbr/utils"
 )
@@ -60,9 +59,8 @@ func (cmd *HeightMap) walkDir() error {
 }
 
 func (cmd *HeightMap) Exec() error {
-
 	c := exec.Command(
-		utils.IM_CMD,
+		utils.ImCmd,
 		cmd.In,
 		"-channel",
 		"RGB",
@@ -73,9 +71,5 @@ func (cmd *HeightMap) Exec() error {
 		"png32:"+cmd.Out,
 	)
 
-	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
-	go c.Run()
-
-	return nil
-
+	return utils.RunCmd(c)
 }

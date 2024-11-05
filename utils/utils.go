@@ -3,32 +3,25 @@ package utils
 import (
 	"errors"
 	"os"
+	"os/exec"
 	"strings"
+	"syscall"
 
 	"fyne.io/fyne/v2/widget"
 )
 
-// Folders
 const BaseAssets = "input"
 const OutDir = "openpbr_out"
 const Overrides = "overrides"
 const SettingDir = "settings"
 const Psds = "psds"
 
-var IM_CMD = "magick"
-var Beta bool
-var DeleteAutoGen bool
-var SkipDownload bool
-var NormalMaps bool
-var ZipOnly bool
-var Crush bool
-var TexturesetVersion string
+var ImCmd = "magick"
+
 var Basedir string
-var Failed bool
 var TargetAssets = []string{"blocks", "entity", "particle"}
 
 var HeightMapNameSuffix = "_height"
-var NormalMapNameSuffix = "_normal"
 var MerMapNameSuffix = "_mer"
 
 var LoadStdOut *widget.RichText
@@ -37,9 +30,22 @@ func LocalPath(partialPath string) string {
 	return Basedir + string(os.PathSeparator) + partialPath
 }
 
+func RunCmd(cmd *exec.Cmd) error {
+	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
+	err := cmd.Start()
+	return err
+}
+
+func StartUpCheck() error {
+	if _, err := exec.LookPath(ImCmd); err != nil {
+		return errors.New("imagemagick not found")
+	}
+
+	return nil
+}
+
 func AppendLoadOut(s string) {
 	LoadStdOut.AppendMarkdown(s)
-
 	LoadStdOut.Refresh()
 }
 

@@ -19,12 +19,18 @@ type Config struct {
 	URL               string
 	Capibility        string
 	HeightTemplate    string
-	NormalTemplate    string
 	MerTemplate       string
-	ExportMer         string
+	ROffset           string
+	GOffset           string
+	BOffset           string
 }
 
 func (cmd *Config) Perform() error {
-	conf, _ := json.Marshal(cmd)
+	conf, err := json.Marshal(cmd)
+
+	if err != nil {
+		return err
+	}
+
 	return os.WriteFile(cmd.Buildname, conf, 0644)
 }

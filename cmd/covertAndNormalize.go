@@ -2,12 +2,10 @@ package cmd
 
 import (
 	"io/fs"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/bardic/openpbr/utils"
 )
@@ -41,40 +39,44 @@ func (cmd *CovertAndNormalize) createTGA() error {
 	root := cmd.SubRoot
 	fileSystem := os.DirFS(root)
 
-	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
+		if d.IsDir() {
+			return nil
+		}
+
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		cmd.In = filepath.Join(root, path)
 		subpath, err := utils.GetTextureSubpath(cmd.In, "textures")
+		if err != nil {
+			return err
+		}
 		cmd.Out = filepath.Join(utils.LocalPath(utils.OutDir), subpath)
 
 		if filepath.Ext(path) == ".tga" {
-			cmd.Out = strings.Replace(cmd.Out, ".tga", ".png", -1)
+			cmd.Out = strings.Replace(cmd.Out, ".tga", ".png", 1)
 		}
 
-		os.MkdirAll(filepath.Dir(cmd.Out), os.ModePerm)
+		err = os.MkdirAll(filepath.Dir(cmd.Out), os.ModePerm)
 
 		if err != nil {
-			return nil
+			return err
 		}
 
-		cmd.Exec()
-
-		return nil
+		return cmd.Exec()
 	})
 
-	return nil
+	return err
 }
 
 func (cmd *CovertAndNormalize) Exec() error {
 	c := exec.Command(
-		utils.IM_CMD,
+		utils.ImCmd,
 		cmd.In,
 		"png32:"+cmd.Out,
 	)
-	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
-	go c.Run()
-	return nil
+
+	return utils.RunCmd(c)
 }

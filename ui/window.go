@@ -3,6 +3,7 @@ package ui
 import (
 	"embed"
 	"encoding/json"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -49,6 +50,8 @@ func (ui *UI) Build(templates embed.FS) {
 						if f == nil {
 							return
 						}
+
+						config.Buildname = f.URI().Path()
 
 						err = config.Perform()
 
@@ -130,7 +133,7 @@ func (ui *UI) Build(templates embed.FS) {
 
 						utils.Basedir = filepath.Dir(f.URI().Path())
 
-						var jsonConfig cmd.Target
+						var jsonConfig cmd.Config
 						err = json.Unmarshal(byteValue, &jsonConfig)
 
 						if err != nil {
@@ -150,5 +153,12 @@ func (ui *UI) Build(templates embed.FS) {
 
 	ui.window.Show()
 
+	err := utils.StartUpCheck()
+
+	if err != nil {
+		dialog.ShowError(errors.New("meow"), ui.window)
+	}
+
 	ui.app.Run()
+
 }

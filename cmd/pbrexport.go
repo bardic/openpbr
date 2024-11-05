@@ -16,20 +16,10 @@ type PBRExport struct {
 }
 
 func (cmd *PBRExport) Perform() error {
-
 	tmplFile := "./templates/pbr.tmpl"
 
 	if cmd.TextureSetVer == "1.21.30" {
 		tmplFile = "./templates/pbr2.tmpl"
-
-	}
-
-	pbr := PBR{
-		Colour:  cmd.Color,
-		MerArr:  cmd.MerArr,
-		MerFile: cmd.MerFile,
-		Height:  cmd.Height,
-		MerType: cmd.UseMerFile,
 	}
 
 	t, err := template.ParseFiles(tmplFile)
@@ -44,10 +34,9 @@ func (cmd *PBRExport) Perform() error {
 
 	defer f.Close()
 
-	if err := t.Execute(f, pbr); err != nil {
+	if err := t.Execute(f, cmd); err != nil {
 		return err
 	}
 
 	return nil
-
 }

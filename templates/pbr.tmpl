@@ -1,8 +1,8 @@
 {
-  "format_version": "1.21.30",
+  "format_version": "1.16.100",
   "minecraft:texture_set": {
     "color": "{{ .Colour }}",
-    "metalness_emissive_roughness_subsurface": {{ if eq .MerType true }} "{{.MerFile}}" {{ else }} "{{ .MerArr }}" {{ end }},
+    "metalness_emissive_roughness": {{ if eq .MerType true }} "{{.MerFile}}" {{ else }} "{{ .MerArr }}" {{ end }},
     "heightmap": "{{ .Height }}"
   }
 }

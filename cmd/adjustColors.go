@@ -1,13 +1,13 @@
 package cmd
 
 import (
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/bardic/openpbr/utils"
 )
@@ -17,6 +17,9 @@ type AdjustColor struct {
 	SubRoot string
 	In      string
 	Out     string
+	ROffset int
+	GOffset int
+	BOffset int
 }
 
 func (cmd *AdjustColor) Perform() error {
@@ -60,12 +63,12 @@ func (cmd *AdjustColor) walkDir() error {
 }
 
 func (cmd *AdjustColor) Exec() error {
+	r := cmd.ROffset + 100
+	g := cmd.GOffset + 100
+	b := cmd.BOffset + 100
 
-	c := exec.Command(utils.IM_CMD, cmd.In, "-modulate", "106,106,95", "png32:"+cmd.In)
+	rgb := fmt.Sprintf("%d,%d,%d", r, g, b)
+	c := exec.Command(utils.ImCmd, cmd.In, "-modulate", rgb, "png32:"+cmd.In)
 
-	c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
-	go c.Run()
-
-	return nil
-
+	return utils.RunCmd(c)
 }

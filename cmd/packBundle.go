@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"archive/zip"
-	"fmt"
 	"io"
 	"os"
 
@@ -26,14 +25,13 @@ func (cmd *PackBundle) Perform() error {
 	zipWriter.Close()
 
 	return nil
-
 }
 
 func addFileToZip(zipWriter *zip.Writer, filePath string) error {
 	files, err := os.ReadDir(filePath)
 
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 
 	for _, item := range files {

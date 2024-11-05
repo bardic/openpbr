@@ -26,7 +26,7 @@ func (cmd *Build) Perform() error {
 	byteValue, err := io.ReadAll(jsonFile)
 	logE(err)
 
-	var jsonConfig Target
+	var jsonConfig Config
 	err = json.Unmarshal(byteValue, &jsonConfig)
 	logE(err)
 
@@ -37,7 +37,11 @@ func (cmd *Build) Perform() error {
 		Path: utils.LocalPath(utils.Psds),
 	})
 	cmds = append(cmds, &Copy{
-		Target: utils.SettingDir,
+		Target: filepath.Join(utils.SettingDir, "shared"),
+		Dest:   utils.OutDir,
+	})
+	cmds = append(cmds, &Copy{
+		Target: filepath.Join(utils.SettingDir, jsonConfig.Textureset_format),
 		Dest:   utils.OutDir,
 	})
 	cmds = append(cmds, &CovertAndNormalize{
@@ -54,7 +58,8 @@ func (cmd *Build) Perform() error {
 		Dest:   filepath.Join(utils.OutDir, "textures"),
 	})
 	cmds = append(cmds, &TextureSet{
-		Root: utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
+		Root:              utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
+		TexturesetVersion: jsonConfig.Textureset_format,
 	})
 	cmds = append(cmds, &Manifest{
 		Name:        jsonConfig.Name,

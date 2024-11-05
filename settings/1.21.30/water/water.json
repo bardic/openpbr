@@ -1,7 +1,7 @@
 {
     "minecraft:water_settings": {
         "description": {
-            "identifier": "openpbr:default_water"
+            "identifier": "openpbr:default"
         },
         "particle_concentrations": {
             "chlorophyll": 0.5,

@@ -5,7 +5,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"github.com/bardic/openpbr/utils"
 )
@@ -43,9 +42,12 @@ func build(in string) error {
 				continue
 			}
 
-			c := exec.Command(utils.IM_CMD, newIn+"[0]", "png32:"+out)
-			c.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
-			go c.Run()
+			c := exec.Command(utils.ImCmd, newIn+"[0]", "png32:"+out)
+
+			err := utils.RunCmd(c)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
