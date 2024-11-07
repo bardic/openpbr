@@ -1,0 +1,59 @@
+{
+    "format_version": "1.21.40",
+    "minecraft:lighting_settings": {
+        "description": {
+            "identifier": "openpbr:default_lighting_"
+        },
+        "directional_lights": {
+            "sun": {
+                "illuminance": {
+                    "0.0": 109880.0,
+                    "0.25": 20000.0,
+                    "0.35": 400.0,
+                    "0.5": 1.0,
+                    "0.65": 400.0,
+                    "0.75": 20000.0,
+                    "0.75": 20000.0,
+                    "1.0": 109880.0
+                },
+                "color": {
+                    "0.0": "#FFFFFFFF",
+                    "0.25": "#FFFFFFFF",
+                    "0.35": "#FFFFFFFF",
+                    "0.5": "#FFFFFFFF",
+                    "0.65": "#FFFFFFFF",
+                    "0.75": "#FFFFFFFF",
+                    "1.0": "#FFFFFFFF"
+                }
+            },
+            "moon": {
+                "illuminance": {
+                    "0.0": 1.0,
+                    "0.25": 1.0,
+                    "0.35": 1.0,
+                    "0.5": 1.0,
+                    "0.65": 1.0,
+                    "0.75": 1.0,
+                    "1.0": 1.0
+                },
+                "color": {
+                    "0.0": "#FFFFFFFF",
+                    "0.25": "#FFFFFFFF",
+                    "0.35": "#FFFFFFFF",
+                    "0.5": "#FFFFFFFF",
+                    "0.65": "#FFFFFFFF",
+                    "0.75": "#FFFFFFFF",
+                    "1.0": "#FFFFFFFF"
+                }
+            },
+            "orbital_offset_degrees": 3.0
+        },
+        "emissive": {
+            "desaturation": 0.1
+        },
+        "ambient": {
+            "illuminance": 0.02,
+            "color": "#FFFFFFFF"
+        }
+    }
+}

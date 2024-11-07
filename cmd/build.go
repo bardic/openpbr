@@ -41,15 +41,17 @@ func (cmd *Build) Perform() error {
 		Dest:   utils.OutDir,
 	})
 	cmds = append(cmds, &Copy{
-		Target: filepath.Join(utils.SettingDir, jsonConfig.Textureset_format),
+		Target: filepath.Join(utils.SettingDir, jsonConfig.Capibility),
 		Dest:   utils.OutDir,
 	})
 	cmds = append(cmds, &CovertAndNormalize{
 		Root: utils.LocalPath(utils.BaseAssets),
 	})
-	cmds = append(cmds, &HeightMap{
-		Root: utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
-	})
+	if jsonConfig.Capibility == "pbr" {
+		cmds = append(cmds, &HeightMap{
+			Root: utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
+		})
+	}
 	cmds = append(cmds, &AdjustColor{
 		Root: utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
 	})
@@ -58,8 +60,8 @@ func (cmd *Build) Perform() error {
 		Dest:   filepath.Join(utils.OutDir, "textures"),
 	})
 	cmds = append(cmds, &TextureSet{
-		Root:              utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
-		TexturesetVersion: jsonConfig.Textureset_format,
+		Root:       utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
+		Capibility: jsonConfig.Capibility,
 	})
 	cmds = append(cmds, &Manifest{
 		Name:        jsonConfig.Name,

@@ -10,11 +10,11 @@ import (
 )
 
 type TextureSet struct {
-	Root              string
-	SubRoot           string
-	In                string
-	Out               string
-	TexturesetVersion string
+	Root       string
+	SubRoot    string
+	In         string
+	Out        string
+	Capibility string
 }
 
 func (cmd *TextureSet) Perform() error {
@@ -74,13 +74,13 @@ func (cmd *TextureSet) CreateTextureSets() error {
 		}
 
 		err = (&PBRExport{
-			Out:           out,
-			Color:         in,
-			MerArr:        "#0000FF11",
-			MerFile:       merPath,
-			Height:        heightPath,
-			UseMerFile:    useMerFile,
-			TextureSetVer: cmd.TexturesetVersion,
+			Out:        out,
+			Colour:     in,
+			MerArr:     "#0000FF",
+			MerFile:    merPath,
+			Height:     heightPath,
+			UseMerFile: useMerFile,
+			Capibility: cmd.Capibility,
 		}).Perform()
 
 		if err != nil {

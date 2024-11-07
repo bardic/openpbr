@@ -4,7 +4,6 @@
     "Description": "OpenPBR v5.0 PBR - 1.21.30",
     "Header_uuid": "bd111387-103a-4ef4-b33b-b39af1270e50",
     "Module_uuid": "5e867951-86e8-4c74-960c-1e7d1b8beedb",
-    "Textureset_format": "1.21.30",
     "Default_mer": "[0,0,125,95]",
     "Version": "[5,0,0]",
     "Author": "judohippo",

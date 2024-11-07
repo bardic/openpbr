@@ -32,8 +32,8 @@ func LocalPath(partialPath string) string {
 
 func RunCmd(cmd *exec.Cmd) error {
 	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
-	err := cmd.Start()
-	return err
+	go cmd.Start()
+	return nil
 }
 
 func StartUpCheck() error {

@@ -6,23 +6,22 @@ import (
 )
 
 type Config struct {
-	Buildname         string
-	Name              string
-	Description       string
-	Header_uuid       string
-	Module_uuid       string
-	Textureset_format string
-	Default_mer       string
-	Version           string
-	Author            string
-	License           string
-	URL               string
-	Capibility        string
-	HeightTemplate    string
-	MerTemplate       string
-	ROffset           string
-	GOffset           string
-	BOffset           string
+	Buildname      string
+	Name           string
+	Description    string
+	Header_uuid    string
+	Module_uuid    string
+	Default_mer    string
+	Version        string
+	Author         string
+	License        string
+	URL            string
+	Capibility     string
+	HeightTemplate string
+	MerTemplate    string
+	ROffset        string
+	GOffset        string
+	BOffset        string
 }
 
 func (cmd *Config) Perform() error {

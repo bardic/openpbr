@@ -6,20 +6,21 @@ import (
 )
 
 type PBRExport struct {
-	Out           string
-	Color         string
-	MerArr        string
-	MerFile       string
-	Height        string
-	UseMerFile    bool
-	TextureSetVer string
+	Out        string
+	Colour     string
+	MerArr     string
+	MerFile    string
+	Height     string
+	UseMerFile bool
+	Capibility string
 }
 
 func (cmd *PBRExport) Perform() error {
 	tmplFile := "./templates/pbr.tmpl"
 
-	if cmd.TextureSetVer == "1.21.30" {
+	if cmd.Capibility == "pbr" {
 		tmplFile = "./templates/pbr2.tmpl"
+		cmd.MerArr = cmd.MerArr + "FF"
 	}
 
 	t, err := template.ParseFiles(tmplFile)

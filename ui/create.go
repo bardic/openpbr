@@ -39,8 +39,6 @@ type Create struct {
 	heightTemplateEntryContainer *fyne.Container
 	merTemplateEntry             *widget.Entry
 	merTemplateEntryContainer    *fyne.Container
-	texturesetSelector           *widget.Select
-	texturesetSelectorContainer  *fyne.Container
 	defaultMERArrEntry           *widget.Entry
 	defaultMERArrEntryContainer  *fyne.Container
 	manifestSectionHeader        *widget.Label
@@ -65,7 +63,7 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 	c.packageURL = widget.NewEntry()
 	c.packageURLContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Package URL"), c.packageURL)
 
-	c.capibility = widget.NewSelect([]string{"pbr", "rtx"}, func(value string) {
+	c.capibility = widget.NewSelect([]string{"pbr", "plain"}, func(value string) {
 		log.Println("Select set to", value)
 	})
 	c.capibilityContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Capibility"), c.capibility)
@@ -114,11 +112,6 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 	c.merTemplateEntry.SetText("_mer")
 	c.merTemplateEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("MER Template"), c.merTemplateEntry)
 
-	c.texturesetSelector = widget.NewSelect([]string{"1.16.100", "1.21.30"}, func(value string) {
-		log.Println("Select set to", value)
-	})
-	c.texturesetSelectorContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Texture Set Version"), c.texturesetSelector)
-
 	c.defaultMERArrEntry = widget.NewEntry()
 	c.defaultMERArrEntry.SetPlaceHolder("ex: [255, 0, 255, 200]")
 	c.defaultMERArrEntryContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Default MER Array"), c.defaultMERArrEntry)
@@ -146,30 +139,28 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 		c.pbrSectionHeader,
 		c.rbgInfoHeader,
 		c.rgbContainer,
-		c.texturesetSelectorContainer,
 		c.defaultMERArrEntryContainer,
 		c.heightTemplateEntryContainer,
 		c.merTemplateEntryContainer,
 		widget.NewButton("Save", func() {
 
 			config := &cmd.Config{
-				Buildname:         utils.LocalPath("conf"),
-				Name:              c.manifestName.Text,
-				Header_uuid:       c.manifestHeaderUUID.Text,
-				Module_uuid:       c.manifestModuleUUID.Text,
-				Description:       c.manifestDescription.Text,
-				Textureset_format: c.texturesetSelector.Selected,
-				Default_mer:       c.defaultMERArrEntry.Text,
-				Version:           c.manifestVersion.Text,
-				Author:            c.authorEntry.Text,
-				License:           c.licenseURL.Text,
-				URL:               c.packageURL.Text,
-				Capibility:        c.capibility.Selected,
-				HeightTemplate:    c.heightTemplateEntry.Text,
-				MerTemplate:       c.merTemplateEntry.Text,
-				ROffset:           c.rText.Text,
-				GOffset:           c.gText.Text,
-				BOffset:           c.bText.Text,
+				Buildname:      utils.LocalPath("conf"),
+				Name:           c.manifestName.Text,
+				Header_uuid:    c.manifestHeaderUUID.Text,
+				Module_uuid:    c.manifestModuleUUID.Text,
+				Description:    c.manifestDescription.Text,
+				Default_mer:    c.defaultMERArrEntry.Text,
+				Version:        c.manifestVersion.Text,
+				Author:         c.authorEntry.Text,
+				License:        c.licenseURL.Text,
+				URL:            c.packageURL.Text,
+				Capibility:     c.capibility.Selected,
+				HeightTemplate: c.heightTemplateEntry.Text,
+				MerTemplate:    c.merTemplateEntry.Text,
+				ROffset:        c.rText.Text,
+				GOffset:        c.gText.Text,
+				BOffset:        c.bText.Text,
 			}
 
 			//config.Perform()
@@ -185,11 +176,6 @@ func (c *Create) Update(t cmd.Config) {
 	c.manifestDescription.Text = t.Description
 	c.manifestHeaderUUID.Text = t.Header_uuid
 	c.manifestModuleUUID.Text = t.Module_uuid
-	if t.Textureset_format == "1.16.100" {
-		c.texturesetSelector.SetSelectedIndex(0)
-	} else {
-		c.texturesetSelector.SetSelectedIndex(1)
-	}
 	c.defaultMERArrEntry.Text = t.Default_mer
 	c.manifestVersion.Text = t.Version
 	c.authorEntry.Text = t.Author
