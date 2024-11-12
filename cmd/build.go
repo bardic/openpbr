@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/bardic/openpbr/cmd/export"
 	"github.com/bardic/openpbr/utils"
 )
 
@@ -63,7 +64,7 @@ func (cmd *Build) Perform() error {
 		Root:       utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
 		Capibility: jsonConfig.Capibility,
 	})
-	cmds = append(cmds, &Manifest{
+	cmds = append(cmds, &export.Manifest{
 		Name:        jsonConfig.Name,
 		Description: jsonConfig.Description,
 		Header_uuid: jsonConfig.Header_uuid,

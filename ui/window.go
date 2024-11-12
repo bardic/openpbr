@@ -13,15 +13,22 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
 	"github.com/bardic/openpbr/cmd"
+	"github.com/bardic/openpbr/cmd/export"
 	"github.com/bardic/openpbr/utils"
 )
 
 type UI struct {
-	templates  embed.FS
-	app        fyne.App
-	window     fyne.Window
-	createView *Create
-	packView   *Pack
+	templates    embed.FS
+	app          fyne.App
+	window       fyne.Window
+	createView   *Create
+	packView     *Pack
+	lightingView *Lighting
+	water        *Water
+	atmospherics *Atmospherics
+	fog          *Fog
+	colorGrading *ColorGrading
+	pbr          *PBR
 }
 
 func (ui *UI) Build(templates embed.FS) {
@@ -35,9 +42,15 @@ func (ui *UI) Build(templates embed.FS) {
 		templates: templates,
 		window:    ui.window,
 	}
+	ui.lightingView = &Lighting{}
+	ui.water = &Water{}
+	ui.atmospherics = &Atmospherics{}
+	ui.fog = &Fog{}
+	ui.colorGrading = &ColorGrading{}
+	ui.pbr = &PBR{}
 
 	tabs := container.NewAppTabs(
-		container.NewTabItem("Create Config",
+		container.NewTabItem("Config",
 			ui.createView.BuildCreateView(
 				ui.window.Canvas().Content().Refresh,
 				func(config *cmd.Config, err error) {
@@ -66,9 +79,45 @@ func (ui *UI) Build(templates embed.FS) {
 					dialog.ShowError(err, ui.window)
 				},
 			)),
+		container.NewTabItem("PBR", ui.pbr.BuildLightingView(
+			ui.window.Canvas().Content().Refresh,
+			func(err error) {
+				dialog.ShowError(err, ui.window)
+			},
+		)),
+		container.NewTabItem("Atmospheric", ui.atmospherics.Build(
+			ui.window.Canvas().Content().Refresh,
+			func(err error) {
+				dialog.ShowError(err, ui.window)
+			},
+		)),
+		container.NewTabItem("Fog", ui.fog.BuildLightingView(
+			ui.window.Canvas().Content().Refresh,
+			func(err error) {
+				dialog.ShowError(err, ui.window)
+			},
+		)),
+		container.NewTabItem("Lighting", ui.lightingView.BuildLightingView(
+			ui.window.Canvas().Content().Refresh,
+			func(err error) {
+				dialog.ShowError(err, ui.window)
+			},
+		)),
+		container.NewTabItem("Color Grading", ui.colorGrading.BuildLightingView(
+			ui.window.Canvas().Content().Refresh,
+			func(err error) {
+				dialog.ShowError(err, ui.window)
+			},
+		)),
+		container.NewTabItem("Water", ui.water.BuildLightingView(
+			ui.window.Canvas().Content().Refresh,
+			func(err error) {
+				dialog.ShowError(err, ui.window)
+			},
+		)),
 		container.NewTabItem("Build Package", ui.packView.BuildPackageView(
 			ui.window.Canvas().Content().Refresh,
-			func(manfiest *cmd.Manifest, err error) {
+			func(manfiest *export.Manifest, err error) {
 				dialog.ShowFileSave(func(f fyne.URIWriteCloser, err error) {
 					if err != nil {
 						dialog.ShowError(err, ui.window)

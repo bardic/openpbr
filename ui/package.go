@@ -12,6 +12,7 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd"
+	"github.com/bardic/openpbr/cmd/export"
 	"github.com/bardic/openpbr/utils"
 )
 
@@ -20,7 +21,7 @@ type Pack struct {
 	window    fyne.Window
 }
 
-func (p *Pack) BuildPackageView(refresh func(), popupSave func(*cmd.Manifest, error), popupErr func(error)) *fyne.Container {
+func (p *Pack) BuildPackageView(refresh func(), popupSave func(*export.Manifest, error), popupErr func(error)) *fyne.Container {
 
 	pb := widget.NewProgressBarInfinite()
 	pb.Hide()

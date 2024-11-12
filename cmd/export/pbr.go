@@ -1,11 +1,11 @@
-package cmd
+package export
 
 import (
 	"html/template"
 	"os"
 )
 
-type PBRExport struct {
+type PBR struct {
 	Out        string
 	Colour     string
 	MerArr     string
@@ -15,7 +15,7 @@ type PBRExport struct {
 	Capibility string
 }
 
-func (cmd *PBRExport) Perform() error {
+func (cmd *PBR) Perform() error {
 	tmplFile := "./templates/pbr.tmpl"
 
 	if cmd.Capibility == "pbr" {

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/bardic/openpbr/cmd/export"
 	"github.com/bardic/openpbr/utils"
 )
 
@@ -73,7 +74,7 @@ func (cmd *TextureSet) CreateTextureSets() error {
 			useMerFile = false
 		}
 
-		err = (&PBRExport{
+		err = (&export.PBR{
 			Out:        out,
 			Colour:     in,
 			MerArr:     "#0000FF",
