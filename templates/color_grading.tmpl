@@ -1,0 +1,95 @@
+{
+  "minecraft:color_grading_settings": {
+    "description": {
+      "identifier": "openpbr:default_color_grading"
+    },
+    "color_grading": {
+      "highlights": {
+        "highlightsMin": 2.25,
+        "contrast": [
+          {{.HighlightsContrastR}},
+          {{.HighlightsContrastG}},
+          {{.HighlightsContrastB}}
+        ],
+        "gain": [
+          {{.HighlightsGainR}},
+          {{.HighlightsGainG}},
+          {{.HighlightsGainB}}
+        ],
+        "gamma": [
+          {{.HighlightsGammaR}},
+          {{.HighlightsGammaG}},
+          {{.HighlightsGammaB}}
+        ],
+        "offset": [
+          {{.HighlightsOffsetR}},
+          {{.HighlightsOffsetG}},
+          {{.HighlightsOffsetB}}
+        ],
+        "saturation": [
+          {{.HighlightsSaturationR}},
+          {{.HighlightsSaturationG}},
+          {{.HighlightsSaturationB}}
+        ]
+      },
+      "midtones": {
+        "contrast": [
+          {{.MidtonesContrastR}},
+          {{.MidtonesContrastG}},
+          {{.MidtonesContrastB}}
+        ],
+        "gain": [
+          {{.MidtonesGainR}},
+          {{.MidtonesGainG}},
+          {{.MidtonesGainB}}
+        ],
+        "gamma": [
+          {{.MidtonesGammaR}},
+          {{.MidtonesGammaG}},
+          {{.MidtonesGammaB}}
+        ],
+        "offset": [
+          {{.MidtonesOffsetR}},
+          {{.MidtonesOffsetG}},
+          {{.MidtonesOffsetB}}
+        ],
+        "saturation": [
+          {{.MidtonesSaturationR}},
+          {{.MidtonesSaturationG}},
+          {{.MidtonesSaturationB}}
+        ]
+      },
+      "shadows": {
+        "shadowsMax": {{.ShadowsMax}},
+        "contrast": [
+          {{.ShadowsContrastR}},
+          {{.ShadowsContrastG}},
+          {{.ShadowsContrastB}}
+        ],
+        "gain": [
+          {{.ShadowsGainR}},
+          {{.ShadowsGainG}},
+          {{.ShadowsGainB}}
+        ],
+        "gamma": [
+          {{.ShadowsGammaR}},
+          {{.ShadowsGammaG}},
+          {{.ShadowsGammaB}}
+        ],
+        "offset": [
+          {{.ShadowsOffsetR}},
+          {{.ShadowsOffsetG}},
+          {{.ShadowsOffsetB}}
+        ],
+        "saturation": [
+          {{.ShadowsSaturationR}},
+          {{.ShadowsSaturationG}},
+          {{.ShadowsSaturationB}}
+        ]
+      }
+    },
+    "tone_mapping": {
+      "operator": "{{.ToneMappingOperator}}"
+    }
+  }
+}

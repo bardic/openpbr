@@ -1,0 +1,47 @@
+{
+  "format_version": "1.16.100",
+  "minecraft:fog_settings": {
+    "description": {
+      "identifier": "openpbr:fog_default"
+    },
+    "volumetric": {
+      "density": {
+        "water": {
+          "max_density": {{.WaterMaxDensity}},
+          "uniform": {{.WaterUniformDensity}}
+        },
+        "air": {
+          "max_density": {{.AirMaxDensity}},
+          "zero_density_height": {{.AirZeroDensityHeight}},
+          "max_density_height": {{.AirMaxDensityHeight}}
+        }
+      },
+      "media_coefficients": {
+        "water": {
+          "scattering": [
+          {{.WaterScatteringR}},
+          {{.WaterScatteringG}},
+          {{.WaterScatteringB}}
+          ],
+          "absorption": [
+          {{.WaterAbsorptionR}},
+          {{.WaterAbsorptionG}},
+          {{.WaterAbsorptionB}}
+          ]
+        },
+        "air": {
+          "scattering": [
+          {{.AirScatteringR}},
+          {{.AirScatteringG}},
+          {{.AirScatteringB}}
+          ],
+          "absorption": [
+          {{.AirAbsorptionR}},
+          {{.AirAbsorptionG}},
+          {{.AirAbsorptionB}}
+          ]
+        }
+      }
+    }
+  }
+}

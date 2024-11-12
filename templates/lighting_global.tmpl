@@ -1,0 +1,38 @@
+{
+    "format_version": "1.21.40",
+    "minecraft:lighting_settings": {
+        "description": {
+            "identifier": "openpbr:default_lighting"
+        },
+        "directional_lights": {
+            "sun": {
+                "illuminance": {
+                {{range $val := .SunIlluminance}}
+                    "{{ $val.Key }}": {{ $val.Value }}{{if not $val.Last}},{{end}}
+                {{end}}
+                },
+                "color": {
+                {{range $val := .SunColour}}
+                    "{{ $val.Key }}": "{{ $val.Value }}"{{if not $val.Last}},{{end}}
+                {{end}}
+                }
+            },
+            "moon": {
+                "illuminance": {
+                {{range $val := .MoonIlluminance}}
+                    "{{ $val.Key }}": {{ $val.Value }}{{if not $val.Last}},{{end}}
+                {{end}}
+                },
+                "color": "{{.MoonColour}}"
+            },
+            "orbital_offset_degrees": {{.OrbitalOffset}},
+        },
+        "emissive": {
+            "desaturation": {{.Desaturation}},
+        },
+        "ambient": {
+            "illuminance": {{ .AmbientIlluminance }},
+            "color":  "{{ .AmbientColour }}"
+        }
+    }
+}

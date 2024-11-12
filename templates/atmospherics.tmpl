@@ -1,0 +1,60 @@
+{
+    "format_version": "1.21.40",
+    "minecraft:atmosphere_settings": {
+        "description": {
+            "identifier": "openpbr:default_atmospherics"
+        },
+        "horizon_blend_stops": {
+            "min": {
+                {{range .HorizonBlendStopsMin}}
+                    "{{ .Key }}": {{ .Value }}{{if not .Last}},{{end}}
+                {{end}}
+            },
+            "start": {
+                {{range .HorizonBlendStopsStart}}
+                    "{{ .Key }}": {{ .Value }}{{if not .Last}},{{end}}
+                {{end}}
+            },
+            "mie_start": {
+                {{range .MieStart}}
+                    "{{ .Key }}": {{ .Value }}{{if not .Last}},{{end}}
+                {{end}}
+            },
+            "max": {
+                {{range .HorizonBlendMax}}
+                    "{{ .Key }}": {{ .Value }}{{if not .Last}},{{end}}
+                {{end}}
+            }
+        },
+        "rayleigh_strength": {
+            {{range .RayleighStrength}}
+                "{{ .Key }}": {{ .Value }}{{if not .Last}},{{end}}
+            {{end}}
+        },
+        "sun_mie_strength": {
+            {{range .SunMieStrength}}
+                "{{ .Key }}": {{ .Value }}{{if not .Last}},{{end}}
+            {{end}}
+        },
+        "moon_mie_strength": {
+            {{range .MoonMieStrength}}
+                "{{ .Key }}": {{ .Value }}{{if not .Last}},{{end}}
+            {{end}}
+        },
+        "sun_glare_shape": {
+            {{range .SunGlareShape}}
+                "{{ .Key }}": {{ .Value }}{{if not .Last}},{{end}}
+            {{end}}
+        },
+        "sky_zenith_color": {
+            {{range .SkyZenithColor}}
+                "{{ .Key }}": "{{ .Value }}"{{if not .Last}},{{end}}
+            {{end}}
+        },
+        "sky_horizon_color": {
+            {{range .SkyHorizonColor}}
+                "{{ .Key }}": "{{ .Value }}"{{if not .Last}},{{end}}
+            {{end}}
+        }
+    }
+}
