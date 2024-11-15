@@ -11,7 +11,17 @@ import (
 )
 
 type Fog struct {
-	RGBs map[string]vo.RGB
+	// RGBs map[string]vo.RGB
+
+	waterMaxDensityEntry      *widget.Entry
+	waterUniformDensityEntry  *widget.Check
+	airMaxDensityEntry        *widget.Entry
+	airZeroDensityHeightEntry *widget.Entry
+	airMaxDensityHeightEntry  *widget.Entry
+	waterScatteringRGB        *vo.RGB
+	waterAbsorptionRGB        *vo.RGB
+	airScatteringRGB          *vo.RGB
+	airAbsorptionRGB          *vo.RGB
 }
 
 func (v *Fog) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Container {
@@ -20,83 +30,83 @@ func (v *Fog) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Cont
 	//
 
 	waterMaxDensityLabel := widget.NewLabel("Water Max Density")
-	waterMaxDensityEntry := widget.NewEntry()
+	v.waterMaxDensityEntry = widget.NewEntry()
 
 	//
 	// Water Uniform Density
 	//
 
 	waterUniformDensityLabel := widget.NewLabel("Water Uniform Density")
-	waterUniformDensityEntry := widget.NewCheck("", func(bool) {})
+	v.waterUniformDensityEntry = widget.NewCheck("", func(bool) {})
 
 	//
 	// Air Max Density
 	//
 
 	airMaxDensityLabel := widget.NewLabel("Air Max Density")
-	airMaxDensityEntry := widget.NewEntry()
+	v.airMaxDensityEntry = widget.NewEntry()
 
 	//
 	// Air Zero Density Height
 	//
 
 	airZeroDensityHeightLabel := widget.NewLabel("Air Zero Density Height")
-	airZeroDensityHeightEntry := widget.NewEntry()
+	v.airZeroDensityHeightEntry = widget.NewEntry()
 
 	//
 	// Air Max Density Height
 	//
 
 	airMaxDensityHeightLabel := widget.NewLabel("Air Max Density Height")
-	airMaxDensityHeightEntry := widget.NewEntry()
+	v.airMaxDensityHeightEntry = widget.NewEntry()
 
 	//
 	// Water Scattering
 
 	waterScatteringRGBLabel := widget.NewLabel("Water Scattering")
-	waterScatteringRGB := utils.CreateRGBEntry()
+	v.waterScatteringRGB = utils.CreateRGBEntry()
 
 	//
 	// Water Absorption
 
 	waterAbsorptionRGBLabel := widget.NewLabel("Water Absorption")
-	waterAbsorptionRGB := utils.CreateRGBEntry()
+	v.waterAbsorptionRGB = utils.CreateRGBEntry()
 
 	//
 	// Air Scattering
 	//
 
 	airScatteringRGBLabel := widget.NewLabel("Water Scattering")
-	airScatteringRGB := utils.CreateRGBEntry()
+	v.airScatteringRGB = utils.CreateRGBEntry()
 
 	//
 	// Air Absorption
 	//
 
 	airAbsorptionRGBLabel := widget.NewLabel("Water Scattering")
-	airAbsorptionRGB := utils.CreateRGBEntry()
+	v.airAbsorptionRGB = utils.CreateRGBEntry()
 
 	save := widget.NewButton("Save", func() {
 		fog := export.Fog{
-			Out: "./openpbr_out/fogs/default_fog_settings.json",
+			Out: "./example/settings/shared/fogs/default_fog_settings.json",
 			Fog: vo.Fog{
-				WaterMaxDensity:      utils.ToFloat64(waterMaxDensityEntry),
-				WaterUniformDensity:  waterUniformDensityEntry.Checked,
-				AirMaxDensity:        utils.ToFloat64(airMaxDensityEntry),
-				AirZeroDensityHeight: utils.ToFloat64(airZeroDensityHeightEntry),
-				AirMaxDensityHeight:  utils.ToFloat64(airMaxDensityHeightEntry),
-				WaterScatteringR:     utils.ToFloat64(waterScatteringRGB.R),
-				WaterScatteringG:     utils.ToFloat64(waterScatteringRGB.G),
-				WaterScatteringB:     utils.ToFloat64(waterScatteringRGB.B),
-				WaterAbsorptionR:     utils.ToFloat64(waterAbsorptionRGB.R),
-				WaterAbsorptionG:     utils.ToFloat64(waterAbsorptionRGB.G),
-				WaterAbsorptionB:     utils.ToFloat64(waterAbsorptionRGB.B),
-				AirScatteringR:       utils.ToFloat64(airScatteringRGB.R),
-				AirScatteringG:       utils.ToFloat64(airScatteringRGB.G),
-				AirScatteringB:       utils.ToFloat64(airScatteringRGB.B),
-				AirAbsorptionR:       utils.ToFloat64(airAbsorptionRGB.R),
-				AirAbsorptionG:       utils.ToFloat64(airAbsorptionRGB.G),
-				AirAbsorptionB:       utils.ToFloat64(airAbsorptionRGB.B),
+				WaterMaxDensity:      utils.ToFloat64(v.waterMaxDensityEntry),
+				WaterUniformDensity:  v.waterUniformDensityEntry.Checked,
+				AirMaxDensity:        utils.ToFloat64(v.airMaxDensityEntry),
+				AirZeroDensityHeight: utils.ToFloat64(v.airZeroDensityHeightEntry),
+				AirMaxDensityHeight:  utils.ToFloat64(v.airMaxDensityHeightEntry),
+				WaterScatteringR:     utils.ToFloat64(v.waterScatteringRGB.R),
+				WaterScatteringG:     utils.ToFloat64(v.waterScatteringRGB.G),
+				WaterScatteringB:     utils.ToFloat64(v.waterScatteringRGB.B),
+				WaterAbsorptionR:     utils.ToFloat64(v.waterAbsorptionRGB.R),
+				WaterAbsorptionG:     utils.ToFloat64(v.waterAbsorptionRGB.G),
+				WaterAbsorptionB:     utils.ToFloat64(v.waterAbsorptionRGB.B),
+				AirScatteringR:       utils.ToFloat64(v.airScatteringRGB.R),
+				AirScatteringG:       utils.ToFloat64(v.airScatteringRGB.G),
+				AirScatteringB:       utils.ToFloat64(v.airScatteringRGB.B),
+				AirAbsorptionR:       utils.ToFloat64(v.airAbsorptionRGB.R),
+				AirAbsorptionG:       utils.ToFloat64(v.airAbsorptionRGB.G),
+				AirAbsorptionB:       utils.ToFloat64(v.airAbsorptionRGB.B),
 			},
 		}
 
@@ -105,16 +115,36 @@ func (v *Fog) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Cont
 
 	c := container.New(
 		layout.NewFormLayout(),
-		waterMaxDensityLabel, waterMaxDensityEntry,
-		waterUniformDensityLabel, waterUniformDensityEntry,
-		airMaxDensityLabel, airMaxDensityEntry,
-		airZeroDensityHeightLabel, airZeroDensityHeightEntry,
-		airMaxDensityHeightLabel, airMaxDensityHeightEntry,
-		waterScatteringRGBLabel, waterScatteringRGB.C,
-		waterAbsorptionRGBLabel, waterAbsorptionRGB.C,
-		airScatteringRGBLabel, airScatteringRGB.C,
-		airAbsorptionRGBLabel, airAbsorptionRGB.C,
+		waterMaxDensityLabel, v.waterMaxDensityEntry,
+		waterUniformDensityLabel, v.waterUniformDensityEntry,
+		airMaxDensityLabel, v.airMaxDensityEntry,
+		airZeroDensityHeightLabel, v.airZeroDensityHeightEntry,
+		airMaxDensityHeightLabel, v.airMaxDensityHeightEntry,
+		waterScatteringRGBLabel, v.waterScatteringRGB.C,
+		waterAbsorptionRGBLabel, v.waterAbsorptionRGB.C,
+		airScatteringRGBLabel, v.airScatteringRGB.C,
+		airAbsorptionRGBLabel, v.airAbsorptionRGB.C,
 		save, layout.NewSpacer(),
 	)
 	return c
+}
+
+func (v *Fog) Defaults() {
+	v.waterMaxDensityEntry.SetText("0.5")
+	v.waterUniformDensityEntry.Checked = false
+	v.airMaxDensityEntry.SetText("0.5")
+	v.airZeroDensityHeightEntry.SetText("0.5")
+	v.airMaxDensityHeightEntry.SetText("0.5")
+	v.waterScatteringRGB.R.Text = "0.5"
+	v.waterScatteringRGB.G.Text = "0.5"
+	v.waterScatteringRGB.B.Text = "0.5"
+	v.waterAbsorptionRGB.R.Text = "0.5"
+	v.waterAbsorptionRGB.G.Text = "0.5"
+	v.waterAbsorptionRGB.B.Text = "0.5"
+	v.airScatteringRGB.R.Text = "0.5"
+	v.airScatteringRGB.G.Text = "0.5"
+	v.airScatteringRGB.B.Text = "0.5"
+	v.airAbsorptionRGB.R.Text = "0.5"
+	v.airAbsorptionRGB.G.Text = "0.5"
+	v.airAbsorptionRGB.B.Text = "0.5"
 }

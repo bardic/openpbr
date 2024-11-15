@@ -5,15 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "cli",
+            "name": "Launch Package",
             "type": "go",
-            "debugAdapter": "dlv-dap",
-            "request": "attach",
-            "mode": "remote",
-            "remotePath": "${workspaceFolder}",
-            "port": 43000,
-            "host": "localhost",
-            "preLaunchTask": "dlv",
-        }
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}"
+        },
     ]
 }

@@ -45,7 +45,7 @@ func (v *PBR) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Cont
 	save := widget.NewButton("Save", func() {
 		// Save the lighting settings
 		pbr := export.GlobalPBR{
-			Out: "./openpbr_out/pbr/global.json",
+			Out: "./example/settings/pbr/pbr/global.json",
 			PBR: vo.PBR{
 				GlobalBlockMERS:    globalBlockMERSEntry.Text,
 				GlobalActorMERS:    globalActorMERSEntry.Text,

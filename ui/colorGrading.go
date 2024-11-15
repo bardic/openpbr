@@ -39,7 +39,7 @@ func (v *ColorGrading) BuildLightingView(refresh func(), popupErr func(error)) *
 
 	save := widget.NewButton("Save", func() {
 		colorGrading := export.ColorGrading{
-			Out: "./openpbr_out/color_grading/color_grading.json",
+			Out: "./example/settings/shared/color_grading/color_grading.json",
 			ColorGrading: vo.ColorGrading{
 				HighlightsContrastG:   utils.ToFloat64(v.RGBs[rgbEntryiesTitles[0]].G),
 				HighlightsContrastB:   utils.ToFloat64(v.RGBs[rgbEntryiesTitles[0]].B),

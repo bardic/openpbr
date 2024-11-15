@@ -3,25 +3,17 @@ package export
 import (
 	"html/template"
 	"os"
+
+	"github.com/bardic/openpbr/vo"
 )
 
 type Lighting struct {
-	Out        string
-	Colour     string
-	MerArr     string
-	MerFile    string
-	Height     string
-	UseMerFile bool
-	Capibility string
+	Out string
+	vo.Lighting
 }
 
 func (cmd *Lighting) Perform() error {
 	tmplFile := "./templates/pbr.tmpl"
-
-	if cmd.Capibility == "pbr" {
-		tmplFile = "./templates/pbr2.tmpl"
-		cmd.MerArr = cmd.MerArr + "FF"
-	}
 
 	t, err := template.ParseFiles(tmplFile)
 	if err != nil {

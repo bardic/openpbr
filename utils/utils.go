@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"syscall"
 
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -31,12 +30,6 @@ var LoadStdOut *widget.RichText
 
 func LocalPath(partialPath string) string {
 	return Basedir + string(os.PathSeparator) + partialPath
-}
-
-func RunCmd(cmd *exec.Cmd) error {
-	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x08000000} // CREATE_NO_WINDOW
-	go cmd.Start()
-	return nil
 }
 
 func StartUpCheck() error {
@@ -67,55 +60,47 @@ func GetTextureSubpath(p string, key string) (string, error) {
 func CreateEntryView(title string, id int) *vo.EntryView {
 
 	entryView := &vo.EntryView{
-		Steps: make([]vo.EntryViewHolder, 0),
+		Steps: make([]*vo.EntryViewHolder, 0),
+		C:     container.NewVBox(),
 	}
 
-	steps := make([]vo.EntryViewHolder, 0)
-
-	vBox := container.NewVBox()
 	label := widget.NewLabel(title)
-	vStepBox := container.NewVBox()
-
 	addBtn := widget.NewButton("Add", func() {
+		entryViewHolder := CreateEntryViewHolder()
+		entryView.Steps = append(entryView.Steps, entryViewHolder)
+		entryView.C.Add(entryView.Steps[len(entryView.Steps)-1].HBox)
+		del := func() {
+			entryView.C.Remove(entryViewHolder.HBox)
+		}
+		entryViewHolder.DeleteButton.OnTapped = del
 
-		entryViewHolder := &vo.EntryViewHolder{}
-		entryViewHolder.Id = id
-		entryViewHolder.HBox = container.NewHBox()
-		entryViewHolder.KeyEntry = widget.NewEntry()
-		entryViewHolder.ValueEntry = widget.NewEntry()
-		entryViewHolder.DeleteButton = widget.NewButton("Delete", func() {
-			for i, v := range vStepBox.Objects {
-				if v == entryViewHolder.HBox {
-					vStepBox.Remove(v)
-					steps = append(steps[:i], steps[i+1:]...)
-					break
-				}
-			}
-
-			//refresh()
-		})
-
-		hbox := entryViewHolder.HBox
-		hbox.Add(widget.NewLabel("Key"))
-		hbox.Add(entryViewHolder.KeyEntry)
-		hbox.Add(widget.NewLabel("Value"))
-		hbox.Add(entryViewHolder.ValueEntry)
-		hbox.Add(entryViewHolder.DeleteButton)
-		steps = append(steps, *entryViewHolder)
-		vStepBox.Add(steps[len(steps)-1].HBox)
-		entryView.Steps = steps
-		//refresh()
 		id++
 	})
 
-	vBox.Add(label)
-	vBox.Add(vStepBox)
-	vBox.Add(addBtn)
-
-	entryView.Steps = steps
-	entryView.C = vBox
+	entryView.C.Add(label)
+	entryView.C.Add(addBtn)
 
 	return entryView
+}
+
+func CreateEntryViewHolder() *vo.EntryViewHolder {
+	keyEntry := widget.NewEntry()
+	valueEntry := widget.NewEntry()
+	deleteButton := widget.NewButton("Delete", nil)
+
+	hBox := container.NewHBox()
+	hBox.Add(widget.NewLabel("Key"))
+	hBox.Add(keyEntry)
+	hBox.Add(widget.NewLabel("Value"))
+	hBox.Add(valueEntry)
+	hBox.Add(deleteButton)
+
+	return &vo.EntryViewHolder{
+		KeyEntry:     keyEntry,
+		ValueEntry:   valueEntry,
+		DeleteButton: deleteButton,
+		HBox:         hBox,
+	}
 }
 
 func CreateRGBEntry() *vo.RGB {
@@ -148,7 +133,7 @@ func ToFloat64(entry *widget.Entry) float64 {
 	return f
 }
 
-func StepsToVO(steps []vo.EntryViewHolder) []vo.EntryViewVO {
+func StepsToVO(steps []*vo.EntryViewHolder) []vo.EntryViewVO {
 	var voSteps []vo.EntryViewVO
 	for _, step := range steps {
 		voSteps = append(voSteps, vo.EntryViewVO{

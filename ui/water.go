@@ -114,7 +114,7 @@ func (v *Water) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Co
 
 	save := widget.NewButton("Save", func() {
 		water := export.Water{
-			Out: "./openpbr_out/water/water.json",
+			Out: "./example/settings/shared/water/water.json",
 			Water: vo.Water{
 				Chlorophyll:           utils.ToFloat64(chlorophyllEntry),
 				SuspendedSediment:     utils.ToFloat64(suspendedSedimentEntry),

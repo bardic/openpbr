@@ -12,6 +12,8 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/dialog"
+	"fyne.io/fyne/v2/theme"
+	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd"
 	"github.com/bardic/openpbr/cmd/export"
 	"github.com/bardic/openpbr/utils"
@@ -19,6 +21,7 @@ import (
 
 type UI struct {
 	templates    embed.FS
+	defaults     embed.FS
 	app          fyne.App
 	window       fyne.Window
 	createView   *Create
@@ -31,8 +34,9 @@ type UI struct {
 	pbr          *PBR
 }
 
-func (ui *UI) Build(templates embed.FS) {
+func (ui *UI) Build(templates, defaults embed.FS) {
 	ui.templates = templates
+	ui.defaults = defaults
 
 	ui.app = app.New()
 	ui.window = ui.app.NewWindow("OpenPBR Config Creator")
@@ -145,7 +149,35 @@ func (ui *UI) Build(templates embed.FS) {
 
 	tabs.SetTabLocation(container.TabLocationTop)
 
-	ui.window.SetContent(tabs)
+	tb := widget.NewToolbar(
+		widget.NewToolbarAction(
+			theme.HistoryIcon(),
+			func() {
+				switch tabs.Selected().Text {
+				case "Config":
+
+				case "PBR":
+
+				case "Atmospheric":
+					ui.atmospherics.Defaults()
+				case "Fog":
+					ui.fog.Defaults()
+				case "Lighting":
+
+				case "Color Grading":
+
+				case "Water":
+
+				case "Build Package":
+
+				}
+
+				ui.window.Canvas().Content().Refresh()
+			},
+		),
+	)
+
+	ui.window.SetContent(container.NewVBox(tb, tabs))
 	ui.window.Resize(fyne.NewSize(800, 600))
 
 	ui.window.SetMainMenu(fyne.NewMainMenu(&fyne.Menu{

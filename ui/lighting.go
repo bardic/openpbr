@@ -96,11 +96,20 @@ func (v *Lighting) BuildLightingView(refresh func(), popupErr func(error)) *fyne
 
 	save := widget.NewButton("Save", func() {
 		cmd := export.Lighting{
-			Out: "./openpbr_out/lighting/lighting.json",
+			Out: "./example/settings/shared/lighting/global.json",
 			Lighting: vo.Lighting{
-				SunIlluminance: make(map[string]float64),
+				SunIlluminance:     utils.StepsToVO(sunIlluminanceVBox.Steps),
+				SunColour:          utils.StepsToVO(sunColourVBox.Steps),
+				MoonIlluminance:    utils.StepsToVO(moonIlluminanceVBox.Steps),
+				MoonColour:         moonColourEntry.Text,
+				OrbitalOffset:      utils.ToFloat64(orbitalOffsetEntry),
+				Desaturation:       utils.ToFloat64(desaturationEntry),
+				AmbientIlluminance: utils.ToFloat64(ambientIlluminanceEntry),
+				AmbientColour:      ambientColourEntry.Text,
 			},
 		}
+
+		cmd.Perform()
 	})
 
 	c := container.NewVBox(save, acc)

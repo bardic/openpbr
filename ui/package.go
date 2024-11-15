@@ -106,3 +106,41 @@ func (p *Pack) BuildPackageView(refresh func(), popupSave func(*export.Manifest,
 
 	return loadConfigContainer
 }
+
+func (p *Pack) LoadDefaults() {
+	dir, err := p.templates.ReadDir("defaults")
+
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	tempDir := utils.LocalPath("defaults")
+	os.MkdirAll(tempDir, os.ModePerm)
+
+	for _, v := range dir {
+
+		filePath := tempDir + string(os.PathSeparator) + v.Name()
+		out, err := os.Create(filePath)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer out.Close()
+
+		b, err := p.templates.ReadFile("defaults/" + v.Name())
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		_, err = io.Writer.Write(out, b)
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
+}
