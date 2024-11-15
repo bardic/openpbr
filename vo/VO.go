@@ -146,6 +146,6 @@ type RGB struct {
 }
 
 type EntryView struct {
-	Steps []EntryViewHolder
+	Steps []*EntryViewHolder
 	C     *fyne.Container
 }
