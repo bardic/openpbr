@@ -68,8 +68,6 @@ func (v *Atmospherics) Build(refresh func(), popupErr func(error)) *fyne.Contain
 
 	//
 	// Moon Mie Strength
-	//
-
 	v.moonMieStrengthVBox = utils.CreateEntryView("Moon Mie Strength", id)
 
 	//
@@ -141,13 +139,42 @@ func (v *Atmospherics) Build(refresh func(), popupErr func(error)) *fyne.Contain
 	return c
 }
 
-func (v *Atmospherics) Defaults() {
-	for range 3 {
-		p := utils.CreateEntryViewHolder()
-		p.KeyEntry.SetText("Key")
-		p.ValueEntry.SetText("Value")
-		v.horizonBlendStopsMinVBox.Steps = append(v.horizonBlendStopsMinVBox.Steps, p)
-		v.horizonBlendStopsMinVBox.C.Add(v.horizonBlendStopsMinVBox.Steps[len(v.horizonBlendStopsMinVBox.Steps)-1].HBox)
-	}
+func (a *Atmospherics) Defaults(d *vo.Atmospherics) {
 
+	/*
+
+	   v.horizonBlendStopsMinVBox.Steps
+	   v.horizonBlendStopsStartVBox.Steps
+	   v.horizonBlendStopsMieStartVBox.Steps
+	   v.mieStartVBox.Steps
+	   v.horizonBlendMaxVBox.Steps
+	   v.rayleighStrengthVBox.Steps
+	   v.sunMieStrengthVBox.Steps
+	   v.moonMieStrengthVBox.Steps
+	   v.sunGlareShapeVBox.Steps
+	   v.skyZenithColorVBox.Steps
+	   v.skyHorizonColorVBox.Steps
+	*/
+
+	PopulateKeys(d.HorizonBlendStopsMin, a.horizonBlendStopsMinVBox)
+	PopulateKeys(d.HorizonBlendStopsStart, a.horizonBlendStopsStartVBox)
+	PopulateKeys(d.HorizonBlendStopsMieStart, a.horizonBlendStopsMieStartVBox)
+	PopulateKeys(d.MieStart, a.mieStartVBox)
+	PopulateKeys(d.HorizonBlendMax, a.horizonBlendMaxVBox)
+	PopulateKeys(d.RayleighStrength, a.rayleighStrengthVBox)
+	PopulateKeys(d.SunMieStrength, a.sunMieStrengthVBox)
+	PopulateKeys(d.MoonMieStrength, a.moonMieStrengthVBox)
+	PopulateKeys(d.SunGlareShape, a.sunGlareShapeVBox)
+	PopulateKeys(d.SkyZenithColor, a.skyZenithColorVBox)
+	PopulateKeys(d.SkyHorizonColor, a.skyHorizonColorVBox)
+}
+
+func PopulateKeys(d []vo.EntryViewVO, v *vo.EntryView) {
+	for _, vo := range d {
+		holder := utils.CreateEntryViewHolder()
+		holder.KeyEntry.SetText(vo.Key)
+		holder.ValueEntry.SetText(utils.FloatToString(vo.Value))
+		v.Steps = append(v.Steps, holder)
+		v.C.Add(v.Steps[len(v.Steps)-1].HBox)
+	}
 }

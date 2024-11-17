@@ -11,6 +11,20 @@ import (
 )
 
 type Water struct {
+	chlorophyllEntry           *widget.Entry
+	suspendedSedimentEntry     *widget.Entry
+	cdomEntry                  *widget.Entry
+	wavesEnabledEntry          *widget.Check
+	wavesDepthEntry            *widget.Entry
+	wavesFrequencyEntry        *widget.Entry
+	wavesFrequencyScalingEntry *widget.Entry
+	wavesMixEntry              *widget.Entry
+	wavesOctavesEntry          *widget.Entry
+	wavesPullEntry             *widget.Entry
+	wavesSampleWidthEntry      *widget.Entry
+	wavesShapeEntry            *widget.Entry
+	wavesSpeedEntry            *widget.Entry
+	wavesSpeedScalingEntry     *widget.Entry
 }
 
 func (v *Water) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Container {
@@ -19,117 +33,117 @@ func (v *Water) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Co
 	//
 
 	chlorophyllLabel := widget.NewLabel("Chlorophyll")
-	chlorophyllEntry := widget.NewEntry()
+	v.chlorophyllEntry = widget.NewEntry()
 
 	//
 	// Suspended Sediment
 	//
 
 	suspendedSedimentLabel := widget.NewLabel("Suspended Sediment")
-	suspendedSedimentEntry := widget.NewEntry()
+	v.suspendedSedimentEntry = widget.NewEntry()
 
 	//
 	// CDOM
 	//
 
 	cdomLabel := widget.NewLabel("CDOM")
-	cdomEntry := widget.NewEntry()
+	v.cdomEntry = widget.NewEntry()
 
 	//
 	// Waves Enabled
 	//
 
 	wavesEnabledLabel := widget.NewLabel("Waves Enabled")
-	wavesEnabledEntry := widget.NewCheck("Waves Enabled", func(bool) {})
+	v.wavesEnabledEntry = widget.NewCheck("Waves Enabled", func(bool) {})
 
 	//
 	// Waves Depth
 	//
 
 	wavesDepthLabel := widget.NewLabel("Waves Depth")
-	wavesDepthEntry := widget.NewEntry()
+	v.wavesDepthEntry = widget.NewEntry()
 
 	//
 	// Waves Frequency
 	//
 
 	wavesFrequencyLabel := widget.NewLabel("Waves Frequency")
-	wavesFrequencyEntry := widget.NewEntry()
+	v.wavesFrequencyEntry = widget.NewEntry()
 
 	//
 	// Waves Frequency Scaling
 	//
 
 	wavesFrequencyScalingLabel := widget.NewLabel("Waves Frequency Scaling")
-	wavesFrequencyScalingEntry := widget.NewEntry()
+	v.wavesFrequencyScalingEntry = widget.NewEntry()
 
 	//
 	// Waves Mix
 	//
 
 	wavesMixLabel := widget.NewLabel("Waves Mix")
-	wavesMixEntry := widget.NewEntry()
+	v.wavesMixEntry = widget.NewEntry()
 
 	//
 	// Waves Octaves
 	//
 
 	wavesOctavesLabel := widget.NewLabel("Waves Octaves")
-	wavesOctavesEntry := widget.NewEntry()
+	v.wavesOctavesEntry = widget.NewEntry()
 
 	//
 	// Waves Pull
 	//
 
 	wavesPullLabel := widget.NewLabel("Waves Pull")
-	wavesPullEntry := widget.NewEntry()
+	v.wavesPullEntry = widget.NewEntry()
 
 	//
 	// Waves Sample Width
 	//
 
 	wavesSampleWidthLabel := widget.NewLabel("Waves Sample Width")
-	wavesSampleWidthEntry := widget.NewEntry()
+	v.wavesSampleWidthEntry = widget.NewEntry()
 
 	//
 	// Waves Shape
 	//
 
 	wavesShapeLabel := widget.NewLabel("Waves Shape")
-	wavesShapeEntry := widget.NewEntry()
+	v.wavesShapeEntry = widget.NewEntry()
 
 	//
 	// Waves Speed
 	//
 
 	wavesSpeedLabel := widget.NewLabel("Waves Speed")
-	wavesSpeedEntry := widget.NewEntry()
+	v.wavesSpeedEntry = widget.NewEntry()
 
 	//
 	// Waves Speed Scaling
 	//
 
 	wavesSpeedScalingLabel := widget.NewLabel("Waves Speed Scaling")
-	wavesSpeedScalingEntry := widget.NewEntry()
+	v.wavesSpeedScalingEntry = widget.NewEntry()
 
 	save := widget.NewButton("Save", func() {
 		water := export.Water{
 			Out: "./example/settings/shared/water/water.json",
 			Water: vo.Water{
-				Chlorophyll:           utils.ToFloat64(chlorophyllEntry),
-				SuspendedSediment:     utils.ToFloat64(suspendedSedimentEntry),
-				CDOM:                  utils.ToFloat64(cdomEntry),
-				WavesEnabled:          wavesEnabledEntry.Checked,
-				WavesDepth:            utils.ToFloat64(wavesDepthEntry),
-				WavesFrequency:        utils.ToFloat64(wavesFrequencyEntry),
-				WavesFrequencyScaling: utils.ToFloat64(wavesFrequencyScalingEntry),
-				WavesMix:              utils.ToFloat64(wavesMixEntry),
-				WavesOctaves:          utils.ToFloat64(wavesOctavesEntry),
-				WavesPull:             utils.ToFloat64(wavesPullEntry),
-				WavesSampleWidth:      utils.ToFloat64(wavesSampleWidthEntry),
-				WavesShape:            utils.ToFloat64(wavesShapeEntry),
-				WavesSpeed:            utils.ToFloat64(wavesSpeedEntry),
-				WavesSpeedScaling:     utils.ToFloat64(wavesSpeedScalingEntry),
+				Chlorophyll:           utils.ToFloat64(v.chlorophyllEntry),
+				SuspendedSediment:     utils.ToFloat64(v.suspendedSedimentEntry),
+				CDOM:                  utils.ToFloat64(v.cdomEntry),
+				WavesEnabled:          v.wavesEnabledEntry.Checked,
+				WavesDepth:            utils.ToFloat64(v.wavesDepthEntry),
+				WavesFrequency:        utils.ToFloat64(v.wavesFrequencyEntry),
+				WavesFrequencyScaling: utils.ToFloat64(v.wavesFrequencyScalingEntry),
+				WavesMix:              utils.ToFloat64(v.wavesMixEntry),
+				WavesOctaves:          utils.ToFloat64(v.wavesOctavesEntry),
+				WavesPull:             utils.ToFloat64(v.wavesPullEntry),
+				WavesSampleWidth:      utils.ToFloat64(v.wavesSampleWidthEntry),
+				WavesShape:            utils.ToFloat64(v.wavesShapeEntry),
+				WavesSpeed:            utils.ToFloat64(v.wavesSpeedEntry),
+				WavesSpeedScaling:     utils.ToFloat64(v.wavesSpeedScalingEntry),
 			},
 		}
 
@@ -138,20 +152,37 @@ func (v *Water) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Co
 	})
 
 	c := container.New(layout.NewFormLayout(),
-		chlorophyllLabel, chlorophyllEntry,
-		suspendedSedimentLabel, suspendedSedimentEntry,
-		cdomLabel, cdomEntry,
-		wavesEnabledLabel, wavesEnabledEntry,
-		wavesDepthLabel, wavesDepthEntry,
-		wavesFrequencyLabel, wavesFrequencyEntry,
-		wavesFrequencyScalingLabel, wavesFrequencyScalingEntry,
-		wavesMixLabel, wavesMixEntry,
-		wavesOctavesLabel, wavesOctavesEntry,
-		wavesPullLabel, wavesPullEntry,
-		wavesSampleWidthLabel, wavesSampleWidthEntry,
-		wavesShapeLabel, wavesShapeEntry,
-		wavesSpeedLabel, wavesSpeedEntry,
-		wavesSpeedScalingLabel, wavesSpeedScalingEntry,
+		chlorophyllLabel, v.chlorophyllEntry,
+		suspendedSedimentLabel, v.suspendedSedimentEntry,
+		cdomLabel, v.cdomEntry,
+		wavesEnabledLabel, v.wavesEnabledEntry,
+		wavesDepthLabel, v.wavesDepthEntry,
+		wavesFrequencyLabel, v.wavesFrequencyEntry,
+		wavesFrequencyScalingLabel, v.wavesFrequencyScalingEntry,
+		wavesMixLabel, v.wavesMixEntry,
+		wavesOctavesLabel, v.wavesOctavesEntry,
+		wavesPullLabel, v.wavesPullEntry,
+		wavesSampleWidthLabel, v.wavesSampleWidthEntry,
+		wavesShapeLabel, v.wavesShapeEntry,
+		wavesSpeedLabel, v.wavesSpeedEntry,
+		wavesSpeedScalingLabel, v.wavesSpeedScalingEntry,
 		save, layout.NewSpacer())
 	return c
+}
+
+func (v *Water) Defaults(c *vo.Water) {
+	v.chlorophyllEntry.SetText(utils.FloatToString(c.Chlorophyll))
+	v.suspendedSedimentEntry.SetText(utils.FloatToString(c.SuspendedSediment))
+	v.cdomEntry.SetText(utils.FloatToString(c.CDOM))
+	v.wavesEnabledEntry.Checked = c.WavesEnabled
+	v.wavesDepthEntry.SetText(utils.FloatToString(c.WavesDepth))
+	v.wavesFrequencyEntry.SetText(utils.FloatToString(c.WavesFrequency))
+	v.wavesFrequencyScalingEntry.SetText(utils.FloatToString(c.WavesFrequencyScaling))
+	v.wavesMixEntry.SetText(utils.FloatToString(c.WavesMix))
+	v.wavesOctavesEntry.SetText(utils.FloatToString(c.WavesOctaves))
+	v.wavesPullEntry.SetText(utils.FloatToString(c.WavesPull))
+	v.wavesSampleWidthEntry.SetText(utils.FloatToString(c.WavesSampleWidth))
+	v.wavesShapeEntry.SetText(utils.FloatToString(c.WavesShape))
+	v.wavesSpeedEntry.SetText(utils.FloatToString(c.WavesSpeed))
+	v.wavesSpeedScalingEntry.SetText(utils.FloatToString(c.WavesSpeedScaling))
 }

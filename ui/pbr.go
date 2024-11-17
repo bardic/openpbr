@@ -6,6 +6,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd/export"
+	"github.com/bardic/openpbr/utils"
 	"github.com/bardic/openpbr/vo"
 )
 
@@ -19,44 +20,44 @@ func (v *PBR) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Cont
 	//
 
 	globalBlockMERSLabel := widget.NewLabel("Global Block MERS")
-	globalBlockMERSEntry := widget.NewEntry()
+	globalBlockMERSEntry := utils.CreateRGBAEntry()
 
 	//
 	// Global Actor MERS
 	//
 
 	globalActorMERSLabel := widget.NewLabel("Global Actor MERS")
-	globalActorMERSEntry := widget.NewEntry()
+	globalActorMERSEntry := utils.CreateRGBAEntry()
 
 	//
 	// Global Particle MERS
 	//
 
 	globalParticleMERSLabel := widget.NewLabel("Global Particle MERS")
-	globalParticleMERSEntry := widget.NewEntry()
+	globalParticleMERSEntry := utils.CreateRGBAEntry()
 
 	//
 	// Global Item MERS
 	//
 
 	globalItemMERSLabel := widget.NewLabel("Global Item MERS")
-	globalItemMERSEntry := widget.NewEntry()
+	globalItemMERSEntry := utils.CreateRGBAEntry()
 
 	save := widget.NewButton("Save", func() {
 		// Save the lighting settings
 		pbr := export.GlobalPBR{
 			Out: "./example/settings/pbr/pbr/global.json",
 			PBR: vo.PBR{
-				GlobalBlockMERS:    globalBlockMERSEntry.Text,
-				GlobalActorMERS:    globalActorMERSEntry.Text,
-				GlobalParticleMERS: globalParticleMERSEntry.Text,
-				GlobalItemMERS:     globalItemMERSEntry.Text,
+				GlobalBlockMERS:    "1",
+				GlobalActorMERS:    "1",
+				GlobalParticleMERS: "1",
+				GlobalItemMERS:     "1",
 			},
 		}
 
 		pbr.Perform()
 	})
 
-	c := container.New(layout.NewFormLayout(), globalBlockMERSLabel, globalBlockMERSEntry, globalActorMERSLabel, globalActorMERSEntry, globalParticleMERSLabel, globalParticleMERSEntry, globalItemMERSLabel, globalItemMERSEntry, save, layout.NewSpacer())
+	c := container.New(layout.NewFormLayout(), globalBlockMERSLabel, globalBlockMERSEntry.C, globalActorMERSLabel, globalActorMERSEntry.C, globalParticleMERSLabel, globalParticleMERSEntry.C, globalItemMERSLabel, globalItemMERSEntry.C, save, layout.NewSpacer())
 	return c
 }

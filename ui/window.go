@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/bardic/openpbr/cmd"
 	"github.com/bardic/openpbr/cmd/export"
 	"github.com/bardic/openpbr/utils"
+	"github.com/bardic/openpbr/vo"
 )
 
 type UI struct {
@@ -159,15 +161,55 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 				case "PBR":
 
 				case "Atmospheric":
-					ui.atmospherics.Defaults()
+					f, err := fs.ReadFile(ui.defaults, "defaults/atmospherics.json")
+
+					if err != nil {
+						dialog.ShowError(err, ui.window)
+						return
+					}
+
+					var vo *vo.Atmospherics
+					json.Unmarshal(f, &vo)
+
+					ui.atmospherics.Defaults(vo)
 				case "Fog":
-					ui.fog.Defaults()
+					f, err := fs.ReadFile(ui.defaults, "defaults/default_fog_settings.json")
+
+					if err != nil {
+						dialog.ShowError(err, ui.window)
+						return
+					}
+
+					var vo *vo.Fog
+					json.Unmarshal(f, &vo)
+
+					ui.fog.Defaults(vo)
 				case "Lighting":
 
 				case "Color Grading":
+					f, err := fs.ReadFile(ui.defaults, "defaults/color_grading.json")
 
+					if err != nil {
+						dialog.ShowError(err, ui.window)
+						return
+					}
+
+					var vo *vo.ColorGrading
+					json.Unmarshal(f, &vo)
+
+					ui.colorGrading.Defaults(vo)
 				case "Water":
+					f, err := fs.ReadFile(ui.defaults, "defaults/water.json")
 
+					if err != nil {
+						dialog.ShowError(err, ui.window)
+						return
+					}
+
+					var vo *vo.Water
+					json.Unmarshal(f, &vo)
+
+					ui.water.Defaults(vo)
 				case "Build Package":
 
 				}

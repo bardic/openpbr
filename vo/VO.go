@@ -145,6 +145,11 @@ type RGB struct {
 	C *fyne.Container
 }
 
+type RGBA struct {
+	RGB
+	A *widget.Entry
+}
+
 type EntryView struct {
 	Steps []*EntryViewHolder
 	C     *fyne.Container

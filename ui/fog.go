@@ -129,22 +129,22 @@ func (v *Fog) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Cont
 	return c
 }
 
-func (v *Fog) Defaults() {
-	v.waterMaxDensityEntry.SetText("0.5")
-	v.waterUniformDensityEntry.Checked = false
-	v.airMaxDensityEntry.SetText("0.5")
-	v.airZeroDensityHeightEntry.SetText("0.5")
-	v.airMaxDensityHeightEntry.SetText("0.5")
-	v.waterScatteringRGB.R.Text = "0.5"
-	v.waterScatteringRGB.G.Text = "0.5"
-	v.waterScatteringRGB.B.Text = "0.5"
-	v.waterAbsorptionRGB.R.Text = "0.5"
-	v.waterAbsorptionRGB.G.Text = "0.5"
-	v.waterAbsorptionRGB.B.Text = "0.5"
-	v.airScatteringRGB.R.Text = "0.5"
-	v.airScatteringRGB.G.Text = "0.5"
-	v.airScatteringRGB.B.Text = "0.5"
-	v.airAbsorptionRGB.R.Text = "0.5"
-	v.airAbsorptionRGB.G.Text = "0.5"
-	v.airAbsorptionRGB.B.Text = "0.5"
+func (v *Fog) Defaults(vo *vo.Fog) {
+	v.waterMaxDensityEntry.Text = utils.FloatToString(vo.WaterMaxDensity)
+	v.waterUniformDensityEntry.Checked = vo.WaterUniformDensity
+	v.airMaxDensityEntry.Text = utils.FloatToString(vo.AirMaxDensity)
+	v.airZeroDensityHeightEntry.Text = utils.FloatToString(vo.AirZeroDensityHeight)
+	v.airMaxDensityHeightEntry.Text = utils.FloatToString(vo.AirMaxDensityHeight)
+	v.waterScatteringRGB.R.Text = utils.FloatToString(vo.WaterScatteringR)
+	v.waterScatteringRGB.G.Text = utils.FloatToString(vo.WaterScatteringG)
+	v.waterScatteringRGB.B.Text = utils.FloatToString(vo.WaterScatteringB)
+	v.waterAbsorptionRGB.R.Text = utils.FloatToString(vo.WaterAbsorptionR)
+	v.waterAbsorptionRGB.G.Text = utils.FloatToString(vo.WaterAbsorptionG)
+	v.waterAbsorptionRGB.B.Text = utils.FloatToString(vo.WaterAbsorptionB)
+	v.airScatteringRGB.R.Text = utils.FloatToString(vo.AirScatteringR)
+	v.airScatteringRGB.G.Text = utils.FloatToString(vo.AirScatteringG)
+	v.airScatteringRGB.B.Text = utils.FloatToString(vo.AirScatteringB)
+	v.airAbsorptionRGB.R.Text = utils.FloatToString(vo.AirAbsorptionR)
+	v.airAbsorptionRGB.G.Text = utils.FloatToString(vo.AirAbsorptionG)
+	v.airAbsorptionRGB.B.Text = utils.FloatToString(vo.AirAbsorptionB)
 }

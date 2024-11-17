@@ -1,55 +1,26 @@
 {
-    "format_version": "1.21.40",
-    "minecraft:lighting_settings": {
-        "description": {
-            "identifier": "openpbr:default_lighting"
-        },
-        "directional_lights": {
-            "sun": {
-                "illuminance": {
-                    "0.0": 109880.0,
-                    "0.25": 20000.0,
-                    "0.35": 400.0,
-                    "0.5": 1.0,
-                    "0.65": 400.0,
-                    "0.75": 20000.0,
-                    "1.0": 109880.0
-                },
-                "color": {
-                    "0.0": "#FFFFFF",
-                    "0.25": "#FFFFFF",
-                    "0.35": "#FFFFFF",
-                    "0.5": "#FFFFFF",
-                    "0.65": "#FFFFFF",
-                    "0.75": "#FFFFFF",
-                    "1.0": "#FFFFFF"
-                }
-            },
-            "moon": {
-                "illuminance": {
-                    "0.0": 1.0,
-                    "0.25": 1.0,
-                    "0.35": 1.0,
-                    "0.5": 1.0,
-                    "0.65": 1.0,
-                    "0.75": 1.0,
-                    "1.0": 1.0
-                },
-                "color": [
-                    255.0,
-                    255.0,
-                    255.0,
-                    255.0
-                ]
-            },
-            "orbital_offset_degrees": 3.0
-        },
-        "emissive": {
-            "desaturation": 0.1
-        },
-        "ambient": {
-            "illuminance": 0.02,
-            "color": "#ffffff"
-        }
-    }
+    "SunIlluminance":[
+        { "Key" : "0.0", "Value": 0.0, "Last" : false }, 
+        { "Key" : "0.25", "Value": 20000.0, "Last" : false }, 
+        { "Key" : "0.35", "Value": 400.0, "Last" : false }, 
+        { "Key" : "0.5", "Value": 1.0, "Last" : false }, 
+        { "Key" : "0.65", "Value": 400.0, "Last" : false }, 
+        { "Key" : "0.75", "Value": 20000.0, "Last" : false }, 
+        { "Key" : "1.0", "Value": 109880.0, "Last" : true }
+    ],
+	"SunColour":          [
+        { "Key" : "0.0", "Value": "#FFFFFF", "Last" : false }, 
+        { "Key" : "0.25", "Value": "#FFFFFF", "Last" : false }, 
+        { "Key" : "0.35", "Value": "#FFFFFF", "Last" : false }, 
+        { "Key" : "0.5", "Value": "#FFFFFF", "Last" : false }, 
+        { "Key" : "0.65", "Value": "#FFFFFF", "Last" : false }, 
+        { "Key" : "0.75", "Value": "#FFFFFF", "Last" : false }, 
+        { "Key" : "1.0", "Value": "#FFFFFF", "Last" : true }
+    ]
+	"MoonIlluminance":    []EntryViewVO
+	"MoonColour":         string
+	"OrbitalOffset":      float64
+	"Desaturation":       float64
+	"AmbientIlluminance": float64
+	"AmbientColour":      string
 }

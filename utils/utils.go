@@ -123,6 +123,27 @@ func CreateRGBEntry() *vo.RGB {
 	}
 }
 
+func CreateRGBAEntry() *vo.RGBA {
+
+	rgba := CreateRGBEntry()
+
+	highlightsContrastRLabel := widget.NewLabel("R")
+	highlightsContrastGLabel := widget.NewLabel("G")
+	highlightsContrastBLabel := widget.NewLabel("B")
+	highlightsContrastALabel := widget.NewLabel("A")
+	highlightsContrastAEntry := widget.NewEntry()
+
+	highlightsContrastHBox := container.NewAdaptiveGrid(9, highlightsContrastRLabel, rgba.R, highlightsContrastGLabel, rgba.G, highlightsContrastBLabel, rgba.B, highlightsContrastALabel, highlightsContrastAEntry)
+	highlightsContrastVBox := container.NewHBox(highlightsContrastHBox)
+
+	rgba.C = highlightsContrastVBox
+
+	return &vo.RGBA{
+		RGB: *rgba,
+		A:   highlightsContrastAEntry,
+	}
+}
+
 func ToFloat64(entry *widget.Entry) float64 {
 	f, err := strconv.ParseFloat(entry.Text, 64)
 
@@ -147,4 +168,8 @@ func StepsToVO(steps []*vo.EntryViewHolder) []vo.EntryViewVO {
 	}
 
 	return voSteps
+}
+
+func FloatToString(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
