@@ -12,6 +12,14 @@ import (
 var id int = 0
 
 type Lighting struct {
+	sunIlluminanceVBox      *vo.EntryView
+	sunColourVBox           *vo.EntryView
+	moonIlluminanceVBox     *vo.EntryView
+	moonColourEntry         *widget.Entry
+	orbitalOffsetEntry      *widget.Entry
+	desaturationEntry       *widget.Entry
+	ambientIlluminanceEntry *widget.Entry
+	ambientColourEntry      *widget.Entry
 }
 
 func (v *Lighting) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Container {
@@ -20,63 +28,63 @@ func (v *Lighting) BuildLightingView(refresh func(), popupErr func(error)) *fyne
 	// Sun Illuminance
 	//
 
-	sunIlluminanceVBox := utils.CreateEntryView("Sun Illuminance", id)
+	v.sunIlluminanceVBox = utils.CreateEntryView("Sun Illuminance", id)
 
 	//
 	// Sun Colour
 	//
 
-	sunColourVBox := utils.CreateEntryView("Sun Colour", id)
+	v.sunColourVBox = utils.CreateEntryView("Sun Colour", id)
 
 	//
 	// Moon Illuminance
 	//
 
-	moonIlluminanceVBox := utils.CreateEntryView("Moon Illuminance", id)
+	v.moonIlluminanceVBox = utils.CreateEntryView("Moon Illuminance", id)
 
 	//
 	// Moon Colour
 	//
 
 	moonColourLabel := widget.NewLabel("Moon Colour")
-	moonColourEntry := widget.NewEntry()
-	moonHBox := container.NewHBox(moonColourLabel, moonColourEntry)
+	v.moonColourEntry = widget.NewEntry()
+	moonHBox := container.NewHBox(moonColourLabel, v.moonColourEntry)
 
 	//
 	// Orbital Offset
 	//
 
 	orbitalOffsetLabel := widget.NewLabel("Moon Colour")
-	orbitalOffsetEntry := widget.NewEntry()
-	orbitalOffsetHBox := container.NewHBox(orbitalOffsetLabel, orbitalOffsetEntry)
+	v.orbitalOffsetEntry = widget.NewEntry()
+	orbitalOffsetHBox := container.NewHBox(orbitalOffsetLabel, v.orbitalOffsetEntry)
 
 	//
 	// Desaturation
 	//
 
 	desaturationLabel := widget.NewLabel("Desaturation")
-	desaturationEntry := widget.NewEntry()
-	desaturationHBox := container.NewHBox(desaturationLabel, desaturationEntry)
+	v.desaturationEntry = widget.NewEntry()
+	desaturationHBox := container.NewHBox(desaturationLabel, v.desaturationEntry)
 
 	//
 	// Ambient Illuminance
 	//
 
 	ambientIlluminanceLabel := widget.NewLabel("Ambient Illuminance")
-	ambientIlluminanceEntry := widget.NewEntry()
-	ambientIlluminanceHBox := container.NewHBox(ambientIlluminanceLabel, ambientIlluminanceEntry)
+	v.ambientIlluminanceEntry = widget.NewEntry()
+	ambientIlluminanceHBox := container.NewHBox(ambientIlluminanceLabel, v.ambientIlluminanceEntry)
 
 	//
 	// Ambient Colour
 	//
 
 	ambientColourLabel := widget.NewLabel("Ambient Colour")
-	ambientColourEntry := widget.NewEntry()
-	ambientColourHBox := container.NewHBox(ambientColourLabel, ambientColourEntry)
+	v.ambientColourEntry = widget.NewEntry()
+	ambientColourHBox := container.NewHBox(ambientColourLabel, v.ambientColourEntry)
 
-	accItem1 := widget.NewAccordionItem("Sun Illuminance", sunIlluminanceVBox.C)
-	accItem2 := widget.NewAccordionItem("Sun Colour", sunColourVBox.C)
-	accItem3 := widget.NewAccordionItem("Moon Illuminance", moonIlluminanceVBox.C)
+	accItem1 := widget.NewAccordionItem("Sun Illuminance", v.sunIlluminanceVBox.C)
+	accItem2 := widget.NewAccordionItem("Sun Colour", v.sunColourVBox.C)
+	accItem3 := widget.NewAccordionItem("Moon Illuminance", v.moonIlluminanceVBox.C)
 	accItem4 := widget.NewAccordionItem("Moon Colour", moonHBox)
 	accItem5 := widget.NewAccordionItem("Orbital Offset", orbitalOffsetHBox)
 	accItem6 := widget.NewAccordionItem("Desaturation", desaturationHBox)
@@ -98,14 +106,14 @@ func (v *Lighting) BuildLightingView(refresh func(), popupErr func(error)) *fyne
 		cmd := export.Lighting{
 			Out: "./example/settings/shared/lighting/global.json",
 			Lighting: vo.Lighting{
-				SunIlluminance:     utils.StepsToVO(sunIlluminanceVBox.Steps),
-				SunColour:          utils.StepsToVO(sunColourVBox.Steps),
-				MoonIlluminance:    utils.StepsToVO(moonIlluminanceVBox.Steps),
-				MoonColour:         moonColourEntry.Text,
-				OrbitalOffset:      utils.ToFloat64(orbitalOffsetEntry),
-				Desaturation:       utils.ToFloat64(desaturationEntry),
-				AmbientIlluminance: utils.ToFloat64(ambientIlluminanceEntry),
-				AmbientColour:      ambientColourEntry.Text,
+				SunIlluminance:     utils.StepsToVO(v.sunIlluminanceVBox.Steps),
+				SunColour:          utils.StepsToVO(v.sunColourVBox.Steps),
+				MoonIlluminance:    utils.StepsToVO(v.moonIlluminanceVBox.Steps),
+				MoonColour:         v.moonColourEntry.Text,
+				OrbitalOffset:      utils.ToFloat64(v.orbitalOffsetEntry),
+				Desaturation:       utils.ToFloat64(v.desaturationEntry),
+				AmbientIlluminance: utils.ToFloat64(v.ambientIlluminanceEntry),
+				AmbientColour:      v.ambientColourEntry.Text,
 			},
 		}
 
@@ -114,4 +122,18 @@ func (v *Lighting) BuildLightingView(refresh func(), popupErr func(error)) *fyne
 
 	c := container.NewVBox(save, acc)
 	return c
+}
+
+func (v *Lighting) Defaults(d *vo.Lighting) {
+	utils.PopulateKeysWithFloat(d.SunIlluminance, v.sunIlluminanceVBox)
+	utils.PopulateKeysWithFloat(d.SunColour, v.sunColourVBox)
+	utils.PopulateKeysWithFloat(d.MoonIlluminance, v.moonIlluminanceVBox)
+	v.moonColourEntry.SetText(d.MoonColour)
+	v.orbitalOffsetEntry.SetText(utils.FloatToString(d.OrbitalOffset))
+	v.desaturationEntry.SetText(utils.FloatToString(d.Desaturation))
+	v.ambientIlluminanceEntry.SetText(utils.FloatToString(d.AmbientIlluminance))
+	v.ambientColourEntry.SetText(d.AmbientColour)
+}
+
+func (a *Lighting) Save() {
 }

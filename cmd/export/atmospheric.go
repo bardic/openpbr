@@ -12,6 +12,14 @@ type Atmospherics struct {
 	vo.Atmospherics
 }
 
+func (cmd *Atmospherics) SetOut(out string) {
+	cmd.Out = out
+}
+
+func (cmd *Atmospherics) GetOut() string {
+	return cmd.Out
+}
+
 func (cmd *Atmospherics) Perform() error {
 	tmplFile := "./templates/atmospherics.tmpl"
 

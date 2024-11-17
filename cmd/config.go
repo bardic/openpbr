@@ -3,9 +3,12 @@ package cmd
 import (
 	"encoding/json"
 	"os"
+
+	"github.com/bardic/openpbr/vo"
 )
 
 type Config struct {
+	vo.BaseConf
 	Buildname      string
 	Name           string
 	Description    string

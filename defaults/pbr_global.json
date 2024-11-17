@@ -1,37 +1,18 @@
 {
-    "format_version": "1.21.40",
-    "minecraft:pbr_fallback_settings": {
-        "blocks": {
-            "global_metalness_emissive_roughness_subsurface": [
-                0.0,
-                0.0,
-                255.0,
-                0.0
-            ]
-        },
-        "actors": {
-            "global_metalness_emissive_roughness_subsurface": [
-                0.0,
-                0.0,
-                255.0,
-                0.0
-            ]
-        },
-        "particles": {
-            "global_metalness_emissive_roughness_subsurface": [
-                0.0,
-                0.0,
-                255.0,
-                0.0
-            ]
-        },
-        "items": {
-            "global_metalness_emissive_roughness_subsurface": [
-                0.0,
-                0.0,
-                255.0,
-                0.0
-            ]
-        }
-    }
+    "GlobalBlockR": 0.0,
+    "GlobalBlockG": 0.0,
+    "GlobalBlockB": 255.0,
+    "GlobalBlockA": 0.0,
+    "GlobalActorR": 0.0,
+    "GlobalActorG": 0.0,
+    "GlobalActorB": 255.0,
+    "GlobalActorA": 0.0,
+    "GlobalParticleR": 0.0,
+    "GlobalParticleG": 0.0,
+    "GlobalParticleB": 255.0,
+    "GlobalParticleA": 0.0,
+    "GlobalItemR": 0.0,
+    "GlobalItemG": 0.0,
+    "GlobalItemB": 255.0,
+    "GlobalItemA": 0.0
 }

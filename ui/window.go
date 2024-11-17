@@ -152,6 +152,38 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 	tabs.SetTabLocation(container.TabLocationTop)
 
 	tb := widget.NewToolbar(
+
+		widget.NewToolbarAction(
+			theme.DocumentIcon(),
+			func() {
+			},
+		),
+		widget.NewToolbarAction(
+			theme.FolderOpenIcon(),
+			func() {
+
+			},
+		),
+		widget.NewToolbarAction(
+			theme.DocumentSaveIcon(),
+			func() {
+				switch tabs.Selected().Text {
+				case "Config":
+					ui.createView.Save(ui.window)
+				case "PBR":
+					ui.pbr.Save()
+				case "Atmospheric":
+					ui.atmospherics.Save()
+				case "Fog":
+					ui.fog.Save()
+				case "Lighting":
+					ui.lightingView.Save()
+				case "Color Grading":
+					ui.colorGrading.Save()
+				case "Water":
+					ui.water.Save()
+				}
+			}),
 		widget.NewToolbarAction(
 			theme.HistoryIcon(),
 			func() {
@@ -159,7 +191,17 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 				case "Config":
 
 				case "PBR":
+					f, err := fs.ReadFile(ui.defaults, "defaults/pbr_global.json")
 
+					if err != nil {
+						dialog.ShowError(err, ui.window)
+						return
+					}
+
+					var vo *vo.PBR
+					json.Unmarshal(f, &vo)
+
+					ui.pbr.Defaults(vo)
 				case "Atmospheric":
 					f, err := fs.ReadFile(ui.defaults, "defaults/atmospherics.json")
 
@@ -185,7 +227,17 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 
 					ui.fog.Defaults(vo)
 				case "Lighting":
+					f, err := fs.ReadFile(ui.defaults, "defaults/lighting_global.json")
 
+					if err != nil {
+						dialog.ShowError(err, ui.window)
+						return
+					}
+
+					var vo *vo.Lighting
+					json.Unmarshal(f, &vo)
+
+					ui.lightingView.Defaults(vo)
 				case "Color Grading":
 					f, err := fs.ReadFile(ui.defaults, "defaults/color_grading.json")
 

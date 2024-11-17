@@ -9,6 +9,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd"
 	"github.com/bardic/openpbr/utils"
+	"github.com/bardic/openpbr/vo"
 	"github.com/google/uuid"
 )
 
@@ -191,4 +192,30 @@ func (c *Create) Update(t cmd.Config) {
 	c.rText.Text = t.ROffset
 	c.gText.Text = t.GOffset
 	c.bText.Text = t.BOffset
+}
+
+func (c *Create) Save(p fyne.Window) {
+
+	config := &cmd.Config{
+		BaseConf: vo.BaseConf{
+			Out: utils.LocalPath("conf"),
+		},
+		Name:           c.manifestName.Text,
+		Header_uuid:    c.manifestHeaderUUID.Text,
+		Module_uuid:    c.manifestModuleUUID.Text,
+		Description:    c.manifestDescription.Text,
+		Default_mer:    c.defaultMERArrEntry.Text,
+		Version:        c.manifestVersion.Text,
+		Author:         c.authorEntry.Text,
+		License:        c.licenseURL.Text,
+		URL:            c.packageURL.Text,
+		Capibility:     c.capibility.Selected,
+		HeightTemplate: c.heightTemplateEntry.Text,
+		MerTemplate:    c.merTemplateEntry.Text,
+		ROffset:        c.rText.Text,
+		GOffset:        c.gText.Text,
+		BOffset:        c.bText.Text,
+	}
+
+	utils.SaveConf(config, p)
 }

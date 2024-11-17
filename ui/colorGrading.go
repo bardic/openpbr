@@ -206,3 +206,6 @@ func (v *ColorGrading) Defaults(c *vo.ColorGrading) {
 	v.ShadowsMaxEntry.Text = strconv.FormatFloat(c.ShadowsMax, 'f', -1, 64)
 	v.ToneMappingOperator.Text = c.ToneMappingOperator
 }
+
+func (a *ColorGrading) Save() {
+}

@@ -7,7 +7,9 @@ import (
 	"strconv"
 	"strings"
 
+	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/vo"
 )
@@ -170,6 +172,63 @@ func StepsToVO(steps []*vo.EntryViewHolder) []vo.EntryViewVO {
 	return voSteps
 }
 
+func StepsToStrVO(steps []*vo.EntryViewHolder) []vo.EntryViewStrVO {
+	var voSteps []vo.EntryViewStrVO
+	for _, step := range steps {
+		voSteps = append(voSteps, vo.EntryViewStrVO{
+			Key:   step.KeyEntry.Text,
+			Value: step.ValueEntry.Text,
+		})
+	}
+
+	if len(voSteps) > 0 {
+		voSteps[len(voSteps)-1].Last = true
+	}
+
+	return voSteps
+}
+
 func FloatToString(f float64) string {
 	return strconv.FormatFloat(f, 'f', -1, 64)
+}
+
+func PopulateKeysWithFloat(d []vo.EntryViewVO, v *vo.EntryView) {
+	for _, vo := range d {
+		holder := CreateEntryViewHolder()
+		holder.KeyEntry.SetText(vo.Key)
+		holder.ValueEntry.SetText(FloatToString(vo.Value))
+		v.Steps = append(v.Steps, holder)
+		v.C.Add(v.Steps[len(v.Steps)-1].HBox)
+	}
+}
+
+func PopulateKeysWithString(d []vo.EntryViewStrVO, v *vo.EntryView) {
+	for _, vo := range d {
+		holder := CreateEntryViewHolder()
+		holder.KeyEntry.SetText(vo.Key)
+		holder.ValueEntry.SetText(vo.Value)
+		v.Steps = append(v.Steps, holder)
+		v.C.Add(v.Steps[len(v.Steps)-1].HBox)
+	}
+}
+
+func SaveConf(conf vo.IBaseConf, p fyne.Window) {
+	dialog.ShowFileSave(func(f fyne.URIWriteCloser, err error) {
+		if err != nil {
+			dialog.ShowError(err, p)
+			return
+		}
+
+		if f == nil {
+			return
+		}
+
+		conf.SetOut(f.URI().Path())
+		err = conf.Perform()
+
+		if err != nil {
+			dialog.ShowError(err, p)
+		}
+
+	}, p)
 }

@@ -186,3 +186,6 @@ func (v *Water) Defaults(c *vo.Water) {
 	v.wavesSpeedEntry.SetText(utils.FloatToString(c.WavesSpeed))
 	v.wavesSpeedScalingEntry.SetText(utils.FloatToString(c.WavesSpeedScaling))
 }
+
+func (a *Water) Save() {
+}

@@ -148,3 +148,6 @@ func (v *Fog) Defaults(vo *vo.Fog) {
 	v.airAbsorptionRGB.G.Text = utils.FloatToString(vo.AirAbsorptionG)
 	v.airAbsorptionRGB.B.Text = utils.FloatToString(vo.AirAbsorptionB)
 }
+
+func (a *Fog) Save() {
+}

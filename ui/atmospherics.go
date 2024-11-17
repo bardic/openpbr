@@ -127,8 +127,8 @@ func (v *Atmospherics) Build(refresh func(), popupErr func(error)) *fyne.Contain
 				SunMieStrength:            utils.StepsToVO(v.sunMieStrengthVBox.Steps),
 				MoonMieStrength:           utils.StepsToVO(v.moonMieStrengthVBox.Steps),
 				SunGlareShape:             utils.StepsToVO(v.sunGlareShapeVBox.Steps),
-				SkyZenithColor:            utils.StepsToVO(v.skyZenithColorVBox.Steps),
-				SkyHorizonColor:           utils.StepsToVO(v.skyHorizonColorVBox.Steps),
+				SkyZenithColor:            utils.StepsToStrVO(v.skyZenithColorVBox.Steps),
+				SkyHorizonColor:           utils.StepsToStrVO(v.skyHorizonColorVBox.Steps),
 			},
 		}
 
@@ -140,41 +140,18 @@ func (v *Atmospherics) Build(refresh func(), popupErr func(error)) *fyne.Contain
 }
 
 func (a *Atmospherics) Defaults(d *vo.Atmospherics) {
-
-	/*
-
-	   v.horizonBlendStopsMinVBox.Steps
-	   v.horizonBlendStopsStartVBox.Steps
-	   v.horizonBlendStopsMieStartVBox.Steps
-	   v.mieStartVBox.Steps
-	   v.horizonBlendMaxVBox.Steps
-	   v.rayleighStrengthVBox.Steps
-	   v.sunMieStrengthVBox.Steps
-	   v.moonMieStrengthVBox.Steps
-	   v.sunGlareShapeVBox.Steps
-	   v.skyZenithColorVBox.Steps
-	   v.skyHorizonColorVBox.Steps
-	*/
-
-	PopulateKeys(d.HorizonBlendStopsMin, a.horizonBlendStopsMinVBox)
-	PopulateKeys(d.HorizonBlendStopsStart, a.horizonBlendStopsStartVBox)
-	PopulateKeys(d.HorizonBlendStopsMieStart, a.horizonBlendStopsMieStartVBox)
-	PopulateKeys(d.MieStart, a.mieStartVBox)
-	PopulateKeys(d.HorizonBlendMax, a.horizonBlendMaxVBox)
-	PopulateKeys(d.RayleighStrength, a.rayleighStrengthVBox)
-	PopulateKeys(d.SunMieStrength, a.sunMieStrengthVBox)
-	PopulateKeys(d.MoonMieStrength, a.moonMieStrengthVBox)
-	PopulateKeys(d.SunGlareShape, a.sunGlareShapeVBox)
-	PopulateKeys(d.SkyZenithColor, a.skyZenithColorVBox)
-	PopulateKeys(d.SkyHorizonColor, a.skyHorizonColorVBox)
+	utils.PopulateKeysWithFloat(d.HorizonBlendStopsMin, a.horizonBlendStopsMinVBox)
+	utils.PopulateKeysWithFloat(d.HorizonBlendStopsStart, a.horizonBlendStopsStartVBox)
+	utils.PopulateKeysWithFloat(d.HorizonBlendStopsMieStart, a.horizonBlendStopsMieStartVBox)
+	utils.PopulateKeysWithFloat(d.MieStart, a.mieStartVBox)
+	utils.PopulateKeysWithFloat(d.HorizonBlendMax, a.horizonBlendMaxVBox)
+	utils.PopulateKeysWithFloat(d.RayleighStrength, a.rayleighStrengthVBox)
+	utils.PopulateKeysWithFloat(d.SunMieStrength, a.sunMieStrengthVBox)
+	utils.PopulateKeysWithFloat(d.MoonMieStrength, a.moonMieStrengthVBox)
+	utils.PopulateKeysWithFloat(d.SunGlareShape, a.sunGlareShapeVBox)
+	utils.PopulateKeysWithString(d.SkyZenithColor, a.skyZenithColorVBox)
+	utils.PopulateKeysWithString(d.SkyHorizonColor, a.skyHorizonColorVBox)
 }
 
-func PopulateKeys(d []vo.EntryViewVO, v *vo.EntryView) {
-	for _, vo := range d {
-		holder := utils.CreateEntryViewHolder()
-		holder.KeyEntry.SetText(vo.Key)
-		holder.ValueEntry.SetText(utils.FloatToString(vo.Value))
-		v.Steps = append(v.Steps, holder)
-		v.C.Add(v.Steps[len(v.Steps)-1].HBox)
-	}
+func (a *Atmospherics) Save() {
 }
