@@ -5,7 +5,18 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
+type IBaseConf interface {
+	Perform() error
+	SetOut(string)
+	GetOut() string
+}
+
+type BaseConf struct {
+	Out string
+}
+
 type Lighting struct {
+	BaseConf
 	SunIlluminance     []EntryViewVO
 	SunColour          []EntryViewVO
 	MoonIlluminance    []EntryViewVO
@@ -29,8 +40,14 @@ type EntryViewVO struct {
 	Value float64
 	Last  bool
 }
+type EntryViewStrVO struct {
+	Key   string
+	Value string
+	Last  bool
+}
 
 type Atmospherics struct {
+	BaseConf
 	HorizonBlendStopsMin      []EntryViewVO
 	HorizonBlendStopsStart    []EntryViewVO
 	HorizonBlendStopsMieStart []EntryViewVO
@@ -40,11 +57,12 @@ type Atmospherics struct {
 	SunMieStrength            []EntryViewVO
 	MoonMieStrength           []EntryViewVO
 	SunGlareShape             []EntryViewVO
-	SkyZenithColor            []EntryViewVO
-	SkyHorizonColor           []EntryViewVO
+	SkyZenithColor            []EntryViewStrVO
+	SkyHorizonColor           []EntryViewStrVO
 }
 
 type ColorGrading struct {
+	BaseConf
 	HighlightsContrastG   float64
 	HighlightsContrastB   float64
 	HighlightsContrastR   float64
@@ -95,6 +113,7 @@ type ColorGrading struct {
 }
 
 type Fog struct {
+	BaseConf
 	WaterMaxDensity      float64
 	WaterUniformDensity  bool
 	AirMaxDensity        float64
@@ -115,13 +134,27 @@ type Fog struct {
 }
 
 type PBR struct {
-	GlobalBlockMERS    string
-	GlobalActorMERS    string
-	GlobalParticleMERS string
-	GlobalItemMERS     string
+	BaseConf
+	GlobalBlockR    float64
+	GlobalBlockG    float64
+	GlobalBlockB    float64
+	GlobalBlockA    float64
+	GlobalActorR    float64
+	GlobalActorG    float64
+	GlobalActorB    float64
+	GlobalActorA    float64
+	GlobalParticleR float64
+	GlobalParticleG float64
+	GlobalParticleB float64
+	GlobalParticleA float64
+	GlobalItemR     float64
+	GlobalItemG     float64
+	GlobalItemB     float64
+	GlobalItemA     float64
 }
 
 type Water struct {
+	BaseConf
 	Chlorophyll           float64
 	SuspendedSediment     float64
 	CDOM                  float64
