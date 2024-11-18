@@ -8,8 +8,15 @@ import (
 )
 
 type Water struct {
-	Out string
 	vo.Water
+}
+
+func (cmd *Water) SetOut(out string) {
+	cmd.Out = out
+}
+
+func (cmd *Water) GetOut() string {
+	return cmd.Out
 }
 
 func (cmd *Water) Perform() error {

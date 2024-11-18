@@ -8,8 +8,15 @@ import (
 )
 
 type Fog struct {
-	Out string
 	vo.Fog
+}
+
+func (cmd *Fog) SetOut(out string) {
+	cmd.Out = out
+}
+
+func (cmd *Fog) GetOut() string {
+	return cmd.Out
 }
 
 func (cmd *Fog) Perform() error {

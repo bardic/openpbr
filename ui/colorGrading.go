@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"encoding/json"
+	"path"
 	"strconv"
 
 	"fyne.io/fyne/v2"
@@ -8,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd/export"
+	"github.com/bardic/openpbr/store"
 	"github.com/bardic/openpbr/utils"
 	"github.com/bardic/openpbr/vo"
 )
@@ -19,7 +22,7 @@ type ColorGrading struct {
 	ToneMappingOperator *widget.Entry
 }
 
-func (v *ColorGrading) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Container {
+func (v *ColorGrading) Build(p fyne.Window) *fyne.Container {
 
 	v.RBGEntryiesTitles = []string{
 		"Highlights Contrast",
@@ -39,65 +42,6 @@ func (v *ColorGrading) BuildLightingView(refresh func(), popupErr func(error)) *
 		"Shadows Offset",
 		"Shadows Saturation",
 	}
-
-	// rgbEntryies := make([]fyne.CanvasObject, 0)
-
-	save := widget.NewButton("Save", func() {
-		colorGrading := export.ColorGrading{
-			Out: "./example/settings/shared/color_grading/color_grading.json",
-			ColorGrading: vo.ColorGrading{
-				HighlightsContrastR:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[0]].R),
-				HighlightsContrastG:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[0]].G),
-				HighlightsContrastB:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[0]].B),
-				HighlightsGainR:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[1]].R),
-				HighlightsGainG:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[1]].G),
-				HighlightsGainB:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[1]].B),
-				HighlightsGammaR:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[2]].R),
-				HighlightsGammaG:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[2]].G),
-				HighlightsGammaB:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[2]].B),
-				HighlightsOffsetR:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[3]].R),
-				HighlightsOffsetG:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[3]].G),
-				HighlightsOffsetB:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[3]].B),
-				HighlightsSaturationR: utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[4]].R),
-				HighlightsSaturationG: utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[4]].G),
-				HighlightsSaturationB: utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[4]].B),
-				MidtonesContrastR:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[5]].R),
-				MidtonesContrastG:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[5]].G),
-				MidtonesContrastB:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[5]].B),
-				MidtonesGainR:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[6]].R),
-				MidtonesGainG:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[6]].G),
-				MidtonesGainB:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[6]].B),
-				MidtonesGammaR:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[7]].R),
-				MidtonesGammaG:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[7]].G),
-				MidtonesGammaB:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[7]].B),
-				MidtonesOffsetR:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[8]].R),
-				MidtonesOffsetG:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[8]].G),
-				MidtonesOffsetB:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[8]].B),
-				MidtonesSaturationR:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[9]].R),
-				MidtonesSaturationG:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[9]].G),
-				MidtonesSaturationB:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[9]].B),
-				ShadowsMax:            utils.ToFloat64(v.ShadowsMaxEntry),
-				ShadowsContrastR:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[11]].R),
-				ShadowsContrastG:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[11]].G),
-				ShadowsContrastB:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[11]].B),
-				ShadowsGainR:          utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[12]].R),
-				ShadowsGainG:          utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[12]].G),
-				ShadowsGainB:          utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[12]].B),
-				ShadowsGammaR:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[13]].R),
-				ShadowsGammaG:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[13]].G),
-				ShadowsGammaB:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[13]].B),
-				ShadowsOffsetR:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[14]].R),
-				ShadowsOffsetG:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[14]].G),
-				ShadowsOffsetB:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[14]].B),
-				ShadowsSaturationR:    utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[15]].R),
-				ShadowsSaturationG:    utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[15]].G),
-				ShadowsSaturationB:    utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[15]].B),
-				ToneMappingOperator:   v.ToneMappingOperator.Text,
-			},
-		}
-
-		colorGrading.Perform()
-	})
 
 	c := container.New(layout.NewFormLayout())
 
@@ -136,13 +80,15 @@ func (v *ColorGrading) BuildLightingView(refresh func(), popupErr func(error)) *
 	v.ToneMappingOperator = widget.NewEntry()
 	c.Add(v.ToneMappingOperator)
 
-	c.Add(save)
 	c.Add(layout.NewSpacer())
 
 	return c
 }
 
-func (v *ColorGrading) Defaults(c *vo.ColorGrading) {
+func (v *ColorGrading) Defaults(b []byte) {
+	var c vo.ColorGrading
+	json.Unmarshal(b, &c)
+
 	v.RGBs[v.RBGEntryiesTitles[0]].R.Text = strconv.FormatFloat(c.HighlightsContrastR, 'f', -1, 64)
 	v.RGBs[v.RBGEntryiesTitles[0]].G.Text = strconv.FormatFloat(c.HighlightsContrastG, 'f', -1, 64)
 	v.RGBs[v.RBGEntryiesTitles[0]].B.Text = strconv.FormatFloat(c.HighlightsContrastB, 'f', -1, 64)
@@ -207,5 +153,61 @@ func (v *ColorGrading) Defaults(c *vo.ColorGrading) {
 	v.ToneMappingOperator.Text = c.ToneMappingOperator
 }
 
-func (a *ColorGrading) Save() {
+func (v *ColorGrading) Save() {
+	colorGrading := export.ColorGrading{
+		ColorGrading: vo.ColorGrading{
+			BaseConf: vo.BaseConf{
+				Out: path.Join(store.PackageStore, "color_grading.json"),
+			},
+			HighlightsContrastR:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[0]].R),
+			HighlightsContrastG:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[0]].G),
+			HighlightsContrastB:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[0]].B),
+			HighlightsGainR:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[1]].R),
+			HighlightsGainG:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[1]].G),
+			HighlightsGainB:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[1]].B),
+			HighlightsGammaR:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[2]].R),
+			HighlightsGammaG:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[2]].G),
+			HighlightsGammaB:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[2]].B),
+			HighlightsOffsetR:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[3]].R),
+			HighlightsOffsetG:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[3]].G),
+			HighlightsOffsetB:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[3]].B),
+			HighlightsSaturationR: utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[4]].R),
+			HighlightsSaturationG: utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[4]].G),
+			HighlightsSaturationB: utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[4]].B),
+			MidtonesContrastR:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[5]].R),
+			MidtonesContrastG:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[5]].G),
+			MidtonesContrastB:     utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[5]].B),
+			MidtonesGainR:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[6]].R),
+			MidtonesGainG:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[6]].G),
+			MidtonesGainB:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[6]].B),
+			MidtonesGammaR:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[7]].R),
+			MidtonesGammaG:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[7]].G),
+			MidtonesGammaB:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[7]].B),
+			MidtonesOffsetR:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[8]].R),
+			MidtonesOffsetG:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[8]].G),
+			MidtonesOffsetB:       utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[8]].B),
+			MidtonesSaturationR:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[9]].R),
+			MidtonesSaturationG:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[9]].G),
+			MidtonesSaturationB:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[9]].B),
+			ShadowsMax:            utils.ToFloat64(v.ShadowsMaxEntry),
+			ShadowsContrastR:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[10]].R),
+			ShadowsContrastG:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[10]].G),
+			ShadowsContrastB:      utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[10]].B),
+			ShadowsGainR:          utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[11]].R),
+			ShadowsGainG:          utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[11]].G),
+			ShadowsGainB:          utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[11]].B),
+			ShadowsGammaR:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[12]].R),
+			ShadowsGammaG:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[12]].G),
+			ShadowsGammaB:         utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[12]].B),
+			ShadowsOffsetR:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[13]].R),
+			ShadowsOffsetG:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[13]].G),
+			ShadowsOffsetB:        utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[13]].B),
+			ShadowsSaturationR:    utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[14]].R),
+			ShadowsSaturationG:    utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[14]].G),
+			ShadowsSaturationB:    utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[14]].B),
+			ToneMappingOperator:   v.ToneMappingOperator.Text,
+		},
+	}
+
+	colorGrading.Perform()
 }

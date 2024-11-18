@@ -8,8 +8,15 @@ import (
 )
 
 type ColorGrading struct {
-	Out string
 	vo.ColorGrading
+}
+
+func (cmd *ColorGrading) SetOut(out string) {
+	cmd.Out = out
+}
+
+func (cmd *ColorGrading) GetOut() string {
+	return cmd.Out
 }
 
 func (cmd *ColorGrading) Perform() error {

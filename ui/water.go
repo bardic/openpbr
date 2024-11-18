@@ -1,11 +1,15 @@
 package ui
 
 import (
+	"encoding/json"
+	"path"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd/export"
+	"github.com/bardic/openpbr/store"
 	"github.com/bardic/openpbr/utils"
 	"github.com/bardic/openpbr/vo"
 )
@@ -27,7 +31,7 @@ type Water struct {
 	wavesSpeedScalingEntry     *widget.Entry
 }
 
-func (v *Water) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Container {
+func (v *Water) Build(p fyne.Window) *fyne.Container {
 	//
 	// Chlorophyll
 	//
@@ -126,31 +130,6 @@ func (v *Water) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Co
 	wavesSpeedScalingLabel := widget.NewLabel("Waves Speed Scaling")
 	v.wavesSpeedScalingEntry = widget.NewEntry()
 
-	save := widget.NewButton("Save", func() {
-		water := export.Water{
-			Out: "./example/settings/shared/water/water.json",
-			Water: vo.Water{
-				Chlorophyll:           utils.ToFloat64(v.chlorophyllEntry),
-				SuspendedSediment:     utils.ToFloat64(v.suspendedSedimentEntry),
-				CDOM:                  utils.ToFloat64(v.cdomEntry),
-				WavesEnabled:          v.wavesEnabledEntry.Checked,
-				WavesDepth:            utils.ToFloat64(v.wavesDepthEntry),
-				WavesFrequency:        utils.ToFloat64(v.wavesFrequencyEntry),
-				WavesFrequencyScaling: utils.ToFloat64(v.wavesFrequencyScalingEntry),
-				WavesMix:              utils.ToFloat64(v.wavesMixEntry),
-				WavesOctaves:          utils.ToFloat64(v.wavesOctavesEntry),
-				WavesPull:             utils.ToFloat64(v.wavesPullEntry),
-				WavesSampleWidth:      utils.ToFloat64(v.wavesSampleWidthEntry),
-				WavesShape:            utils.ToFloat64(v.wavesShapeEntry),
-				WavesSpeed:            utils.ToFloat64(v.wavesSpeedEntry),
-				WavesSpeedScaling:     utils.ToFloat64(v.wavesSpeedScalingEntry),
-			},
-		}
-
-		water.Perform()
-
-	})
-
 	c := container.New(layout.NewFormLayout(),
 		chlorophyllLabel, v.chlorophyllEntry,
 		suspendedSedimentLabel, v.suspendedSedimentEntry,
@@ -166,11 +145,15 @@ func (v *Water) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Co
 		wavesShapeLabel, v.wavesShapeEntry,
 		wavesSpeedLabel, v.wavesSpeedEntry,
 		wavesSpeedScalingLabel, v.wavesSpeedScalingEntry,
-		save, layout.NewSpacer())
+	)
 	return c
 }
 
-func (v *Water) Defaults(c *vo.Water) {
+func (v *Water) Defaults(b []byte) {
+
+	var c vo.Water
+	json.Unmarshal(b, &c)
+
 	v.chlorophyllEntry.SetText(utils.FloatToString(c.Chlorophyll))
 	v.suspendedSedimentEntry.SetText(utils.FloatToString(c.SuspendedSediment))
 	v.cdomEntry.SetText(utils.FloatToString(c.CDOM))
@@ -187,5 +170,29 @@ func (v *Water) Defaults(c *vo.Water) {
 	v.wavesSpeedScalingEntry.SetText(utils.FloatToString(c.WavesSpeedScaling))
 }
 
-func (a *Water) Save() {
+func (v *Water) Save() {
+	water := export.Water{
+		Water: vo.Water{
+			BaseConf: vo.BaseConf{
+				Out: path.Join(store.PackageStore, "water.json"),
+			},
+			Chlorophyll:           utils.ToFloat64(v.chlorophyllEntry),
+			SuspendedSediment:     utils.ToFloat64(v.suspendedSedimentEntry),
+			CDOM:                  utils.ToFloat64(v.cdomEntry),
+			WavesEnabled:          v.wavesEnabledEntry.Checked,
+			WavesDepth:            utils.ToFloat64(v.wavesDepthEntry),
+			WavesFrequency:        utils.ToFloat64(v.wavesFrequencyEntry),
+			WavesFrequencyScaling: utils.ToFloat64(v.wavesFrequencyScalingEntry),
+			WavesMix:              utils.ToFloat64(v.wavesMixEntry),
+			WavesOctaves:          utils.ToFloat64(v.wavesOctavesEntry),
+			WavesPull:             utils.ToFloat64(v.wavesPullEntry),
+			WavesSampleWidth:      utils.ToFloat64(v.wavesSampleWidthEntry),
+			WavesShape:            utils.ToFloat64(v.wavesShapeEntry),
+			WavesSpeed:            utils.ToFloat64(v.wavesSpeedEntry),
+			WavesSpeedScaling:     utils.ToFloat64(v.wavesSpeedScalingEntry),
+		},
+	}
+
+	water.Perform()
+
 }

@@ -9,6 +9,7 @@ import (
 )
 
 type Manifest struct {
+	Out         string
 	Name        string
 	Header_uuid string
 	Module_uuid string
@@ -18,6 +19,14 @@ type Manifest struct {
 	License     string
 	URL         string
 	Capibility  string
+}
+
+func (cmd *Manifest) SetOut(out string) {
+	cmd.Out = out
+}
+
+func (cmd *Manifest) GetOut() string {
+	return cmd.Out
 }
 
 func (cmd *Manifest) Perform() error {

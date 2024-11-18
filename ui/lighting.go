@@ -1,10 +1,14 @@
 package ui
 
 import (
+	"encoding/json"
+	"path"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd/export"
+	"github.com/bardic/openpbr/store"
 	"github.com/bardic/openpbr/utils"
 	"github.com/bardic/openpbr/vo"
 )
@@ -22,7 +26,7 @@ type Lighting struct {
 	ambientColourEntry      *widget.Entry
 }
 
-func (v *Lighting) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Container {
+func (v *Lighting) Build(p fyne.Window) *fyne.Container {
 
 	//
 	// Sun Illuminance
@@ -102,29 +106,14 @@ func (v *Lighting) BuildLightingView(refresh func(), popupErr func(error)) *fyne
 		accItem8,
 	)
 
-	save := widget.NewButton("Save", func() {
-		cmd := export.Lighting{
-			Out: "./example/settings/shared/lighting/global.json",
-			Lighting: vo.Lighting{
-				SunIlluminance:     utils.StepsToVO(v.sunIlluminanceVBox.Steps),
-				SunColour:          utils.StepsToVO(v.sunColourVBox.Steps),
-				MoonIlluminance:    utils.StepsToVO(v.moonIlluminanceVBox.Steps),
-				MoonColour:         v.moonColourEntry.Text,
-				OrbitalOffset:      utils.ToFloat64(v.orbitalOffsetEntry),
-				Desaturation:       utils.ToFloat64(v.desaturationEntry),
-				AmbientIlluminance: utils.ToFloat64(v.ambientIlluminanceEntry),
-				AmbientColour:      v.ambientColourEntry.Text,
-			},
-		}
-
-		cmd.Perform()
-	})
-
-	c := container.NewVBox(save, acc)
+	c := container.NewVBox(acc)
 	return c
 }
 
-func (v *Lighting) Defaults(d *vo.Lighting) {
+func (v *Lighting) Defaults(b []byte) {
+	var d vo.Lighting
+	json.Unmarshal(b, &d)
+
 	utils.PopulateKeysWithFloat(d.SunIlluminance, v.sunIlluminanceVBox)
 	utils.PopulateKeysWithFloat(d.SunColour, v.sunColourVBox)
 	utils.PopulateKeysWithFloat(d.MoonIlluminance, v.moonIlluminanceVBox)
@@ -135,5 +124,22 @@ func (v *Lighting) Defaults(d *vo.Lighting) {
 	v.ambientColourEntry.SetText(d.AmbientColour)
 }
 
-func (a *Lighting) Save() {
+func (v *Lighting) Save() {
+	cmd := export.Lighting{
+		Lighting: vo.Lighting{
+			BaseConf: vo.BaseConf{
+				Out: path.Join(store.PackageStore, "global.json"),
+			},
+			SunIlluminance:     utils.StepsToVO(v.sunIlluminanceVBox.Steps),
+			SunColour:          utils.StepsToVO(v.sunColourVBox.Steps),
+			MoonIlluminance:    utils.StepsToVO(v.moonIlluminanceVBox.Steps),
+			MoonColour:         v.moonColourEntry.Text,
+			OrbitalOffset:      utils.ToFloat64(v.orbitalOffsetEntry),
+			Desaturation:       utils.ToFloat64(v.desaturationEntry),
+			AmbientIlluminance: utils.ToFloat64(v.ambientIlluminanceEntry),
+			AmbientColour:      v.ambientColourEntry.Text,
+		},
+	}
+
+	cmd.Perform()
 }

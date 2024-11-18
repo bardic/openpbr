@@ -8,8 +8,15 @@ import (
 )
 
 type GlobalPBR struct {
-	Out string
 	vo.PBR
+}
+
+func (cmd *GlobalPBR) SetOut(out string) {
+	cmd.Out = out
+}
+
+func (cmd *GlobalPBR) GetOut() string {
+	return cmd.Out
 }
 
 func (cmd *GlobalPBR) Perform() error {

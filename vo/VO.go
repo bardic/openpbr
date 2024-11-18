@@ -11,8 +11,18 @@ type IBaseConf interface {
 	GetOut() string
 }
 
+type IBaseView interface {
+	Build(fyne.Window) *fyne.Container
+	Save()
+	Defaults(b []byte)
+}
+
 type BaseConf struct {
-	Out string
+	Out     string
+	Default string
+}
+
+type BaseView interface {
 }
 
 type Lighting struct {

@@ -8,7 +8,6 @@ import (
 )
 
 type Atmospherics struct {
-	Out string
 	vo.Atmospherics
 }
 

@@ -34,5 +34,13 @@ func (cmd *Config) Perform() error {
 		return err
 	}
 
-	return os.WriteFile(cmd.Buildname, conf, 0644)
+	return os.WriteFile(cmd.Out, conf, 0644)
+}
+
+func (cmd *Config) SetOut(out string) {
+	cmd.Out = out
+}
+
+func (cmd *Config) GetOut() string {
+	return cmd.Out
 }

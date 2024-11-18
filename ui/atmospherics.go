@@ -1,15 +1,20 @@
 package ui
 
 import (
+	"encoding/json"
+	"path"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd/export"
+	"github.com/bardic/openpbr/store"
 	"github.com/bardic/openpbr/utils"
 	"github.com/bardic/openpbr/vo"
 )
 
 type Atmospherics struct {
+	vo.BaseView
 	horizonBlendStopsMinVBox      *vo.EntryView
 	horizonBlendStopsStartVBox    *vo.EntryView
 	horizonBlendStopsMieStartVBox *vo.EntryView
@@ -23,7 +28,7 @@ type Atmospherics struct {
 	skyHorizonColorVBox           *vo.EntryView
 }
 
-func (v *Atmospherics) Build(refresh func(), popupErr func(error)) *fyne.Container {
+func (v *Atmospherics) Build(p fyne.Window) *fyne.Container {
 	//
 	// Horizon Blend Stops Min
 	//
@@ -114,32 +119,14 @@ func (v *Atmospherics) Build(refresh func(), popupErr func(error)) *fyne.Contain
 		accItem11,
 	)
 
-	save := widget.NewButton("Save", func() {
-		cmd := export.Atmospherics{
-			Out: "./example/settings/shared/atmospherics/atmospherics.json",
-			Atmospherics: vo.Atmospherics{
-				HorizonBlendStopsMin:      utils.StepsToVO(v.horizonBlendStopsMinVBox.Steps),
-				HorizonBlendStopsStart:    utils.StepsToVO(v.horizonBlendStopsStartVBox.Steps),
-				HorizonBlendStopsMieStart: utils.StepsToVO(v.horizonBlendStopsMieStartVBox.Steps),
-				MieStart:                  utils.StepsToVO(v.mieStartVBox.Steps),
-				HorizonBlendMax:           utils.StepsToVO(v.horizonBlendMaxVBox.Steps),
-				RayleighStrength:          utils.StepsToVO(v.rayleighStrengthVBox.Steps),
-				SunMieStrength:            utils.StepsToVO(v.sunMieStrengthVBox.Steps),
-				MoonMieStrength:           utils.StepsToVO(v.moonMieStrengthVBox.Steps),
-				SunGlareShape:             utils.StepsToVO(v.sunGlareShapeVBox.Steps),
-				SkyZenithColor:            utils.StepsToStrVO(v.skyZenithColorVBox.Steps),
-				SkyHorizonColor:           utils.StepsToStrVO(v.skyHorizonColorVBox.Steps),
-			},
-		}
-
-		cmd.Perform()
-	})
-
-	c := container.NewVBox(save, acc)
+	c := container.NewVBox(acc)
 	return c
 }
 
-func (a *Atmospherics) Defaults(d *vo.Atmospherics) {
+func (a *Atmospherics) Defaults(b []byte) {
+	var d vo.Atmospherics
+	json.Unmarshal(b, &d)
+
 	utils.PopulateKeysWithFloat(d.HorizonBlendStopsMin, a.horizonBlendStopsMinVBox)
 	utils.PopulateKeysWithFloat(d.HorizonBlendStopsStart, a.horizonBlendStopsStartVBox)
 	utils.PopulateKeysWithFloat(d.HorizonBlendStopsMieStart, a.horizonBlendStopsMieStartVBox)
@@ -153,5 +140,25 @@ func (a *Atmospherics) Defaults(d *vo.Atmospherics) {
 	utils.PopulateKeysWithString(d.SkyHorizonColor, a.skyHorizonColorVBox)
 }
 
-func (a *Atmospherics) Save() {
+func (v *Atmospherics) Save() {
+	cmd := export.Atmospherics{
+		Atmospherics: vo.Atmospherics{
+			BaseConf: vo.BaseConf{
+				Out: path.Join(store.PackageStore, "atmospherics.json"),
+			},
+			HorizonBlendStopsMin:      utils.StepsToVO(v.horizonBlendStopsMinVBox.Steps),
+			HorizonBlendStopsStart:    utils.StepsToVO(v.horizonBlendStopsStartVBox.Steps),
+			HorizonBlendStopsMieStart: utils.StepsToVO(v.horizonBlendStopsMieStartVBox.Steps),
+			MieStart:                  utils.StepsToVO(v.mieStartVBox.Steps),
+			HorizonBlendMax:           utils.StepsToVO(v.horizonBlendMaxVBox.Steps),
+			RayleighStrength:          utils.StepsToVO(v.rayleighStrengthVBox.Steps),
+			SunMieStrength:            utils.StepsToVO(v.sunMieStrengthVBox.Steps),
+			MoonMieStrength:           utils.StepsToVO(v.moonMieStrengthVBox.Steps),
+			SunGlareShape:             utils.StepsToVO(v.sunGlareShapeVBox.Steps),
+			SkyZenithColor:            utils.StepsToStrVO(v.skyZenithColorVBox.Steps),
+			SkyHorizonColor:           utils.StepsToStrVO(v.skyHorizonColorVBox.Steps),
+		},
+	}
+
+	cmd.Perform()
 }

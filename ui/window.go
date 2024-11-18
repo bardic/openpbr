@@ -2,12 +2,11 @@ package ui
 
 import (
 	"embed"
-	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
-	"path/filepath"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -15,313 +14,136 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
-	"github.com/bardic/openpbr/cmd"
-	"github.com/bardic/openpbr/cmd/export"
 	"github.com/bardic/openpbr/utils"
 	"github.com/bardic/openpbr/vo"
 )
 
 type UI struct {
-	templates    embed.FS
-	defaults     embed.FS
-	app          fyne.App
-	window       fyne.Window
-	createView   *Create
-	packView     *Pack
-	lightingView *Lighting
-	water        *Water
-	atmospherics *Atmospherics
-	fog          *Fog
-	colorGrading *ColorGrading
-	pbr          *PBR
+	activeTabView *TabInfo
+	templates     embed.FS
+	defaults      embed.FS
+	app           fyne.App
+	window        fyne.Window
+}
+
+type TabInfo struct {
+	TabName string
+	View    vo.IBaseView
+	Default string
 }
 
 func (ui *UI) Build(templates, defaults embed.FS) {
-	ui.templates = templates
-	ui.defaults = defaults
-
 	ui.app = app.New()
 	ui.window = ui.app.NewWindow("OpenPBR Config Creator")
 
-	ui.createView = &Create{}
-	ui.packView = &Pack{
-		templates: templates,
-		window:    ui.window,
+	tabs := []*TabInfo{
+		{"Config", &Create{
+			parent: ui.window,
+		}, "defaults/config.json"},
+		{"PBR", &PBR{}, "defaults/pbr_global.json"},
+		{"Atmospheric", &Atmospherics{}, "defaults/atmospherics.json"},
+		{"Fog", &Fog{}, "defaults/default_fog_settings.json"},
+		{"Lighting", &Lighting{}, "defaults/lighting_global.json"},
+		{"Color Grading", &ColorGrading{}, "defaults/color_grading.json"},
+		{"Water", &Water{}, "defaults/water.json"},
+		{"Build Package", &Pack{}, ""},
 	}
-	ui.lightingView = &Lighting{}
-	ui.water = &Water{}
-	ui.atmospherics = &Atmospherics{}
-	ui.fog = &Fog{}
-	ui.colorGrading = &ColorGrading{}
-	ui.pbr = &PBR{}
 
-	tabs := container.NewAppTabs(
-		container.NewTabItem("Config",
-			ui.createView.BuildCreateView(
-				ui.window.Canvas().Content().Refresh,
-				func(config *cmd.Config, err error) {
-					dialog.ShowFileSave(func(f fyne.URIWriteCloser, err error) {
-						if err != nil {
-							dialog.ShowError(err, ui.window)
-							return
-						}
+	ui.activeTabView = tabs[0]
 
-						if f == nil {
-							return
-						}
+	ui.templates = templates
+	ui.defaults = defaults
 
-						config.Buildname = f.URI().Path()
+	tabBar := container.NewAppTabs()
+	for _, t := range tabs {
+		tabBar.Append(container.NewTabItem(t.TabName, t.View.Build(ui.window)))
+	}
 
-						err = config.Perform()
+	tabBar.OnSelected = func(ti *container.TabItem) {
+		for _, t := range tabs {
+			if t.TabName == ti.Text {
+				ui.activeTabView = t
+				break
+			}
+		}
+	}
 
-						if err != nil {
-							dialog.ShowError(err, ui.window)
-						}
-
-					}, ui.window)
-
-				},
-				func(err error) {
-					dialog.ShowError(err, ui.window)
-				},
-			)),
-		container.NewTabItem("PBR", ui.pbr.BuildLightingView(
-			ui.window.Canvas().Content().Refresh,
-			func(err error) {
-				dialog.ShowError(err, ui.window)
-			},
-		)),
-		container.NewTabItem("Atmospheric", ui.atmospherics.Build(
-			ui.window.Canvas().Content().Refresh,
-			func(err error) {
-				dialog.ShowError(err, ui.window)
-			},
-		)),
-		container.NewTabItem("Fog", ui.fog.BuildLightingView(
-			ui.window.Canvas().Content().Refresh,
-			func(err error) {
-				dialog.ShowError(err, ui.window)
-			},
-		)),
-		container.NewTabItem("Lighting", ui.lightingView.BuildLightingView(
-			ui.window.Canvas().Content().Refresh,
-			func(err error) {
-				dialog.ShowError(err, ui.window)
-			},
-		)),
-		container.NewTabItem("Color Grading", ui.colorGrading.BuildLightingView(
-			ui.window.Canvas().Content().Refresh,
-			func(err error) {
-				dialog.ShowError(err, ui.window)
-			},
-		)),
-		container.NewTabItem("Water", ui.water.BuildLightingView(
-			ui.window.Canvas().Content().Refresh,
-			func(err error) {
-				dialog.ShowError(err, ui.window)
-			},
-		)),
-		container.NewTabItem("Build Package", ui.packView.BuildPackageView(
-			ui.window.Canvas().Content().Refresh,
-			func(manfiest *export.Manifest, err error) {
-				dialog.ShowFileSave(func(f fyne.URIWriteCloser, err error) {
-					if err != nil {
-						dialog.ShowError(err, ui.window)
-						return
-					}
-
-					if f == nil {
-						return
-					}
-
-					err = manfiest.Perform()
-
-					if err != nil {
-						dialog.ShowError(err, ui.window)
-					}
-
-				}, ui.window)
-
-			},
-			func(err error) {
-				dialog.ShowError(err, ui.window)
-			},
-		)),
-	)
-
-	tabs.SetTabLocation(container.TabLocationTop)
+	tabBar.SetTabLocation(container.TabLocationTop)
 
 	tb := widget.NewToolbar(
 
 		widget.NewToolbarAction(
 			theme.DocumentIcon(),
 			func() {
+				ui.activeTabView.View.Defaults(nil)
+				ui.window.Canvas().Content().Refresh()
 			},
 		),
 		widget.NewToolbarAction(
 			theme.FolderOpenIcon(),
 			func() {
+				dialog.ShowFileOpen(func(f fyne.URIReadCloser, err error) {
 
+					if err != nil {
+						dialog.ShowError(err, ui.window)
+						return
+					}
+					if f == nil {
+						return
+					}
+					var saveFile = f.URI().Path()
+
+					jsonFile, err := os.Open(saveFile)
+					if err != nil {
+						utils.AppendLoadOut("Fatal error: config.json missing")
+						return
+					}
+
+					defer jsonFile.Close()
+
+					byteValue, err := io.ReadAll(jsonFile)
+
+					if err != nil {
+						utils.AppendLoadOut("Fatal error: failed to read config.json")
+						return
+					}
+
+					ui.activeTabView.View.Defaults(byteValue)
+
+				}, ui.window)
 			},
 		),
 		widget.NewToolbarAction(
 			theme.DocumentSaveIcon(),
 			func() {
-				switch tabs.Selected().Text {
-				case "Config":
-					ui.createView.Save(ui.window)
-				case "PBR":
-					ui.pbr.Save()
-				case "Atmospheric":
-					ui.atmospherics.Save()
-				case "Fog":
-					ui.fog.Save()
-				case "Lighting":
-					ui.lightingView.Save()
-				case "Color Grading":
-					ui.colorGrading.Save()
-				case "Water":
-					ui.water.Save()
-				}
+				ui.activeTabView.View.Save()
 			}),
 		widget.NewToolbarAction(
 			theme.HistoryIcon(),
 			func() {
-				switch tabs.Selected().Text {
-				case "Config":
+				f, err := fs.ReadFile(ui.defaults, ui.activeTabView.Default)
 
-				case "PBR":
-					f, err := fs.ReadFile(ui.defaults, "defaults/pbr_global.json")
-
-					if err != nil {
-						dialog.ShowError(err, ui.window)
-						return
-					}
-
-					var vo *vo.PBR
-					json.Unmarshal(f, &vo)
-
-					ui.pbr.Defaults(vo)
-				case "Atmospheric":
-					f, err := fs.ReadFile(ui.defaults, "defaults/atmospherics.json")
-
-					if err != nil {
-						dialog.ShowError(err, ui.window)
-						return
-					}
-
-					var vo *vo.Atmospherics
-					json.Unmarshal(f, &vo)
-
-					ui.atmospherics.Defaults(vo)
-				case "Fog":
-					f, err := fs.ReadFile(ui.defaults, "defaults/default_fog_settings.json")
-
-					if err != nil {
-						dialog.ShowError(err, ui.window)
-						return
-					}
-
-					var vo *vo.Fog
-					json.Unmarshal(f, &vo)
-
-					ui.fog.Defaults(vo)
-				case "Lighting":
-					f, err := fs.ReadFile(ui.defaults, "defaults/lighting_global.json")
-
-					if err != nil {
-						dialog.ShowError(err, ui.window)
-						return
-					}
-
-					var vo *vo.Lighting
-					json.Unmarshal(f, &vo)
-
-					ui.lightingView.Defaults(vo)
-				case "Color Grading":
-					f, err := fs.ReadFile(ui.defaults, "defaults/color_grading.json")
-
-					if err != nil {
-						dialog.ShowError(err, ui.window)
-						return
-					}
-
-					var vo *vo.ColorGrading
-					json.Unmarshal(f, &vo)
-
-					ui.colorGrading.Defaults(vo)
-				case "Water":
-					f, err := fs.ReadFile(ui.defaults, "defaults/water.json")
-
-					if err != nil {
-						dialog.ShowError(err, ui.window)
-						return
-					}
-
-					var vo *vo.Water
-					json.Unmarshal(f, &vo)
-
-					ui.water.Defaults(vo)
-				case "Build Package":
-
+				if err != nil {
+					dialog.ShowError(err, ui.window)
+					return
 				}
+				ui.activeTabView.View.Defaults(f)
 
 				ui.window.Canvas().Content().Refresh()
 			},
 		),
 	)
 
-	ui.window.SetContent(container.NewVBox(tb, tabs))
+	ui.window.SetContent(container.NewVBox(tb, tabBar))
 	ui.window.Resize(fyne.NewSize(800, 600))
 
 	ui.window.SetMainMenu(fyne.NewMainMenu(&fyne.Menu{
 		Label: "Actions",
 		Items: []*fyne.MenuItem{
 			fyne.NewMenuItem(
-				"Load Config",
+				"About",
 				func() {
-					dialog.ShowFileOpen(func(f fyne.URIReadCloser, err error) {
-
-						if err != nil {
-							dialog.ShowError(err, ui.window)
-							return
-						}
-						if f == nil {
-							return
-						}
-						var saveFile = f.URI().Path()
-
-						jsonFile, err := os.Open(saveFile)
-						if err != nil {
-							utils.AppendLoadOut("Fatal error: config.json missing")
-							return
-						}
-
-						defer jsonFile.Close()
-
-						byteValue, err := io.ReadAll(jsonFile)
-
-						if err != nil {
-							utils.AppendLoadOut("Fatal error: failed to read config.json")
-							return
-						}
-
-						utils.Basedir = filepath.Dir(f.URI().Path())
-
-						var jsonConfig cmd.Config
-						err = json.Unmarshal(byteValue, &jsonConfig)
-
-						if err != nil {
-							utils.AppendLoadOut("Fatal error: failed to parse config.json")
-							return
-						}
-
-						ui.createView.Update(jsonConfig)
-
-						ui.window.Canvas().Content().Refresh()
-
-					}, ui.window)
-
+					fmt.Println("About")
 				}),
 		},
 	}))

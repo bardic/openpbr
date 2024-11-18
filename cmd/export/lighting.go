@@ -8,8 +8,15 @@ import (
 )
 
 type Lighting struct {
-	Out string
 	vo.Lighting
+}
+
+func (cmd *Lighting) SetOut(out string) {
+	cmd.Out = out
+}
+
+func (cmd *Lighting) GetOut() string {
+	return cmd.Out
 }
 
 func (cmd *Lighting) Perform() error {

@@ -1,11 +1,15 @@
 package ui
 
 import (
+	"encoding/json"
+	"path"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd/export"
+	"github.com/bardic/openpbr/store"
 	"github.com/bardic/openpbr/utils"
 	"github.com/bardic/openpbr/vo"
 )
@@ -24,7 +28,7 @@ type Fog struct {
 	airAbsorptionRGB          *vo.RGB
 }
 
-func (v *Fog) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Container {
+func (v *Fog) Build(p fyne.Window) *fyne.Container {
 	//
 	// Water Max Density
 	//
@@ -86,33 +90,6 @@ func (v *Fog) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Cont
 	airAbsorptionRGBLabel := widget.NewLabel("Water Scattering")
 	v.airAbsorptionRGB = utils.CreateRGBEntry()
 
-	save := widget.NewButton("Save", func() {
-		fog := export.Fog{
-			Out: "./example/settings/shared/fogs/default_fog_settings.json",
-			Fog: vo.Fog{
-				WaterMaxDensity:      utils.ToFloat64(v.waterMaxDensityEntry),
-				WaterUniformDensity:  v.waterUniformDensityEntry.Checked,
-				AirMaxDensity:        utils.ToFloat64(v.airMaxDensityEntry),
-				AirZeroDensityHeight: utils.ToFloat64(v.airZeroDensityHeightEntry),
-				AirMaxDensityHeight:  utils.ToFloat64(v.airMaxDensityHeightEntry),
-				WaterScatteringR:     utils.ToFloat64(v.waterScatteringRGB.R),
-				WaterScatteringG:     utils.ToFloat64(v.waterScatteringRGB.G),
-				WaterScatteringB:     utils.ToFloat64(v.waterScatteringRGB.B),
-				WaterAbsorptionR:     utils.ToFloat64(v.waterAbsorptionRGB.R),
-				WaterAbsorptionG:     utils.ToFloat64(v.waterAbsorptionRGB.G),
-				WaterAbsorptionB:     utils.ToFloat64(v.waterAbsorptionRGB.B),
-				AirScatteringR:       utils.ToFloat64(v.airScatteringRGB.R),
-				AirScatteringG:       utils.ToFloat64(v.airScatteringRGB.G),
-				AirScatteringB:       utils.ToFloat64(v.airScatteringRGB.B),
-				AirAbsorptionR:       utils.ToFloat64(v.airAbsorptionRGB.R),
-				AirAbsorptionG:       utils.ToFloat64(v.airAbsorptionRGB.G),
-				AirAbsorptionB:       utils.ToFloat64(v.airAbsorptionRGB.B),
-			},
-		}
-
-		fog.Perform()
-	})
-
 	c := container.New(
 		layout.NewFormLayout(),
 		waterMaxDensityLabel, v.waterMaxDensityEntry,
@@ -124,12 +101,14 @@ func (v *Fog) BuildLightingView(refresh func(), popupErr func(error)) *fyne.Cont
 		waterAbsorptionRGBLabel, v.waterAbsorptionRGB.C,
 		airScatteringRGBLabel, v.airScatteringRGB.C,
 		airAbsorptionRGBLabel, v.airAbsorptionRGB.C,
-		save, layout.NewSpacer(),
 	)
 	return c
 }
 
-func (v *Fog) Defaults(vo *vo.Fog) {
+func (v *Fog) Defaults(b []byte) {
+	var vo vo.Fog
+	json.Unmarshal(b, &vo)
+
 	v.waterMaxDensityEntry.Text = utils.FloatToString(vo.WaterMaxDensity)
 	v.waterUniformDensityEntry.Checked = vo.WaterUniformDensity
 	v.airMaxDensityEntry.Text = utils.FloatToString(vo.AirMaxDensity)
@@ -149,5 +128,31 @@ func (v *Fog) Defaults(vo *vo.Fog) {
 	v.airAbsorptionRGB.B.Text = utils.FloatToString(vo.AirAbsorptionB)
 }
 
-func (a *Fog) Save() {
+func (v *Fog) Save() {
+	fog := export.Fog{
+		Fog: vo.Fog{
+			BaseConf: vo.BaseConf{
+				Out: path.Join(store.PackageStore, "default_fog_settings.json"),
+			},
+			WaterMaxDensity:      utils.ToFloat64(v.waterMaxDensityEntry),
+			WaterUniformDensity:  v.waterUniformDensityEntry.Checked,
+			AirMaxDensity:        utils.ToFloat64(v.airMaxDensityEntry),
+			AirZeroDensityHeight: utils.ToFloat64(v.airZeroDensityHeightEntry),
+			AirMaxDensityHeight:  utils.ToFloat64(v.airMaxDensityHeightEntry),
+			WaterScatteringR:     utils.ToFloat64(v.waterScatteringRGB.R),
+			WaterScatteringG:     utils.ToFloat64(v.waterScatteringRGB.G),
+			WaterScatteringB:     utils.ToFloat64(v.waterScatteringRGB.B),
+			WaterAbsorptionR:     utils.ToFloat64(v.waterAbsorptionRGB.R),
+			WaterAbsorptionG:     utils.ToFloat64(v.waterAbsorptionRGB.G),
+			WaterAbsorptionB:     utils.ToFloat64(v.waterAbsorptionRGB.B),
+			AirScatteringR:       utils.ToFloat64(v.airScatteringRGB.R),
+			AirScatteringG:       utils.ToFloat64(v.airScatteringRGB.G),
+			AirScatteringB:       utils.ToFloat64(v.airScatteringRGB.B),
+			AirAbsorptionR:       utils.ToFloat64(v.airAbsorptionRGB.R),
+			AirAbsorptionG:       utils.ToFloat64(v.airAbsorptionRGB.G),
+			AirAbsorptionB:       utils.ToFloat64(v.airAbsorptionRGB.B),
+		},
+	}
+
+	fog.Perform()
 }

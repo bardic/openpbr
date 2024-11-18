@@ -1,19 +1,23 @@
 package ui
 
 import (
+	"encoding/json"
 	"log"
+	"path/filepath"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd"
-	"github.com/bardic/openpbr/utils"
+	"github.com/bardic/openpbr/store"
 	"github.com/bardic/openpbr/vo"
 	"github.com/google/uuid"
 )
 
 type Create struct {
+	parent                       fyne.Window
 	manifestName                 *widget.Entry
 	manifestNameContainer        *fyne.Container
 	authorEntry                  *widget.Entry
@@ -51,7 +55,7 @@ type Create struct {
 	bText                        *widget.Entry
 }
 
-func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, error), popupErr func(error)) *fyne.Container {
+func (c *Create) Build(p fyne.Window) *fyne.Container {
 	c.manifestName = widget.NewEntry()
 	c.manifestNameContainer = container.New(layout.NewAdaptiveGridLayout(2), widget.NewLabel("Name"), c.manifestName)
 
@@ -75,7 +79,7 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 	c.manifestHeaderUUID = widget.NewEntry()
 	c.manifestHeaderUUIDBtn = widget.NewButton("<", func() {
 		c.manifestHeaderUUID.Text = uuid.New().String()
-		refresh()
+		p.Canvas().Content().Refresh()
 	})
 
 	c.manifestHeaderUUIDGroup = container.New(layout.NewAdaptiveGridLayout(2), c.manifestHeaderUUID, c.manifestHeaderUUIDBtn)
@@ -85,7 +89,7 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 	c.manifestModuleUUID = widget.NewEntry()
 	c.manifestModuleUUIDBtn = widget.NewButton("<", func() {
 		c.manifestModuleUUID.Text = uuid.New().String()
-		refresh()
+		p.Canvas().Content().Refresh()
 	})
 	c.manifestModuleUUIDBtn.Resize(fyne.NewSize(25, 25))
 	c.manifestModuleUUIDGroup = container.New(layout.NewAdaptiveGridLayout(2), c.manifestModuleUUID, c.manifestModuleUUIDBtn)
@@ -143,32 +147,55 @@ func (c *Create) BuildCreateView(refresh func(), popupSave func(*cmd.Config, err
 		c.defaultMERArrEntryContainer,
 		c.heightTemplateEntryContainer,
 		c.merTemplateEntryContainer,
-		widget.NewButton("Save", func() {
-
-			config := &cmd.Config{
-				Buildname:      utils.LocalPath("conf"),
-				Name:           c.manifestName.Text,
-				Header_uuid:    c.manifestHeaderUUID.Text,
-				Module_uuid:    c.manifestModuleUUID.Text,
-				Description:    c.manifestDescription.Text,
-				Default_mer:    c.defaultMERArrEntry.Text,
-				Version:        c.manifestVersion.Text,
-				Author:         c.authorEntry.Text,
-				License:        c.licenseURL.Text,
-				URL:            c.packageURL.Text,
-				Capibility:     c.capibility.Selected,
-				HeightTemplate: c.heightTemplateEntry.Text,
-				MerTemplate:    c.merTemplateEntry.Text,
-				ROffset:        c.rText.Text,
-				GOffset:        c.gText.Text,
-				BOffset:        c.bText.Text,
-			}
-
-			//config.Perform()
-			popupSave(config, nil)
-		}))
+	)
 
 	return v
+}
+
+func (c *Create) Defaults(b []byte) {
+	if b == nil {
+		c.manifestName.SetText("")
+		c.manifestDescription.SetText("")
+		c.manifestHeaderUUID.SetText("")
+		c.manifestModuleUUID.SetText("")
+		c.defaultMERArrEntry.SetText("")
+		c.manifestVersion.SetText("")
+		c.authorEntry.SetText("")
+		c.licenseURL.SetText("")
+		c.packageURL.SetText("")
+		c.capibility.SetSelectedIndex(0)
+		c.heightTemplateEntry.SetText("")
+		c.merTemplateEntry.SetText("")
+		c.rText.SetText("")
+		c.gText.SetText("")
+		c.bText.SetText("")
+
+		return
+	}
+
+	var vo cmd.Config
+	json.Unmarshal(b, &vo)
+
+	c.manifestName.SetText(vo.Name)
+	c.manifestDescription.SetText(vo.Description)
+	c.manifestHeaderUUID.SetText(vo.Header_uuid)
+	c.manifestModuleUUID.SetText(vo.Module_uuid)
+	c.defaultMERArrEntry.SetText(vo.Default_mer)
+	c.manifestVersion.SetText(vo.Version)
+	c.authorEntry.SetText(vo.Author)
+	c.licenseURL.SetText(vo.License)
+	c.packageURL.SetText(vo.URL)
+	if vo.Capibility == "pbr" {
+		c.capibility.SetSelectedIndex(0)
+	} else {
+		c.capibility.SetSelectedIndex(1)
+	}
+
+	c.heightTemplateEntry.SetText(vo.HeightTemplate)
+	c.merTemplateEntry.SetText(vo.MerTemplate)
+	c.rText.SetText(vo.ROffset)
+	c.gText.SetText(vo.GOffset)
+	c.bText.SetText(vo.BOffset)
 }
 
 func (c *Create) Update(t cmd.Config) {
@@ -194,28 +221,41 @@ func (c *Create) Update(t cmd.Config) {
 	c.bText.Text = t.BOffset
 }
 
-func (c *Create) Save(p fyne.Window) {
+func (c *Create) Save() {
+	dialog.ShowFileSave(func(f fyne.URIWriteCloser, err error) {
+		if err != nil {
+			dialog.ShowError(err, c.parent)
+			return
+		}
 
-	config := &cmd.Config{
-		BaseConf: vo.BaseConf{
-			Out: utils.LocalPath("conf"),
-		},
-		Name:           c.manifestName.Text,
-		Header_uuid:    c.manifestHeaderUUID.Text,
-		Module_uuid:    c.manifestModuleUUID.Text,
-		Description:    c.manifestDescription.Text,
-		Default_mer:    c.defaultMERArrEntry.Text,
-		Version:        c.manifestVersion.Text,
-		Author:         c.authorEntry.Text,
-		License:        c.licenseURL.Text,
-		URL:            c.packageURL.Text,
-		Capibility:     c.capibility.Selected,
-		HeightTemplate: c.heightTemplateEntry.Text,
-		MerTemplate:    c.merTemplateEntry.Text,
-		ROffset:        c.rText.Text,
-		GOffset:        c.gText.Text,
-		BOffset:        c.bText.Text,
-	}
+		if f == nil {
+			return
+		}
 
-	utils.SaveConf(config, p)
+		store.PackageStore = filepath.Dir(f.URI().Path())
+
+		config := &cmd.Config{
+			BaseConf: vo.BaseConf{
+				Out: f.URI().Path(),
+			},
+			Name:           c.manifestName.Text,
+			Header_uuid:    c.manifestHeaderUUID.Text,
+			Module_uuid:    c.manifestModuleUUID.Text,
+			Description:    c.manifestDescription.Text,
+			Default_mer:    c.defaultMERArrEntry.Text,
+			Version:        c.manifestVersion.Text,
+			Author:         c.authorEntry.Text,
+			License:        c.licenseURL.Text,
+			URL:            c.packageURL.Text,
+			Capibility:     c.capibility.Selected,
+			HeightTemplate: c.heightTemplateEntry.Text,
+			MerTemplate:    c.merTemplateEntry.Text,
+			ROffset:        c.rText.Text,
+			GOffset:        c.gText.Text,
+			BOffset:        c.bText.Text,
+		}
+
+		config.Perform()
+	}, c.parent)
+
 }

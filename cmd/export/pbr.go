@@ -15,6 +15,14 @@ type PBR struct {
 	Capibility string
 }
 
+func (cmd *PBR) SetOut(out string) {
+	cmd.Out = out
+}
+
+func (cmd *PBR) GetOut() string {
+	return cmd.Out
+}
+
 func (cmd *PBR) Perform() error {
 	tmplFile := "./templates/pbr.tmpl"
 
