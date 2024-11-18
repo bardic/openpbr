@@ -1,0 +1,24 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "OpenPBR v5.0",
+    "description": "OpenPBR v5.0 PBR - 1.21.30",
+    "uuid": "bd111387-103a-4ef4-b33b-b39af1270e50",
+    "version": [5,0,0],
+    "min_engine_version": [1, 21, 0]
+  },
+  "modules": [
+    {
+      "description": "OpenPBR v5.0 PBR - 1.21.30",
+      "type": "resources",
+      "uuid": "5e867951-86e8-4c74-960c-1e7d1b8beedb",
+      "version": [5,0,0]
+    }
+  ],
+  "metadata": {
+    "authors": [ "judohippo" ],
+    "license": "https://github.com/bardic/openpbr/blob/main/UNLICENSE",
+    "url": "https://github.com/bardic/openpbr"
+  },
+  "capabilities" : [ "pbr"]
+}
