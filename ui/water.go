@@ -174,7 +174,7 @@ func (v *Water) Save() {
 	water := export.Water{
 		Water: vo.Water{
 			BaseConf: vo.BaseConf{
-				Out: path.Join(store.PackageStore, "water.json"),
+				Out: path.Join(store.PackageStore, "water"),
 			},
 			Chlorophyll:           utils.ToFloat64(v.chlorophyllEntry),
 			SuspendedSediment:     utils.ToFloat64(v.suspendedSedimentEntry),
@@ -193,6 +193,6 @@ func (v *Water) Save() {
 		},
 	}
 
-	water.Perform()
+	water.Save()
 
 }

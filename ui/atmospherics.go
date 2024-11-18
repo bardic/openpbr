@@ -144,7 +144,7 @@ func (v *Atmospherics) Save() {
 	cmd := export.Atmospherics{
 		Atmospherics: vo.Atmospherics{
 			BaseConf: vo.BaseConf{
-				Out: path.Join(store.PackageStore, "atmospherics.json"),
+				Out: path.Join(store.PackageStore, "atmospherics"),
 			},
 			HorizonBlendStopsMin:      utils.StepsToVO(v.horizonBlendStopsMinVBox.Steps),
 			HorizonBlendStopsStart:    utils.StepsToVO(v.horizonBlendStopsStartVBox.Steps),
@@ -160,5 +160,5 @@ func (v *Atmospherics) Save() {
 		},
 	}
 
-	cmd.Perform()
+	cmd.Save()
 }

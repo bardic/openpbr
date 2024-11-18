@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"embed"
 	"encoding/json"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -13,6 +15,7 @@ import (
 
 type Build struct {
 	ConfigPath string
+	Templates  embed.FS
 }
 
 func (cmd *Build) Perform() error {
@@ -38,11 +41,11 @@ func (cmd *Build) Perform() error {
 		Path: utils.LocalPath(utils.Psds),
 	})
 	cmds = append(cmds, &Copy{
-		Target: filepath.Join(utils.SettingDir, "shared"),
+		Target: filepath.Join("export", utils.SettingDir, "shared"),
 		Dest:   utils.OutDir,
 	})
 	cmds = append(cmds, &Copy{
-		Target: filepath.Join(utils.SettingDir, jsonConfig.Capibility),
+		Target: filepath.Join("export", utils.SettingDir, jsonConfig.Capibility),
 		Dest:   utils.OutDir,
 	})
 	cmds = append(cmds, &CovertAndNormalize{
@@ -61,10 +64,11 @@ func (cmd *Build) Perform() error {
 		Dest:   filepath.Join(utils.OutDir, "textures"),
 	})
 	cmds = append(cmds, &TextureSet{
-		Root:       utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
+		Root:       path.Join(utils.Basedir, utils.OutDir, "textures"),
 		Capibility: jsonConfig.Capibility,
 	})
 	cmds = append(cmds, &export.Manifest{
+		Templates:   cmd.Templates,
 		Name:        jsonConfig.Name,
 		Description: jsonConfig.Description,
 		Header_uuid: jsonConfig.Header_uuid,

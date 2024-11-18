@@ -7,6 +7,7 @@ import (
 
 type IBaseConf interface {
 	Perform() error
+	Save() error
 	SetOut(string)
 	GetOut() string
 }
@@ -196,4 +197,16 @@ type RGBA struct {
 type EntryView struct {
 	Steps []*EntryViewHolder
 	C     *fyne.Container
+}
+
+type TabInfo struct {
+	TabName string
+	View    IBaseView
+	*TemplateSettings
+}
+
+type TemplateSettings struct {
+	TemplatePath string
+	Output       string
+	DefaultData  string
 }

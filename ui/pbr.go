@@ -112,7 +112,7 @@ func (v *PBR) Save() {
 	pbr := export.GlobalPBR{
 		PBR: vo.PBR{
 			BaseConf: vo.BaseConf{
-				Out: path.Join(store.PackageStore, "pbr_global.json"),
+				Out: path.Join(store.PackageStore, "pbr_global"),
 			},
 			GlobalBlockR:    utils.ToFloat64(v.globalBlockMERSEntry.R),
 			GlobalBlockG:    utils.ToFloat64(v.globalBlockMERSEntry.G),
@@ -133,5 +133,5 @@ func (v *PBR) Save() {
 		},
 	}
 
-	pbr.Perform()
+	pbr.Save()
 }

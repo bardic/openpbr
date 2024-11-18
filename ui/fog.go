@@ -132,7 +132,7 @@ func (v *Fog) Save() {
 	fog := export.Fog{
 		Fog: vo.Fog{
 			BaseConf: vo.BaseConf{
-				Out: path.Join(store.PackageStore, "default_fog_settings.json"),
+				Out: path.Join(store.PackageStore, "default_fog_settings"),
 			},
 			WaterMaxDensity:      utils.ToFloat64(v.waterMaxDensityEntry),
 			WaterUniformDensity:  v.waterUniformDensityEntry.Checked,
@@ -154,5 +154,5 @@ func (v *Fog) Save() {
 		},
 	}
 
-	fog.Perform()
+	fog.Save()
 }

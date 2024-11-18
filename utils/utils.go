@@ -1,26 +1,27 @@
 package utils
 
 import (
+	"embed"
 	"errors"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 
-	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/vo"
 )
 
 const BaseAssets = "input"
-const OutDir = "openpbr_out"
+const OutDir = "export"
 const Overrides = "overrides"
 const SettingDir = "settings"
 const Psds = "psds"
 
 var ImCmd = "magick"
+
+var Templates embed.FS
 
 var Basedir string
 var TargetAssets = []string{"blocks", "entity", "particle"}
@@ -48,12 +49,13 @@ func AppendLoadOut(s string) {
 }
 
 func GetTextureSubpath(p string, key string) (string, error) {
-	subpaths := strings.Split(p, string(os.PathSeparator))
-	for i, subpath := range subpaths {
-		if subpath == key {
-			sub := strings.Join(subpaths[i:], string(os.PathSeparator))
-			return sub, nil
-		}
+	subpaths := strings.Split(
+		p,
+		key,
+	)
+
+	if len(subpaths) > 1 {
+		return subpaths[1], nil
 	}
 
 	return "", errors.New("")
@@ -210,25 +212,4 @@ func PopulateKeysWithString(d []vo.EntryViewStrVO, v *vo.EntryView) {
 		v.Steps = append(v.Steps, holder)
 		v.C.Add(v.Steps[len(v.Steps)-1].HBox)
 	}
-}
-
-func SaveConf(conf vo.IBaseConf, p fyne.Window) {
-	dialog.ShowFileSave(func(f fyne.URIWriteCloser, err error) {
-		if err != nil {
-			dialog.ShowError(err, p)
-			return
-		}
-
-		if f == nil {
-			return
-		}
-
-		conf.SetOut(f.URI().Path())
-		err = conf.Perform()
-
-		if err != nil {
-			dialog.ShowError(err, p)
-		}
-
-	}, p)
 }

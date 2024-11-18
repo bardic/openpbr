@@ -62,7 +62,7 @@ func (cmd *TextureSet) CreateTextureSets() error {
 			return err
 		}
 
-		cmd.Out = filepath.Join(utils.LocalPath(utils.OutDir), subpath)
+		cmd.Out = filepath.Join(utils.LocalPath(utils.OutDir), "textures", subpath)
 
 		in = strings.TrimSuffix(in, ".png")
 		merPath := in + utils.MerMapNameSuffix

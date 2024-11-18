@@ -14,53 +14,102 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/theme"
 	"fyne.io/fyne/v2/widget"
+	"github.com/bardic/openpbr/store"
 	"github.com/bardic/openpbr/utils"
 	"github.com/bardic/openpbr/vo"
 )
 
 type UI struct {
-	activeTabView *TabInfo
-	templates     embed.FS
+	activeTabView *vo.TabInfo
 	defaults      embed.FS
 	app           fyne.App
 	window        fyne.Window
-}
-
-type TabInfo struct {
-	TabName string
-	View    vo.IBaseView
-	Default string
 }
 
 func (ui *UI) Build(templates, defaults embed.FS) {
 	ui.app = app.New()
 	ui.window = ui.app.NewWindow("OpenPBR Config Creator")
 
-	tabs := []*TabInfo{
-		{"Config", &Create{
-			parent: ui.window,
-		}, "defaults/config.json"},
-		{"PBR", &PBR{}, "defaults/pbr_global.json"},
-		{"Atmospheric", &Atmospherics{}, "defaults/atmospherics.json"},
-		{"Fog", &Fog{}, "defaults/default_fog_settings.json"},
-		{"Lighting", &Lighting{}, "defaults/lighting_global.json"},
-		{"Color Grading", &ColorGrading{}, "defaults/color_grading.json"},
-		{"Water", &Water{}, "defaults/water.json"},
-		{"Build Package", &Pack{}, ""},
+	ui.defaults = defaults
+	utils.Templates = templates
+
+	store.Tabs = []*vo.TabInfo{
+		{
+			TabName: "Config",
+			View: &Create{
+				parent: ui.window,
+			},
+			TemplateSettings: &vo.TemplateSettings{
+				DefaultData: "defaults/config.json",
+			},
+		},
+		{
+			TabName: "PBR",
+			View:    &PBR{},
+			TemplateSettings: &vo.TemplateSettings{
+				TemplatePath: "pbr_global.tmpl",
+				Output:       "pbr/pbr/global.json",
+				DefaultData:  "defaults/pbr_global.json",
+			},
+		},
+		{
+			TabName: "Atmospheric",
+			View:    &Atmospherics{},
+			TemplateSettings: &vo.TemplateSettings{
+				TemplatePath: "atmospherics.tmpl",
+				Output:       "shared/atmospherics/atmospherics.json",
+				DefaultData:  "defaults/atmospherics.json",
+			},
+		},
+		{
+			TabName: "Fog",
+			View:    &Fog{},
+			TemplateSettings: &vo.TemplateSettings{
+				TemplatePath: "default_fog_settings.tmpl",
+				Output:       "shared/fogs/default_fog_settings.json",
+				DefaultData:  "defaults/default_fog_settings.json",
+			},
+		},
+		{
+			TabName: "Lighting",
+			View:    &Lighting{},
+			TemplateSettings: &vo.TemplateSettings{
+				TemplatePath: "lighting_global.tmpl",
+				Output:       "shared/lighting/global.json",
+				DefaultData:  "defaults/lighting_global.json",
+			},
+		},
+		{
+			TabName: "Color Grading",
+			View:    &ColorGrading{},
+			TemplateSettings: &vo.TemplateSettings{
+				TemplatePath: "color_grading.tmpl",
+				Output:       "shared/color_grading/color_grading.json",
+				DefaultData:  "defaults/color_grading.json",
+			}},
+		{
+			TabName: "Water",
+			View:    &Water{},
+			TemplateSettings: &vo.TemplateSettings{
+				TemplatePath: "water.tmpl",
+				Output:       "shared/water/water.json",
+				DefaultData:  "defaults/water.json",
+			},
+		},
+		{TabName: "Build Package", View: &Pack{
+			templates: templates,
+		}, TemplateSettings: nil},
 	}
 
-	ui.activeTabView = tabs[0]
-
-	ui.templates = templates
-	ui.defaults = defaults
+	ui.activeTabView = store.Tabs[0]
 
 	tabBar := container.NewAppTabs()
-	for _, t := range tabs {
+	for _, t := range store.Tabs {
 		tabBar.Append(container.NewTabItem(t.TabName, t.View.Build(ui.window)))
 	}
 
 	tabBar.OnSelected = func(ti *container.TabItem) {
-		for _, t := range tabs {
+		for _, t := range store.Tabs {
 			if t.TabName == ti.Text {
 				ui.activeTabView = t
 				break
@@ -121,7 +170,7 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 		widget.NewToolbarAction(
 			theme.HistoryIcon(),
 			func() {
-				f, err := fs.ReadFile(ui.defaults, ui.activeTabView.Default)
+				f, err := fs.ReadFile(ui.defaults, ui.activeTabView.DefaultData)
 
 				if err != nil {
 					dialog.ShowError(err, ui.window)

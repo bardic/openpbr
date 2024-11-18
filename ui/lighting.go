@@ -128,7 +128,7 @@ func (v *Lighting) Save() {
 	cmd := export.Lighting{
 		Lighting: vo.Lighting{
 			BaseConf: vo.BaseConf{
-				Out: path.Join(store.PackageStore, "global.json"),
+				Out: path.Join(store.PackageStore, "global"),
 			},
 			SunIlluminance:     utils.StepsToVO(v.sunIlluminanceVBox.Steps),
 			SunColour:          utils.StepsToVO(v.sunColourVBox.Steps),
@@ -141,5 +141,5 @@ func (v *Lighting) Save() {
 		},
 	}
 
-	cmd.Perform()
+	cmd.Save()
 }

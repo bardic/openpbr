@@ -2,11 +2,14 @@ package ui
 
 import (
 	"embed"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
+	"text/template"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -14,6 +17,7 @@ import (
 	"github.com/bardic/openpbr/cmd"
 	"github.com/bardic/openpbr/store"
 	"github.com/bardic/openpbr/utils"
+	"github.com/bardic/openpbr/vo"
 )
 
 type Pack struct {
@@ -37,24 +41,25 @@ func (pack *Pack) Build(p fyne.Window) *fyne.Container {
 		var saveFile = path.Join(store.PackageStore, "conf.json")
 		utils.Basedir = filepath.Dir(saveFile)
 		pb.Show()
-		dir, err := pack.templates.ReadDir("templates")
 
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		for _, v := range store.Tabs {
 
-		tempDir := utils.LocalPath("templates")
-		os.MkdirAll(tempDir, os.ModePerm)
-		os.MkdirAll(utils.LocalPath(utils.OutDir), os.ModePerm)
-		os.MkdirAll(utils.LocalPath(utils.Psds), os.ModePerm)
-		os.MkdirAll(utils.LocalPath(utils.Overrides), os.ModePerm)
-		os.MkdirAll(utils.LocalPath(utils.SettingDir), os.ModePerm)
+			if v.TabName == "Config" || v.TabName == "Build Package" {
+				continue
+			}
 
-		for _, v := range dir {
+			templateFile := path.Join("templates", filepath.Base(v.TemplatePath))
 
-			filePath := tempDir + string(os.PathSeparator) + v.Name()
-			out, err := os.Create(filePath)
+			output := path.Join(store.Output, "settings", v.Output)
+			//err := os.MkdirAll(filepath.Base(fp), os.ModeDir)
+
+			os.MkdirAll(path.Join(store.Output, utils.SettingDir, filepath.Dir(v.Output)), os.ModePerm)
+
+			// if err != nil {
+			// 	return
+			// }
+
+			out, err := os.Create(output)
 
 			if err != nil {
 				fmt.Println(err)
@@ -62,14 +67,47 @@ func (pack *Pack) Build(p fyne.Window) *fyne.Container {
 			}
 			defer out.Close()
 
-			b, err := pack.templates.ReadFile("templates/" + v.Name())
+			b, err := pack.templates.ReadFile(templateFile)
 
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
 
-			_, err = io.Writer.Write(out, b)
+			t, err := template.New("a").Parse(string(b))
+
+			b, err = os.ReadFile(path.Join(utils.Basedir, strings.Split(v.TemplatePath, ".")[0]+".dat"))
+
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			switch v.TabName {
+			case "Atmospheric":
+				var vo *vo.Atmospherics
+				json.Unmarshal(b, &vo)
+				err = t.Execute(out, vo)
+			case "PBR":
+				var vo *vo.PBR
+				json.Unmarshal(b, &vo)
+				err = t.Execute(out, vo)
+			case "Fog":
+				var vo *vo.Fog
+				json.Unmarshal(b, &vo)
+				err = t.Execute(out, vo)
+			case "Lighting":
+				var vo *vo.Lighting
+				json.Unmarshal(b, &vo)
+				err = t.Execute(out, vo)
+			case "Color Grading":
+				var vo *vo.ColorGrading
+				json.Unmarshal(b, &vo)
+				err = t.Execute(out, vo)
+			case "Water":
+				var vo *vo.Water
+				json.Unmarshal(b, &vo)
+				err = t.Execute(out, vo)
+			}
 
 			if err != nil {
 				fmt.Println(err)
@@ -78,7 +116,8 @@ func (pack *Pack) Build(p fyne.Window) *fyne.Container {
 		}
 
 		p.Canvas().Content().Refresh()
-		err = (&cmd.Build{
+		err := (&cmd.Build{
+			Templates:  pack.templates,
 			ConfigPath: saveFile,
 		}).Perform()
 
@@ -109,12 +148,11 @@ func (p *Pack) Defaults(b []byte) {
 		return
 	}
 
-	tempDir := utils.LocalPath("defaults")
-	os.MkdirAll(tempDir, os.ModePerm)
+	tempDir := store.PackageStore
 
 	for _, v := range dir {
 
-		filePath := tempDir + string(os.PathSeparator) + v.Name()
+		filePath := path.Join(tempDir, v.Name())
 		out, err := os.Create(filePath)
 
 		if err != nil {

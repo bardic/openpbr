@@ -3,6 +3,8 @@ package ui
 import (
 	"encoding/json"
 	"log"
+	"os"
+	"path"
 	"path/filepath"
 
 	"fyne.io/fyne/v2"
@@ -12,6 +14,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/bardic/openpbr/cmd"
 	"github.com/bardic/openpbr/store"
+	"github.com/bardic/openpbr/utils"
 	"github.com/bardic/openpbr/vo"
 	"github.com/google/uuid"
 )
@@ -233,6 +236,23 @@ func (c *Create) Save() {
 		}
 
 		store.PackageStore = filepath.Dir(f.URI().Path())
+		store.Output = path.Join(store.PackageStore, "export")
+
+		os.MkdirAll(path.Join(store.Output, utils.OutDir), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.Psds), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.Overrides), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.SettingDir), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "shared", "atmospherics"), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "shared", "color_grading"), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "shared", "fogs"), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "shared", "lighting"), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "shared", "point_lights"), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "shared", "textures"), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "shared", "water"), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "pbr", "pbr"), os.ModePerm)
+		os.MkdirAll(path.Join(store.Output, "overrides"), os.ModePerm)
+
+		os.MkdirAll(store.Output, os.ModePerm)
 
 		config := &cmd.Config{
 			BaseConf: vo.BaseConf{

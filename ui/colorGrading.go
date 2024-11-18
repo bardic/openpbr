@@ -157,7 +157,7 @@ func (v *ColorGrading) Save() {
 	colorGrading := export.ColorGrading{
 		ColorGrading: vo.ColorGrading{
 			BaseConf: vo.BaseConf{
-				Out: path.Join(store.PackageStore, "color_grading.json"),
+				Out: path.Join(store.PackageStore, "color_grading"),
 			},
 			HighlightsContrastR:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[0]].R),
 			HighlightsContrastG:   utils.ToFloat64(v.RGBs[v.RBGEntryiesTitles[0]].G),
@@ -209,5 +209,5 @@ func (v *ColorGrading) Save() {
 		},
 	}
 
-	colorGrading.Perform()
+	colorGrading.Save()
 }
