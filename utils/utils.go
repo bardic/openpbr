@@ -199,8 +199,10 @@ func PopulateKeysWithFloat(d []vo.EntryViewVO, v *vo.EntryView) {
 		holder := CreateEntryViewHolder()
 		holder.KeyEntry.SetText(vo.Key)
 		holder.ValueEntry.SetText(FloatToString(vo.Value))
+		holder.HBox.Refresh()
 		v.Steps = append(v.Steps, holder)
 		v.C.Add(v.Steps[len(v.Steps)-1].HBox)
+
 	}
 }
 
@@ -212,4 +214,12 @@ func PopulateKeysWithString(d []vo.EntryViewStrVO, v *vo.EntryView) {
 		v.Steps = append(v.Steps, holder)
 		v.C.Add(v.Steps[len(v.Steps)-1].HBox)
 	}
+}
+
+func Version() string {
+	b, err := os.ReadFile("VERSION")
+	if err != nil {
+		return err.Error()
+	}
+	return string(b)
 }

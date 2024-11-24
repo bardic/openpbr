@@ -106,6 +106,23 @@ func (v *PBR) Defaults(b []byte) {
 	v.globalItemMERSEntry.G.Text = utils.FloatToString(vo.GlobalItemG)
 	v.globalItemMERSEntry.B.Text = utils.FloatToString(vo.GlobalItemB)
 	v.globalItemMERSEntry.A.Text = utils.FloatToString(vo.GlobalItemA)
+
+	v.globalBlockMERSEntry.R.Refresh()
+	v.globalBlockMERSEntry.G.Refresh()
+	v.globalBlockMERSEntry.B.Refresh()
+	v.globalBlockMERSEntry.A.Refresh()
+	v.globalActorMERSEntry.R.Refresh()
+	v.globalActorMERSEntry.G.Refresh()
+	v.globalActorMERSEntry.B.Refresh()
+	v.globalActorMERSEntry.A.Refresh()
+	v.globalParticleMERSEntry.R.Refresh()
+	v.globalParticleMERSEntry.G.Refresh()
+	v.globalParticleMERSEntry.B.Refresh()
+	v.globalParticleMERSEntry.A.Refresh()
+	v.globalItemMERSEntry.R.Refresh()
+	v.globalItemMERSEntry.G.Refresh()
+	v.globalItemMERSEntry.B.Refresh()
+	v.globalItemMERSEntry.A.Refresh()
 }
 
 func (v *PBR) Save() {

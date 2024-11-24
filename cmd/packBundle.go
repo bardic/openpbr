@@ -16,8 +16,9 @@ type PackBundle struct {
 }
 
 func (cmd *PackBundle) Perform() error {
+	os.MkdirAll(path.Join(utils.Basedir, "openpbr"), os.ModePerm)
 	utils.AppendLoadOut("--- Package Release")
-	archive, err := os.Create(path.Join(utils.Basedir, "openpbr.mcpack"))
+	archive, err := os.Create(path.Join(utils.Basedir, "openpbr", "openpbr.mcpack"))
 	if err != nil {
 		return err
 	}
@@ -55,7 +56,7 @@ func addFileToZip(zipWriter *zip.Writer, filePath string) error {
 
 		defer f1.Close()
 
-		fmt.Println(path.Join(filePath, item.Name()))
+		// fmt.Println(path.Join(filePath, item.Name()))
 
 		subpath, _ := utils.GetTextureSubpath(
 			path.Join(filePath, item.Name()),
@@ -64,7 +65,7 @@ func addFileToZip(zipWriter *zip.Writer, filePath string) error {
 
 		fmt.Println(subpath)
 
-		w1, err := zipWriter.Create(subpath)
+		w1, err := zipWriter.Create(path.Join("openpbr", subpath))
 
 		if err != nil {
 			return err

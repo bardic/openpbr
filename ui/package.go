@@ -38,7 +38,7 @@ func (pack *Pack) Build(p fyne.Window) *fyne.Container {
 
 	loadBtn := widget.NewButton("Load Config", func() {
 
-		var saveFile = path.Join(store.PackageStore, "conf.json")
+		var saveFile = path.Join(store.PackageStore, "config.dat")
 		utils.Basedir = filepath.Dir(saveFile)
 		pb.Show()
 

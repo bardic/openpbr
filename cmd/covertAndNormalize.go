@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -15,6 +16,9 @@ type CovertAndNormalize struct {
 	SubRoot string
 	In      string
 	Out     string
+	ROffset int
+	GOffset int
+	BOffset int
 }
 
 func (cmd *CovertAndNormalize) Perform() error {
@@ -53,7 +57,7 @@ func (cmd *CovertAndNormalize) createTGA() error {
 		if err != nil {
 			return err
 		}
-		cmd.Out = filepath.Join(utils.LocalPath(utils.OutDir), subpath)
+		cmd.Out = filepath.Join(utils.LocalPath(utils.OutDir), "textures", subpath)
 
 		if filepath.Ext(path) == ".tga" {
 			cmd.Out = strings.Replace(cmd.Out, ".tga", ".png", 1)
@@ -72,9 +76,16 @@ func (cmd *CovertAndNormalize) createTGA() error {
 }
 
 func (cmd *CovertAndNormalize) Exec() error {
+	r := cmd.ROffset + 100
+	g := cmd.GOffset + 100
+	b := cmd.BOffset + 100
+
+	rgb := fmt.Sprintf("%d,%d,%d", r, g, b)
+
 	c := exec.Command(
 		utils.ImCmd,
 		cmd.In,
+		"-modulate", rgb,
 		"png32:"+cmd.Out,
 	)
 

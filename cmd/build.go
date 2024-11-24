@@ -7,8 +7,10 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"time"
 
+	"github.com/bardic/openpbr/cmd/export"
 	"github.com/bardic/openpbr/utils"
 )
 
@@ -36,16 +38,20 @@ func (cmd *Build) Perform() error {
 	cmds := []ICmd{}
 	cmds = append(cmds, &Clean{})
 	cmds = append(cmds, &Download{})
-	cmds = append(cmds, &ConvertPSD{
-		Path: utils.LocalPath(utils.Psds),
-	})
-	cmds = append(cmds, &Copy{
-		Target: filepath.Join("export", utils.SettingDir, "shared"),
-		Dest:   utils.OutDir,
-	})
+
+	r, err := strconv.Atoi(jsonConfig.ROffset)
+	g, err := strconv.Atoi(jsonConfig.ROffset)
+	b, err := strconv.Atoi(jsonConfig.ROffset)
 
 	cmds = append(cmds, &CovertAndNormalize{
-		Root: path.Join(utils.Basedir, utils.BaseAssets),
+		Root:    utils.LocalPath(utils.BaseAssets),
+		ROffset: r,
+		GOffset: g,
+		BOffset: b,
+	})
+
+	cmds = append(cmds, &ConvertPSD{
+		Path: utils.LocalPath(utils.Psds),
 	})
 
 	if jsonConfig.Capibility == "pbr" {
@@ -59,37 +65,33 @@ func (cmd *Build) Perform() error {
 		})
 	}
 
-	// cmds = append(cmds, &CovertAndNormalize{
-	// 	Root: utils.LocalPath(utils.BaseAssets),
-	// })
+	cmds = append(cmds, &Copy{
+		Target: utils.Overrides,
+		Dest:   filepath.Join(utils.OutDir, "textures"),
+	})
 
-	// cmds = append(cmds, &AdjustColor{
-	// 	Root: utils.LocalPath(filepath.Join(utils.OutDir, "textures")),
-	// })
-	// cmds = append(cmds, &Copy{
-	// 	Target: utils.Overrides,
-	// 	Dest:   filepath.Join(utils.OutDir, "textures"),
-	// })
-	// cmds = append(cmds, &TextureSet{
-	// 	Root:       path.Join(utils.Basedir, utils.OutDir, "textures"),
-	// 	Capibility: jsonConfig.Capibility,
-	// })
-	// cmds = append(cmds, &export.Manifest{
-	// 	Templates:   cmd.Templates,
-	// 	Name:        jsonConfig.Name,
-	// 	Description: jsonConfig.Description,
-	// 	Header_uuid: jsonConfig.Header_uuid,
-	// 	Module_uuid: jsonConfig.Module_uuid,
-	// 	Version:     jsonConfig.Version,
-	// 	Author:      jsonConfig.Author,
-	// 	License:     jsonConfig.License,
-	// 	URL:         jsonConfig.URL,
-	// 	Capibility:  jsonConfig.Capibility,
-	// })
-	// cmds = append(cmds, &PackBundle{
-	// 	InDir:  utils.LocalPath(utils.OutDir),
-	// 	OutDir: utils.OutDir,
-	// })
+	cmds = append(cmds, &TextureSet{
+		Root:       path.Join(utils.Basedir, utils.OutDir, "textures"),
+		Capibility: jsonConfig.Capibility,
+	})
+
+	cmds = append(cmds, &export.Manifest{
+		Templates:   cmd.Templates,
+		Name:        jsonConfig.Name,
+		Description: jsonConfig.Description,
+		Header_uuid: jsonConfig.Header_uuid,
+		Module_uuid: jsonConfig.Module_uuid,
+		Version:     jsonConfig.Version,
+		Author:      jsonConfig.Author,
+		License:     jsonConfig.License,
+		URL:         jsonConfig.URL,
+		Capibility:  jsonConfig.Capibility,
+	})
+
+	cmds = append(cmds, &PackBundle{
+		InDir:  utils.LocalPath(utils.OutDir),
+		OutDir: utils.OutDir,
+	})
 
 	logE(Exec(cmds))
 

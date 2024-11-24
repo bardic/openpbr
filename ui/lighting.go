@@ -89,24 +89,14 @@ func (v *Lighting) Build(p fyne.Window) *fyne.Container {
 	accItem1 := widget.NewAccordionItem("Sun Illuminance", v.sunIlluminanceVBox.C)
 	accItem2 := widget.NewAccordionItem("Sun Colour", v.sunColourVBox.C)
 	accItem3 := widget.NewAccordionItem("Moon Illuminance", v.moonIlluminanceVBox.C)
-	accItem4 := widget.NewAccordionItem("Moon Colour", moonHBox)
-	accItem5 := widget.NewAccordionItem("Orbital Offset", orbitalOffsetHBox)
-	accItem6 := widget.NewAccordionItem("Desaturation", desaturationHBox)
-	accItem7 := widget.NewAccordionItem("Ambient Illuminance", ambientIlluminanceHBox)
-	accItem8 := widget.NewAccordionItem("Ambient Colour", ambientColourHBox)
 
 	acc := widget.NewAccordion(
 		accItem1,
 		accItem2,
 		accItem3,
-		accItem4,
-		accItem5,
-		accItem6,
-		accItem7,
-		accItem8,
 	)
 
-	c := container.NewVBox(acc)
+	c := container.NewVBox(acc, moonHBox, orbitalOffsetHBox, desaturationHBox, ambientIlluminanceHBox, ambientColourHBox)
 	return c
 }
 
@@ -128,7 +118,7 @@ func (v *Lighting) Save() {
 	cmd := export.Lighting{
 		Lighting: vo.Lighting{
 			BaseConf: vo.BaseConf{
-				Out: path.Join(store.PackageStore, "global"),
+				Out: path.Join(store.PackageStore, "lighting_global"),
 			},
 			SunIlluminance:     utils.StepsToVO(v.sunIlluminanceVBox.Steps),
 			SunColour:          utils.StepsToVO(v.sunColourVBox.Steps),

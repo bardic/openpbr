@@ -238,8 +238,8 @@ func (c *Create) Save() {
 		store.PackageStore = filepath.Dir(f.URI().Path())
 		store.Output = path.Join(store.PackageStore, "export")
 
-		os.MkdirAll(path.Join(store.Output, utils.Psds), os.ModePerm)
-		os.MkdirAll(path.Join(store.Output, utils.Overrides), os.ModePerm)
+		os.MkdirAll(path.Join(store.PackageStore, utils.Psds), os.ModePerm)
+		os.MkdirAll(path.Join(store.PackageStore, utils.Overrides), os.ModePerm)
 		os.MkdirAll(path.Join(store.Output, utils.SettingDir), os.ModePerm)
 		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "shared", "atmospherics"), os.ModePerm)
 		os.MkdirAll(path.Join(store.Output, utils.SettingDir, "shared", "color_grading"), os.ModePerm)

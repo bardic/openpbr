@@ -9,7 +9,7 @@ import (
 //go:embed templates/*.tmpl
 var templates embed.FS
 
-//go:embed defaults/*.json
+//go:embed defaults/*.dat
 var defaults embed.FS
 
 func main() {

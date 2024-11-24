@@ -7,6 +7,8 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path"
+	"path/filepath"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -40,7 +42,7 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 				parent: ui.window,
 			},
 			TemplateSettings: &vo.TemplateSettings{
-				DefaultData: "defaults/config.json",
+				DefaultData: "defaults/config.dat",
 			},
 		},
 		{
@@ -49,7 +51,7 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 			TemplateSettings: &vo.TemplateSettings{
 				TemplatePath: "pbr_global.tmpl",
 				Output:       "pbr/pbr/global.json",
-				DefaultData:  "defaults/pbr_global.json",
+				DefaultData:  "defaults/pbr_global.dat",
 			},
 		},
 		{
@@ -58,7 +60,7 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 			TemplateSettings: &vo.TemplateSettings{
 				TemplatePath: "atmospherics.tmpl",
 				Output:       "shared/atmospherics/atmospherics.json",
-				DefaultData:  "defaults/atmospherics.json",
+				DefaultData:  "defaults/atmospherics.dat",
 			},
 		},
 		{
@@ -67,7 +69,7 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 			TemplateSettings: &vo.TemplateSettings{
 				TemplatePath: "default_fog_settings.tmpl",
 				Output:       "shared/fogs/default_fog_settings.json",
-				DefaultData:  "defaults/default_fog_settings.json",
+				DefaultData:  "defaults/default_fog_settings.dat",
 			},
 		},
 		{
@@ -76,7 +78,7 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 			TemplateSettings: &vo.TemplateSettings{
 				TemplatePath: "lighting_global.tmpl",
 				Output:       "shared/lighting/global.json",
-				DefaultData:  "defaults/lighting_global.json",
+				DefaultData:  "defaults/lighting_global.dat",
 			},
 		},
 		{
@@ -85,7 +87,7 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 			TemplateSettings: &vo.TemplateSettings{
 				TemplatePath: "color_grading.tmpl",
 				Output:       "shared/color_grading/color_grading.json",
-				DefaultData:  "defaults/color_grading.json",
+				DefaultData:  "defaults/color_grading.dat",
 			}},
 		{
 			TabName: "Water",
@@ -93,7 +95,7 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 			TemplateSettings: &vo.TemplateSettings{
 				TemplatePath: "water.tmpl",
 				Output:       "shared/water/water.json",
-				DefaultData:  "defaults/water.json",
+				DefaultData:  "defaults/water.dat",
 			},
 		},
 		{TabName: "Build Package", View: &Pack{
@@ -158,7 +160,9 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 					}
 
 					ui.activeTabView.View.Defaults(byteValue)
-
+					ui.window.Canvas().Content().Refresh()
+					store.PackageStore = filepath.Dir(f.URI().Path())
+					store.Output = path.Join(store.PackageStore, "export")
 				}, ui.window)
 			},
 		),
@@ -183,7 +187,13 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 		),
 	)
 
-	ui.window.SetContent(container.NewVBox(tb, tabBar))
+	sv := container.NewScroll(container.NewStack(tabBar))
+	sv.SetMinSize(fyne.NewSize(800, 600))
+
+	vb := container.NewVBox(tb, sv)
+	vb.Resize(fyne.NewSize(800, 600))
+
+	ui.window.SetContent(vb)
 	ui.window.Resize(fyne.NewSize(800, 600))
 
 	ui.window.SetMainMenu(fyne.NewMainMenu(&fyne.Menu{
@@ -192,7 +202,7 @@ func (ui *UI) Build(templates, defaults embed.FS) {
 			fyne.NewMenuItem(
 				"About",
 				func() {
-					fmt.Println("About")
+					dialog.ShowInformation("About", fmt.Sprintf("OpenPBR Config Creator\nVersion: %s", utils.Version()), ui.window)
 				}),
 		},
 	}))

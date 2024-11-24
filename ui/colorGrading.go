@@ -43,7 +43,7 @@ func (v *ColorGrading) Build(p fyne.Window) *fyne.Container {
 		"Shadows Saturation",
 	}
 
-	c := container.New(layout.NewFormLayout())
+	c := container.NewVBox()
 
 	for _, title := range v.RBGEntryiesTitles {
 
@@ -151,6 +151,56 @@ func (v *ColorGrading) Defaults(b []byte) {
 
 	v.ShadowsMaxEntry.Text = strconv.FormatFloat(c.ShadowsMax, 'f', -1, 64)
 	v.ToneMappingOperator.Text = c.ToneMappingOperator
+
+	v.RGBs[v.RBGEntryiesTitles[0]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[0]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[0]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[1]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[1]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[1]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[2]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[2]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[2]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[3]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[3]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[3]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[4]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[4]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[4]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[5]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[5]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[5]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[6]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[6]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[6]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[7]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[7]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[7]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[8]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[8]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[8]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[9]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[9]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[9]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[10]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[10]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[10]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[11]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[11]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[11]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[12]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[12]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[12]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[13]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[13]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[13]].B.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[14]].R.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[14]].G.Refresh()
+	v.RGBs[v.RBGEntryiesTitles[14]].B.Refresh()
+
+	v.ShadowsMaxEntry.Refresh()
+	v.ToneMappingOperator.Refresh()
+
 }
 
 func (v *ColorGrading) Save() {
