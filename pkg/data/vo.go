@@ -1,29 +1,10 @@
-package vo
+package data
 
-import (
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/widget"
-)
-
-type IBaseConf interface {
-	Perform() error
-	Save() error
-	SetOut(string)
-	GetOut() string
-}
-
-type IBaseView interface {
-	Build(fyne.Window) *fyne.Container
-	Save()
-	Defaults(b []byte)
-}
+import "embed"
 
 type BaseConf struct {
 	Out     string
 	Default string
-}
-
-type BaseView interface {
 }
 
 type Lighting struct {
@@ -36,14 +17,6 @@ type Lighting struct {
 	Desaturation       float64
 	AmbientIlluminance float64
 	AmbientColour      string
-}
-
-type EntryViewHolder struct {
-	Id           int
-	HBox         *fyne.Container
-	KeyEntry     *widget.Entry
-	ValueEntry   *widget.Entry
-	DeleteButton *widget.Button
 }
 
 type EntryViewVO struct {
@@ -182,31 +155,47 @@ type Water struct {
 	WavesSpeedScaling     float64
 }
 
-type RGB struct {
-	R *widget.Entry
-	G *widget.Entry
-	B *widget.Entry
-	C *fyne.Container
-}
-
-type RGBA struct {
-	RGB
-	A *widget.Entry
-}
-
-type EntryView struct {
-	Steps []*EntryViewHolder
-	C     *fyne.Container
-}
-
-type TabInfo struct {
-	TabName string
-	View    IBaseView
-	*TemplateSettings
-}
-
 type TemplateSettings struct {
 	TemplatePath string
 	Output       string
 	DefaultData  string
+}
+
+type GithubRelease struct {
+	ZipballUrl string
+}
+
+type Export struct {
+	Out string
+}
+
+type PBRExport struct {
+	templates  embed.FS
+	Out        string
+	Colour     string
+	MerArr     string
+	MerFile    string
+	Height     string
+	UseMerFile bool
+	Capability string
+}
+
+type Config struct {
+	BaseConf
+	BuildName      string
+	Name           string
+	Description    string
+	HeaderUuid     string
+	ModuleUuid     string
+	DefaultMer     string
+	Version        string
+	Author         string
+	License        string
+	URL            string
+	Capability     string
+	HeightTemplate string
+	MerTemplate    string
+	ROffset        string
+	GOffset        string
+	BOffset        string
 }
