@@ -1,10 +1,9 @@
-package data
+package main
 
 import "embed"
 
 type BaseConf struct {
-	Out     string
-	Default string
+	Out string
 }
 
 type Lighting struct {
@@ -162,7 +161,7 @@ type TemplateSettings struct {
 }
 
 type GithubRelease struct {
-	ZipballUrl string
+	ZipballUrl string `json:"zipball_url"`
 }
 
 type Export struct {
@@ -181,7 +180,6 @@ type PBRExport struct {
 }
 
 type Config struct {
-	BaseConf
 	BuildName      string
 	Name           string
 	Description    string

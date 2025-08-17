@@ -34,4 +34,7 @@ openvibe parse --json
 openvibe parse --manifest
 
 
-openvibe build
+openvibe buildname
+
+
+  
